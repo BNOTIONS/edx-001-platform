@@ -1117,6 +1117,11 @@ def login_user(request, error=""):  # pylint: disable-msg=too-many-statements,un
 @require_POST
 @social_utils.strategy("social:complete")
 def login_oauth_token(request, backend):
+    """
+    Authenticate the client using an OAuth access token by using the token to
+    retrieve information from a third party and matching that information to an
+    existing user.
+    """
     backend = request.social_strategy.backend
     if isinstance(backend, social_oauth.BaseOAuth1) or isinstance(backend, social_oauth.BaseOAuth2):
         if "access_token" in request.POST:

@@ -440,6 +440,15 @@ class ExternalAuthShibTest(ModuleStoreTestCase):
 
 @httpretty.activate
 class LoginOAuthTokenMixin(object):
+    """
+    Mixin with tests for the login_oauth_token view. A TestCase that includes
+    this must define the following:
+
+    BACKEND: The name of the backend from python-social-auth
+    USER_URL: The URL of the endpoint that the backend retrieves user data from
+    UID_FIELD: The field in the user data that the backend uses as the user id
+    """
+
     def setUp(self):
         self.client = Client()
         self.url = reverse(login_oauth_token, kwargs={"backend": self.BACKEND})
@@ -448,6 +457,10 @@ class LoginOAuthTokenMixin(object):
         UserSocialAuth.objects.create(user=self.user, provider=self.BACKEND, uid=self.social_uid)
 
     def _setup_user_response(self, success):
+        """
+        Register a mock response for the third party user information endpoint;
+        success indicates whether the response status code should be 200 or 400
+        """
         if success:
             status = 200
             body = json.dumps({self.UID_FIELD: self.social_uid})
@@ -458,10 +471,12 @@ class LoginOAuthTokenMixin(object):
             httpretty.GET,
             self.USER_URL,
             body=body,
+            status=status,
             content_type="application/json"
         )
 
     def _assert_error(self, response, error_code):
+        """Assert that the given response was a 400 with the given error code"""
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             json.loads(response.content),
@@ -488,18 +503,20 @@ class LoginOAuthTokenMixin(object):
         response = self.client.post(self.url, {"access_token": "dummy"})
         self._assert_error(response, "invalid_access_token")
 
-    def test_GET(self):
+    def test_get_method(self):
         response = self.client.get(self.url, {"access_token": "dummy"})
         self.assertEqual(response.status_code, 405)
 
 
 class LoginOAuthTokenTestFacebook(LoginOAuthTokenMixin, TestCase):
+    """Tests login_oauth_token with the Facebook backend"""
     BACKEND = "facebook"
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
 
 class LoginOAuthTokenTestGoogle(LoginOAuthTokenMixin, TestCase):
+    """Tests login_oauth_token with the Google backend"""
     BACKEND = "google-oauth2"
     USER_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
     UID_FIELD = "email"
