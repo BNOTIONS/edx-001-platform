@@ -1,13 +1,10 @@
 define([
+    'jquery',
     'js/common_helpers/template_helpers',
     'js/common_helpers/ajax_helpers',
     'js/student_account/views/AccessView',
-    'js/student_account/views/FormView',
-    'jquery',
-    'underscore',
-    'underscore.string',
-    'backbone'
-], function(TemplateHelpers, AjaxHelpers, AccessView, $, _) {
+    'js/student_account/views/FormView'
+], function($, TemplateHelpers, AjaxHelpers, AccessView) {
         describe('edx.student.account.AccessView', function() {
             'use strict';
 

@@ -1,12 +1,10 @@
 define([
     'jquery',
-    'underscore',
-    'underscore.string',
     'js/common_helpers/template_helpers',
     'js/common_helpers/ajax_helpers',
     'js/student_account/models/RegisterModel',
     'js/student_account/views/RegisterView'
-], function($, _, _s, TemplateHelpers, AjaxHelpers, RegisterModel, RegisterView) {
+], function($, TemplateHelpers, AjaxHelpers, RegisterModel, RegisterView) {
         describe('edx.student.account.RegisterView', function() {
             'use strict';
 
