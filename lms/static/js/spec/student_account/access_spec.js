@@ -1,14 +1,14 @@
 define([
-    'jquery',
-    'underscore',
-    'underscore.string',
-    'backbone',
     'js/common_helpers/template_helpers',
     'js/common_helpers/ajax_helpers',
     'js/student_account/views/AccessView',
-    'js/student_account/views/FormView'
-], function($, _, StringTools, Backbone, TemplateHelpers, AjaxHelpers, AccessView, FormView) {
-        describe('Access View', function() {
+    'js/student_account/views/FormView',
+    'jquery',
+    'underscore',
+    'underscore.string',
+    'backbone'
+], function(TemplateHelpers, AjaxHelpers, AccessView, $, _) {
+        describe('edx.student.account.AccessView', function() {
             'use strict';
 
             var requests = null,
@@ -51,6 +51,7 @@ define([
                 requests = AjaxHelpers.requests(that);
 
                 view = new AccessView({
+                    // Mode should be a parameter
                     mode: 'login',
                     thirdPartyAuth: {
                         currentProvider: null,
@@ -61,7 +62,7 @@ define([
 
                 // Simulate a response from the server containing
                 // a form description
-                AjaxHelpers.respondWithJson(requests, FORM_DESCRIPTION);
+                // AjaxHelpers.respondWithJson(requests, FORM_DESCRIPTION);
             };
 
             var ajaxAssertAndRespond = function(url, requestIndex) {

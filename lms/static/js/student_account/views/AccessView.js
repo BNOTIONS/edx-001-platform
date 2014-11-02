@@ -1,6 +1,6 @@
 var edx = edx || {};
 
-(function($, _, StringTools, Backbone, gettext) {
+(function($, _, _s, Backbone, gettext) {
     'use strict';
 
     edx.student = edx.student || {};
@@ -29,7 +29,7 @@ var edx = edx || {};
              * (all but include, contains, and reverse) into the
              * Underscore namespace
              */
-            _.mixin(StringTools.exports())
+            _.mixin(_s.exports());
 
             this.tpl = $(this.tpl).html();
             this.activeForm = obj.mode || 'login';

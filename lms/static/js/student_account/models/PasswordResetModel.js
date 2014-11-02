@@ -27,7 +27,6 @@ var edx = edx || {};
             $.ajax({
                 url: model.urlRoot,
                 type: 'POST',
-                // Should this be model.get('email')? The URL doesn't need to be in this data
                 data: model.attributes,
                 headers: headers
             })

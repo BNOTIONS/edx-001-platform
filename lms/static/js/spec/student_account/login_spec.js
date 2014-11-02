@@ -5,7 +5,7 @@ define([
     'js/student_account/views/LoginView',
     'js/student_account/views/FormView'
 ], function(TemplateHelpers, AjaxHelpers, LoginModel, LoginView) {
-        describe('Login View', function() {
+        describe('edx.student.account.LoginView', function() {
             'use strict';
 
             beforeEach(function() {
