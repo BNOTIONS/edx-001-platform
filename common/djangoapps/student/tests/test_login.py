@@ -482,6 +482,7 @@ class LoginOAuthTokenMixin(object):
             json.loads(response.content),
             {"error_code": error_code}
         )
+        self.assertNotIn("partial_pipeline", self.client.session)
 
     def test_success(self):
         self._setup_user_response(success=True)

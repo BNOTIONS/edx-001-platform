@@ -1136,6 +1136,8 @@ def login_oauth_token(request, backend):
             if user and isinstance(user, User):
                 return JsonResponse(status=204)
             else:
+                # Ensure user does not re-enter the pipeline
+                request.social_strategy.clean_partial_pipeline()
                 return JsonResponse({"error_code": "invalid_access_token"}, status=400)
         else:
             return JsonResponse({"error_code": "missing_access_token"}, status=400)
