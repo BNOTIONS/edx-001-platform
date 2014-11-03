@@ -202,11 +202,11 @@ define(["jquery", "underscore", "js/views/baseview", "xblock/runtime.v1"],
             },
 
             fireNotificationActionEvent: function(event) {
-               var eventName = $(event.srcElement).data("notification-action");
+               var eventName = $(event.target).data("notification-action");
                if (eventName) {
                    event.preventDefault();
                    // TODO: send location as data
-                   this.notifyRuntime(eventName);
+                   this.notifyRuntime(eventName, {});
                }
             }
         });
