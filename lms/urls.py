@@ -522,15 +522,10 @@ if settings.FEATURES.get('AUTOMATIC_AUTH_FOR_TESTING'):
 
 # Third-party auth.
 if settings.FEATURES.get('ENABLE_THIRD_PARTY_AUTH'):
-    import sys
-    sys.stderr.write("gprice: third-party enabled")
     urlpatterns += (
         url(r'', include('third_party_auth.urls')),
         url(r'^login_oauth_token/(?P<backend>[^/]+)/$', 'student.views.login_oauth_token'),
     )
-else:
-    import sys
-    sys.stderr.write("gprice: third-party disabled")
 
 # If enabled, expose the URLs for the new dashboard, account, and profile pages
 if settings.FEATURES.get('ENABLE_NEW_DASHBOARD'):
