@@ -12,7 +12,6 @@ from xmodule.editing_module import EditingDescriptor
 from xmodule.html_checker import check_html
 from xmodule.stringify import stringify_children
 from xmodule.x_module import XModule
-from xblock.validation import Validation
 from xmodule.xml_module import XmlDescriptor, name_to_pathname
 import textwrap
 from xmodule.contentstore.content import StaticContent
@@ -71,17 +70,6 @@ class HtmlModule(HtmlFields, XModule):
         if self.system.anonymous_student_id:
             return self.data.replace("%%USER_ID%%", self.system.anonymous_student_id)
         return self.data
-
-    def validate(self):
-        """
-        Message for either error or warning validation message/s.
-
-        Returns message and type. Priority given to error type message.
-        """
-        validation = super(HtmlModule, self).validate()
-        validation.add(Validation.MESSAGE_TYPES.ERROR, u"The author-supplied HTML does not validate.")
-
-        return validation
 
 
 class HtmlDescriptor(HtmlFields, XmlDescriptor, EditingDescriptor):
@@ -245,7 +233,6 @@ class HtmlDescriptor(HtmlFields, XmlDescriptor, EditingDescriptor):
         non_editable_fields = super(HtmlDescriptor, self).non_editable_metadata_fields
         non_editable_fields.append(HtmlDescriptor.use_latex_compiler)
         return non_editable_fields
-
 
 
 class AboutFields(object):

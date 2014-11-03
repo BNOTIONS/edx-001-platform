@@ -445,7 +445,9 @@ class XModuleMixin(XBlockMixin):
         self._field_data = field_data
 
     def validate(self):
-        # Convert from base xblock Validation class to StudioValidation.
+        """
+        Overrides general XBlock validate method to convert to a `StudioValidation` instance.
+        """
         validation = super(XModuleMixin, self).validate()
         return StudioValidation.copy(validation)
 

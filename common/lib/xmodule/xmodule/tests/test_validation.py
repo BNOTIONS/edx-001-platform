@@ -42,6 +42,24 @@ class StudioValidationTest(unittest.TestCase):
         self.assertEqual(expected, studio_validation.messages[0])
         self.assertIsNone(studio_validation.summary)
 
+    def test_copy_studio_validation(self):
+        validation = StudioValidation("id")
+        validation.add(Validation.MESSAGE_TYPES.WARNING, u"Warning message", action_label=u"Action Label")
+
+        validation_copy = StudioValidation.copy(validation)
+        self.assertFalse(validation_copy)
+        self.assertEqual(1, len(validation_copy.messages))
+        expected = {
+            "type": "warning",
+            "text": u"Warning message",
+            "action_label": u"Action Label"
+        }
+        self.assertEqual(expected, validation_copy.messages[0])
+
+    def test_copy_errors(self):
+        with assert_raises(TypeError):
+            StudioValidation.copy("foo")
+
     def test_create_message(self):
         """
         Test that `create_message` creates the expected structure.

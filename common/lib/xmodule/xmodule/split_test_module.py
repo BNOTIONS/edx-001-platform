@@ -192,6 +192,9 @@ class SplitTestModule(SplitTestFields, XModule, StudioEditableModule):
 
     @property
     def is_configured(self):
+        """
+        Returns true if the split_test instance is associated with a UserPartition.
+        """
         return self.descriptor.is_configured
 
     def _staff_view(self, context):
@@ -368,7 +371,6 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
     child_descriptor = module_attr('child_descriptor')
     log_child_render = module_attr('log_child_render')
     get_content_titles = module_attr('get_content_titles')
-    # is_configured = module_attr('is_configured')
 
     def definition_to_xml(self, resource_fs):
         xml_object = etree.Element('split_test')
@@ -516,9 +518,16 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
 
     @property
     def is_configured(self):
+        """
+        Returns true if the split_test instance is associated with a UserPartition.
+        """
         return not self.user_partition_id == SplitTestFields.no_partition_selected['value']
 
     def validate(self):
+        """
+        Validates the state of this split_test instance. This is the override of the general XBlock method,
+        and it will also ask its superclass to validate.
+        """
         validation = super(SplitTestDescriptor, self).validate()
         split_test_validation = self.validate_split_test()
 
@@ -535,7 +544,8 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
 
     def validate_split_test(self):
         """
-        Returns a StudioValidation object describing the current state of the split_test_module.
+        Returns a StudioValidation object describing the current state of the split_test_module
+        (not including superclass validation messages).
         """
         _ = self.runtime.service(self, "i18n").ugettext  # pylint: disable=redefined-outer-name
         split_validation = StudioValidation(self.location)
@@ -586,13 +596,15 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
                 changed = True
 
         if changed:
-            # TODO user.id - to be fixed by Publishing team
+            # user.id - to be fixed by Publishing team
             self.system.modulestore.update_item(self, None)
         return Response()
 
     def general_validation_message(self, validation=None):
         """
-        TODO update doc
+        Returns just a summary message about whether or not this split_test instance has
+        validation issues (not including superclass validation messages). If the split_test instance
+        validates correctly, this method returns None.
         """
         if validation is None:
             validation = self.validate_split_test()
@@ -601,7 +613,7 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
             has_error = any(message["type"] == StudioValidation.MESSAGE_TYPES.ERROR for message in validation.messages)
             return StudioValidation.create_message(
                 StudioValidation.MESSAGE_TYPES.ERROR if has_error else StudioValidation.MESSAGE_TYPES.WARNING,
-                (u"This content experiment has issues that affect content visibility.")
+                u"This content experiment has issues that affect content visibility."
             )
         return None
 

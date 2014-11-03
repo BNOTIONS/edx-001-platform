@@ -321,15 +321,6 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
         self.assertEqual(active_children, [])
         self.assertEqual(inactive_children, children)
 
-    # TODO: front end test for this
-    # def test_validation_message_types(self):
-    #     """
-    #     Test the behavior of validation message types.
-    #     """
-    #     self.assertEqual(ValidationMessageType.display_name(ValidationMessageType.error), u"Error")
-    #     self.assertEqual(ValidationMessageType.display_name(ValidationMessageType.warning), u"Warning")
-    #     self.assertIsNone(ValidationMessageType.display_name(ValidationMessageType.information))
-
     def test_validation_messages(self):
         """
         Test the validation messages produced for different split test configurations.
@@ -357,7 +348,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             else:
                 self.assertNotIn("action_runtime_event", message)
 
-        def verify_summary_validation_message(general_validation, expected_message, expected_message_type):
+        def verify_summary_message(general_validation, expected_message, expected_message_type):
             """
             Verify that the general validation message has the expected validation message and type.
             """
@@ -399,7 +390,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             expected_action_runtime_event='add-missing-groups',
             expected_action_label=u"Add Missing Groups"
         )
-        verify_summary_validation_message(
+        verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
             StudioValidation.MESSAGE_TYPES.ERROR
@@ -416,7 +407,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             u"The experiment has an inactive group. Move content into active groups, then delete the inactive group.",
             StudioValidation.MESSAGE_TYPES.WARNING
         )
-        verify_summary_validation_message(
+        verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
             StudioValidation.MESSAGE_TYPES.WARNING
@@ -441,7 +432,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             StudioValidation.MESSAGE_TYPES.WARNING
         )
         # With two messages of type error and warning priority given to error.
-        verify_summary_validation_message(
+        verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
             StudioValidation.MESSAGE_TYPES.ERROR
@@ -457,7 +448,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             u"Select a valid group configuration or delete this experiment.",
             StudioValidation.MESSAGE_TYPES.ERROR
         )
-        verify_summary_validation_message(
+        verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
             StudioValidation.MESSAGE_TYPES.ERROR
