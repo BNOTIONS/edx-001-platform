@@ -53,7 +53,6 @@ class TestUserApi(ModuleStoreTestCase, APITestCase):
 
         url = self._enrollment_url()
         self.client.login(username=self.username, password=self.password)
-        response = self.client.get(url)
         self._enroll(course)
         response = self.client.get(url)
 

@@ -39,9 +39,6 @@ def has_access(user, role):
             CourseInstructorRole(role.course_key).has_user(user)):
         return True
 
-    if isinstance(role, CourseBetaTesterRole) and CourseStaffRole(role.course_key).has_user(user):
-        return True
-
     return False
 
 
