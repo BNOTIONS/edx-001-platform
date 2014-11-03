@@ -509,6 +509,8 @@ class LoginOAuthTokenMixin(object):
         self.assertEqual(response.status_code, 405)
 
 
+# This is necessary because cms does not implement third party auth
+@unittest.skipUnless(settings.FEATURES.get("ENABLE_THIRD_PARTY_AUTH"), "third party auth not enabled")
 class LoginOAuthTokenTestFacebook(LoginOAuthTokenMixin, TestCase):
     """Tests login_oauth_token with the Facebook backend"""
     BACKEND = "facebook"
@@ -516,6 +518,8 @@ class LoginOAuthTokenTestFacebook(LoginOAuthTokenMixin, TestCase):
     UID_FIELD = "id"
 
 
+# This is necessary because cms does not implement third party auth
+@unittest.skipUnless(settings.FEATURES.get("ENABLE_THIRD_PARTY_AUTH"), "third party auth not enabled")
 class LoginOAuthTokenTestGoogle(LoginOAuthTokenMixin, TestCase):
     """Tests login_oauth_token with the Google backend"""
     BACKEND = "google-oauth2"
