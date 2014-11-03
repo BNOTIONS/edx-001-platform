@@ -1,10 +1,11 @@
 define([
     'jquery',
+    'underscore',
     'js/common_helpers/template_helpers',
     'js/common_helpers/ajax_helpers',
     'js/student_account/models/RegisterModel',
     'js/student_account/views/RegisterView'
-], function($, TemplateHelpers, AjaxHelpers, RegisterModel, RegisterView) {
+], function($, _, TemplateHelpers, AjaxHelpers, RegisterModel, RegisterView) {
         describe('edx.student.account.RegisterView', function() {
             'use strict';
 
@@ -19,18 +20,26 @@ define([
                     level_of_education: 'p',
                     gender: 'm',
                     year_of_birth: 2014,
-                    mailing_address: '141 Portland'
-                    goals: 'To boldly learn what no letter of the alphabet has learned before'
+                    mailing_address: '141 Portland',
+                    goals: 'To boldly learn what no letter of the alphabet has learned before',
                     terms_of_service: true
                 },
                 THIRD_PARTY_AUTH = {
                     currentProvider: null,
-                    providers: [{
-                        name: 'Google',
-                        iconClass: 'icon-google-plus',
-                        loginUrl: '/auth/login/google-oauth2/?auth_entry=account_login',
-                        registerUrl: '/auth/login/google-oauth2/?auth_entry=account_register'
-                    }]
+                    providers: [
+                        {
+                            name: 'Google',
+                            iconClass: 'icon-google-plus',
+                            loginUrl: '/auth/login/google-oauth2/?auth_entry=account_login',
+                            registerUrl: '/auth/login/google-oauth2/?auth_entry=account_register'
+                        },
+                        {
+                            name: 'Facebook',
+                            iconClass: 'icon-facebook',
+                            loginUrl: '/auth/login/facebook/?auth_entry=account_login',
+                            registerUrl: '/auth/login/facebook/?auth_entry=account_register'
+                        }
+                    ]
                 },
                 FORM_DESCRIPTION = {
                     method: 'post',
@@ -85,7 +94,6 @@ define([
                                 {value: "b", name: "Bachelor's degree"},
                             ],
                             required: false,
-                            type: 'select',
                             instructions: 'Select your education level.',
                             restrictions: {}
                         },
@@ -93,6 +101,7 @@ define([
                             name: 'gender',
                             label: 'Gender',
                             defaultValue: '',
+                            type: 'select',
                             options: [
                                 {value: "", name: "--"},
                                 {value: "m", name: "Male"},
@@ -144,7 +153,7 @@ define([
                             required: true,
                             instructions: "Agree to the terms of service.",
                             restrictions: {}
-                        },
+                        }
                     ]
                 };
 
@@ -176,18 +185,20 @@ define([
                 $('#register-year_of_birth').val(USER_DATA.year_of_birth);
                 $('#register-mailing_address').val(USER_DATA.mailing_address);
                 $('#register-goals').val(USER_DATA.goals);
-                $('#register-terms_of_service').val(USER_DATA.terms_of_service);
+
+                // Check the terms of service checkbox
+                $('#register-terms_of_service').prop('checked', USER_DATA.terms_of_service);
 
                 // Create a fake click event
                 var clickEvent = $.Event('click');
 
                 // If validationSuccess isn't passed, we avoid
                 // spying on `view.validate` twice
-                if (typeof validationSuccess !== 'undefined') {
+                if ( !_.isUndefined(validationSuccess) ) {
                     // Force validation to return as expected
                     spyOn(view, 'validate').andReturn({
                         isValid: validationSuccess,
-                        message: 'We\'re all good.'
+                        message: 'Submission is valid.'
                     });
                 }
 
@@ -204,6 +215,9 @@ define([
             it('registers a new user', function() {
                 createRegisterView(this);
 
+                spyOn(view, 'redirect');
+
+                // Submit the form, with successful validation
                 submitForm(true);
 
                 // Verify that the client contacts the server with the expected data
@@ -212,26 +226,68 @@ define([
                         $.extend({url: FORM_DESCRIPTION.submit_url}, USER_DATA)
                     )
                 );
+
+                // Respond with status code 200
+                AjaxHelpers.respondWithJson(requests, {});
+
+                // Verify that the user is redirected to the dashboard
+                expect(view.redirect).toHaveBeenCalledWith('/dashboard');
             });
 
-            it('displays third party auth registration buttons', function() {
-                // TODO
+            it('displays third-party auth registration buttons', function() {
+                createRegisterView(this);
+
+                // Verify that Google and Facebook registration buttons are displayed
+                expect($('.button-Google')).toBeVisible();
+                expect($('.button-Facebook')).toBeVisible();
             });
 
-            it('validates form fields', function() {
-                // TODO
+            it('validates registration form fields', function() {
+                createRegisterView(this);
+
+                // Submit the form, with successful validation
+                submitForm(true);
+
+                // Verify that validation of form fields occurred
+                expect(view.validate).toHaveBeenCalledWith($('#register-email')[0]);
+                expect(view.validate).toHaveBeenCalledWith($('#register-name')[0]);
+                expect(view.validate).toHaveBeenCalledWith($('#register-username')[0]);
+                expect(view.validate).toHaveBeenCalledWith($('#register-password')[0]);
+
+                // Verify that no submission errors are visible
+                expect(view.$errors).toHaveClass('hidden');
             });
 
-            it('displays registration errors', function() {
-                // TODO
+            it('displays registration form validation errors', function() {
+                createRegisterView(this);
+
+                // Submit the form, with failed validation
+                submitForm(false);
+
+                // Verify that submission errors are visible
+                expect(view.$errors).not.toHaveClass('hidden');
             });
 
-            it('displays an error if the form definition could not be loaded', function() {
-                // TODO
-            });
+            it('displays an error if the server returns an error while registering', function() {
+                createRegisterView(this);
 
-            it('displays an error if the server could not be contacted while registering', function() {
-                // TODO
+                // Submit the form, with successful validation
+                submitForm(true);
+
+                // Simulate an error from the LMS servers
+                AjaxHelpers.respondWithError(requests);
+
+                // Expect that an error is displayed
+                expect(view.$errors).not.toHaveClass('hidden');
+
+                // If we try again and succeed, the error should go away
+                submitForm();
+
+                // This time, respond with status code 200
+                AjaxHelpers.respondWithJson(requests, {});
+
+                // Expect that the error is hidden
+                expect(view.$errors).toHaveClass('hidden');
             });
         });
     }

@@ -1,5 +1,6 @@
 var edx = edx || {};
 
+// (function($, _, URI, gettext) {
 (function($, _, gettext) {
     'use strict';
 
@@ -43,6 +44,15 @@ var edx = edx || {};
             return this;
         },
 
+        postRender: function() {
+            var $container = $(this.el);
+
+            this.$form = $container.find('form');
+            this.$errors = $container.find('.submission-error');
+
+            this.listenTo( this.model, 'sync', this.saveSuccess );
+        },
+
         thirdPartyAuth: function( event ) {
             var providerUrl = $(event.target).data('provider-url') || '';
 
@@ -52,7 +62,38 @@ var edx = edx || {};
                 // TODO -- error handling here
                 console.log('No URL available for third party auth provider');
             }
+        },
+
+        saveSuccess: function() {
+            // var enrollment = edx.student.account.EnrollmentInterface,
+            //     query = new URI(window.location.search),
+            //     url = '/dashboard',
+            //     query_map = query.search(true),
+            //     next = '';
+
+            // // Check for forwarding url
+            // if ("next" in query_map) {
+            //     next = query_map['next'];
+
+            //     if (!window.isExternal(next)) {
+            //         url = next;
+            //     }
+            // }
+
+            // // If we need to enroll in the course, mark as enrolled
+            // if ('enrollment_action' in query_map && query_map['enrollment_action'] === 'enroll'){
+            //     enrollment.enroll( query_map['course_id'], url );
+            // } else {
+            //     this.redirect(url);
+            // }
+            this.redirect('/dashboard');
+        },
+
+        redirect: function( url ) {
+            // window.location.href = url;
+            return true;
         }
     });
 
+// })(jQuery, _, URI, gettext);
 })(jQuery, _, gettext);

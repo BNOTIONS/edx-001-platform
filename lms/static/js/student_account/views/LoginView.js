@@ -1,5 +1,6 @@
 var edx = edx || {};
 
+// (function($, _, URI, gettext) {
 (function($, _, gettext) {
     'use strict';
 
@@ -53,6 +54,8 @@ var edx = edx || {};
             this.$errors = this.$container.find('.submission-error');
             this.$authError = this.$container.find('.already-authenticated-msg');
 
+            this.listenTo( this.model, 'sync', this.saveSuccess );
+
             /* If we're already authenticated with a third-party
              * provider, try logging in.  The easiest way to do this
              * is to simply submit the form.
@@ -79,6 +82,36 @@ var edx = edx || {};
             }
         },
 
+        saveSuccess: function () {
+            // var enrollment = edx.student.account.EnrollmentInterface,
+            //     query = new URI(window.location.search),
+            //     url = '/dashboard',
+            //     query_map = query.search(true),
+            //     next = '';
+
+            // // Check for forwarding url
+            // if ("next" in query_map) {
+            //     next = query_map['next'];
+
+            //     if (!window.isExternal(next)) {
+            //         url = next;
+            //     }
+            // }
+
+            // // If we need to enroll in the course, mark as enrolled
+            // if ('enrollment_action' in query_map && query_map['enrollment_action'] === 'enroll') {
+            //     enrollment.enroll( query_map['course_id'], url );
+            // } else {
+            //     this.redirect(url);
+            // }
+            this.redirect('/dashboard');
+        },
+
+        redirect: function( url ) {
+            // window.location.href = url;
+            return true;
+        },
+
         saveError: function( error ) {
             this.errors = ['<li>' + error.responseText + '</li>'];
             this.setErrors();
@@ -100,4 +133,5 @@ var edx = edx || {};
             }
         }
     });
+// })(jQuery, _, URI, gettext);
 })(jQuery, _, gettext);

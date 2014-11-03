@@ -325,6 +325,7 @@
                 deps: [
                     'jquery',
                     'underscore',
+                    'URI',
                     'gettext',
                     'js/student_account/models/RegisterModel',
                     'js/student_account/views/FormView'
@@ -359,7 +360,7 @@
         'lms/include/js/spec/dashboard/donation.js',
         'lms/include/js/spec/student_account/account_spec.js',
         // 'lms/include/js/spec/student_account/access_spec.js',
-        // 'lms/include/js/spec/student_account/login_spec.js',
+        'lms/include/js/spec/student_account/login_spec.js',
         'lms/include/js/spec/student_account/register_spec.js',
         'lms/include/js/spec/student_account/password_reset_spec.js',
         // 'lms/include/js/spec/student_account/enrollment_interface_spec.js',

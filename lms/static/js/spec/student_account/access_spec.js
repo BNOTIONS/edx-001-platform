@@ -123,6 +123,10 @@ define([
                 view.resetPassword();
                 expect($('#password-reset-wrapper')).not.toBeEmpty();
             });
+
+            it('displays an error if a form definition could not be loaded', function() {
+                // TODO
+            });
         });
     }
 );

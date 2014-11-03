@@ -1,10 +1,11 @@
 define([
     'jquery',
+    'underscore',
     'js/common_helpers/template_helpers',
     'js/common_helpers/ajax_helpers',
     'js/student_account/models/PasswordResetModel',
     'js/student_account/views/PasswordResetView',
-], function($, TemplateHelpers, AjaxHelpers, PasswordResetModel, PasswordResetView) {
+], function($, _, TemplateHelpers, AjaxHelpers, PasswordResetModel, PasswordResetView) {
         describe('edx.student.account.PasswordResetView', function() {
             'use strict';
 
@@ -50,11 +51,11 @@ define([
 
                 // If validationSuccess isn't passed, we avoid
                 // spying on `view.validate` twice
-                if (typeof validationSuccess !== 'undefined') {
+                if ( !_.isUndefined(validationSuccess) ) {
                     // Force validation to return as expected
                     spyOn(view, 'validate').andReturn({
                         isValid: validationSuccess,
-                        message: 'We\'re all good.'
+                        message: 'Submission is valid.'
                     });
                 }
 
@@ -71,6 +72,7 @@ define([
             it('allows the user to request a new password', function() {
                 createPasswordResetView(this);
 
+                // Submit the form, with successful validation
                 submitEmail(true);
 
                 // Verify that the client contacts the server with the expected data
@@ -84,23 +86,34 @@ define([
                 // Respond with status code 200
                 AjaxHelpers.respondWithJson(requests, {});
 
+                // Verify that the success message is visible
                 expect($('.js-reset-success')).not.toHaveClass('hidden');
             });
 
             it('validates the email field', function() {
                 createPasswordResetView(this);
+
+                // Submit the form, with successful validation
                 submitEmail(true);
-                expect(view.validate).toHaveBeenCalled()
+
+                // Verify that validation of the email field occurred
+                expect(view.validate).toHaveBeenCalledWith($('#password-reset-email')[0]);
+
+                // Verify that no submission errors are visible
                 expect(view.$errors).toHaveClass('hidden');
             });
 
             it('displays password reset validation errors', function() {
                 createPasswordResetView(this);
+
+                // Submit the form, with failed validation
                 submitEmail(false);
+
+                // Verify that submission errors are visible
                 expect(view.$errors).not.toHaveClass('hidden');
             });
 
-            it('displays an error if the server cannot be contacted', function() {
+            it('displays an error if the server returns an error while sending a password reset email', function() {
                 createPasswordResetView(this);
                 submitEmail(true);
 

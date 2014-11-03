@@ -31,10 +31,10 @@ var edx = edx || {};
                 headers: headers
             })
             .done(function() {
-                model.trigger('success');
+                model.trigger('sync');
             })
             .fail( function( error ) {
-                model.trigger( 'error', error );
+                model.trigger('error', error);
             });
         }
     });
