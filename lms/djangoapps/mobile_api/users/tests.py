@@ -64,7 +64,7 @@ class TestUserApi(ModuleStoreTestCase, APITestCase):
         found_course = courses[0]['course']
         self.assertTrue('video_outline' in found_course)
         self.assertTrue('course_handouts' in found_course)
-        self.assertEqual(found_course['id'], course.id.to_deprecated_string())
+        self.assertEqual(found_course['id'], unicode(course.id))
         self.assertEqual(courses[0]['mode'], 'honor')
 
     def test_non_mobile_enrollments(self):
