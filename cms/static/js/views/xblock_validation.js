@@ -24,14 +24,15 @@ define(["jquery", "underscore", "js/views/baseview", "gettext"],
 
             /**
              * Returns the icon css class based on the message type.
+             * @param model the model from which the message originated
              * @param messageType
              * @returns string representation of css class that will render the correct icon, or null if unknown type
              */
-            getIcon: function (messageType) {
-                if (messageType === this.model.ERROR) {
+            getIcon: function (model, messageType) {
+                if (messageType === model.ERROR) {
                     return 'icon-exclamation-sign';
                 }
-                else if (messageType === this.model.WARNING || messageType === this.model.NOT_CONFIGURED) {
+                else if (messageType === model.WARNING || messageType === model.NOT_CONFIGURED) {
                     return 'icon-warning-sign';
                 }
                 return null;
@@ -39,16 +40,17 @@ define(["jquery", "underscore", "js/views/baseview", "gettext"],
 
             /**
              * Returns a display name for a message (useful for screen readers), based on the message type.
+             * @param model the model from which the message originated
              * @param messageType
              * @returns string display name (translated)
              */
-            getDisplayName: function (messageType) {
-                if (messageType === this.model.WARNING || messageType === this.model.NOT_CONFIGURED) {
+            getDisplayName: function (model, messageType) {
+                if (messageType === model.WARNING || messageType === model.NOT_CONFIGURED) {
                     // Translators: This message will be added to the front of messages of type warning,
                     // e.g. "Warning: this component has not been configured yet".
                     return gettext("Warning");
                 }
-                else if (messageType === this.model.ERROR) {
+                else if (messageType === model.ERROR) {
                     // Translators: This message will be added to the front of messages of type error,
                     // e.g. "Error: required field is missing".
                     return gettext("Error");
