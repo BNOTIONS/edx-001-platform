@@ -1132,7 +1132,7 @@ def login_oauth_token(request, backend):
                 user = backend.do_auth(request.POST["access_token"])
             except HTTPError:
                 pass
-            # Auth pipeline can return a response instead of a user if it fails
+            # do_auth can return a non-User object if it fails
             if user and isinstance(user, User):
                 return JsonResponse(status=204)
             else:
