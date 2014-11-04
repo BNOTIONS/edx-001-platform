@@ -1138,9 +1138,9 @@ def login_oauth_token(request, backend):
             else:
                 # Ensure user does not re-enter the pipeline
                 request.social_strategy.clean_partial_pipeline()
-                return JsonResponse({"error_code": "invalid_access_token"}, status=400)
+                return JsonResponse({"error": "invalid_token"}, status=401)
         else:
-            return JsonResponse({"error_code": "missing_access_token"}, status=400)
+            return JsonResponse({"error": "invalid_request"}, status=400)
     raise Http404
 
 

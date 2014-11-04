@@ -475,13 +475,10 @@ class LoginOAuthTokenMixin(object):
             content_type="application/json"
         )
 
-    def _assert_error(self, response, error_code):
+    def _assert_error(self, response, status_code, error):
         """Assert that the given response was a 400 with the given error code"""
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            json.loads(response.content),
-            {"error_code": error_code}
-        )
+        self.assertEqual(response.status_code, status_code)
+        self.assertEqual(json.loads(response.content), {"error": error})
         self.assertNotIn("partial_pipeline", self.client.session)
 
     def test_success(self):
@@ -492,17 +489,17 @@ class LoginOAuthTokenMixin(object):
     def test_invalid_token(self):
         self._setup_user_response(success=False)
         response = self.client.post(self.url, {"access_token": "dummy"})
-        self._assert_error(response, "invalid_access_token")
+        self._assert_error(response, 401, "invalid_token")
 
     def test_missing_token(self):
         response = self.client.post(self.url)
-        self._assert_error(response, "missing_access_token")
+        self._assert_error(response, 400, "invalid_request")
 
     def test_unlinked_user(self):
         UserSocialAuth.objects.all().delete()
         self._setup_user_response(success=True)
         response = self.client.post(self.url, {"access_token": "dummy"})
-        self._assert_error(response, "invalid_access_token")
+        self._assert_error(response, 401, "invalid_token")
 
     def test_get_method(self):
         response = self.client.get(self.url, {"access_token": "dummy"})
