@@ -1,11 +1,10 @@
-
 <%
-var aggregateMessageType = messages.getSummaryType()
-var aggregateValidationClass = aggregateMessageType === "error"? "has-errors" : "has-warnings"
+var summaryMessage = validation.get("summary");
+var aggregateMessageType = summaryMessage.type;
+var aggregateValidationClass = aggregateMessageType === "error"? "has-errors" : "has-warnings";
 %>
-    <div class="xblock-message validation <%= aggregateValidationClass %> <%= messages.getAdditionalClasses() %>">
-        <% var summaryMessage = messages.getSummaryMessage(); %>
-        <p class="<%= aggregateMessageType %>"><i class="<%= getIcon(summaryMessage.type) %>"></i>
+    <div class="xblock-message validation <%= aggregateValidationClass %> <%= additionalClasses %>">
+        <p class="<%= aggregateMessageType %>"><i class="<%= getIcon(aggregateMessageType) %>"></i>
         <%- summaryMessage.text %>
         <% if (summaryMessage.action_class) { %>
             <a href="#" class="button action-button <%- summaryMessage.action_class %>">
@@ -17,14 +16,14 @@ var aggregateValidationClass = aggregateMessageType === "error"? "has-errors" : 
             </a>
         <% } %>
         </p>
-        <% var detailedMessages = messages.getDetailedMessages(); %>
+        <% var detailedMessages = validation.get("messages"); %>
         <% if (detailedMessages.length > 0) { %>
             <ul class="xblock-message-list">
                 <% for (var i = 0; i < detailedMessages.length; i++) { %>
                 <%
                 var message = detailedMessages[i];
                 var messageType = message.type
-                var messageTypeDisplayName = messages.getDisplayName(messageType)
+                var messageTypeDisplayName = getDisplayName(messageType)
                 %>
                 <li class="xblock-message-item <%= messageType %>">
                     <span class="message-text">

@@ -5,7 +5,7 @@ Test xblock/validation.py
 import unittest
 from xblock.test.tools import assert_raises
 
-from xmodule.validation import StudioValidationMessagesTypes, StudioValidation
+from xmodule.validation import StudioValidationMessageTypes, StudioValidation
 from xblock.validation import Validation
 
 
@@ -18,9 +18,9 @@ class StudioValidationMessageTypesTest(unittest.TestCase):
         """
         Verify the `contains` method returns `True` for warning, error, and not-configured types.
         """
-        self.assertTrue(StudioValidationMessagesTypes.contains(StudioValidationMessagesTypes.WARNING))
-        self.assertTrue(StudioValidationMessagesTypes.contains(StudioValidationMessagesTypes.ERROR))
-        self.assertTrue(StudioValidationMessagesTypes.contains(StudioValidationMessagesTypes.NOT_CONFIGURED))
+        self.assertTrue(StudioValidationMessageTypes.contains(StudioValidationMessageTypes.WARNING))
+        self.assertTrue(StudioValidationMessageTypes.contains(StudioValidationMessageTypes.ERROR))
+        self.assertTrue(StudioValidationMessageTypes.contains(StudioValidationMessageTypes.NOT_CONFIGURED))
 
 
 class StudioValidationTest(unittest.TestCase):
@@ -36,7 +36,7 @@ class StudioValidationTest(unittest.TestCase):
         self.assertFalse(studio_validation)
         self.assertEqual(1, len(studio_validation.messages))
         expected = {
-            "type": "error",
+            "type": StudioValidationMessageTypes.ERROR,
             "text": u"Error message"
         }
         self.assertEqual(expected, studio_validation.messages[0])
@@ -50,7 +50,7 @@ class StudioValidationTest(unittest.TestCase):
         self.assertFalse(validation_copy)
         self.assertEqual(1, len(validation_copy.messages))
         expected = {
-            "type": "warning",
+            "type": StudioValidationMessageTypes.WARNING,
             "text": u"Warning message",
             "action_label": u"Action Label"
         }
@@ -65,7 +65,7 @@ class StudioValidationTest(unittest.TestCase):
         Test that `create_message` creates the expected structure.
         """
         expected = {
-            "type": "warning",
+            "type": StudioValidationMessageTypes.WARNING,
             "text": u"Warning message"
         }
         self.assertEqual(
@@ -74,7 +74,7 @@ class StudioValidationTest(unittest.TestCase):
         )
 
         expected = {
-            "type": "warning",
+            "type": StudioValidationMessageTypes.WARNING,
             "text": u"Warning message",
             "action_label": u"Action label",
             "action_runtime_event": "create groups"
@@ -90,7 +90,7 @@ class StudioValidationTest(unittest.TestCase):
         )
 
         expected = {
-            "type": "warning",
+            "type": StudioValidationMessageTypes.WARNING,
             "text": u"Warning message",
             "action_label": u"Action label",
             "action_class": "edit-button"
@@ -195,6 +195,8 @@ class StudioValidationTest(unittest.TestCase):
             action_label=u"Summary label",
             action_runtime_event="fix everything")
 
+        # Note: it is important to test all the expected strings here because the client-side model depends on them
+        # (for instance, "warning" vs. using the xblock constant ValidationMessageTypes.WARNING).
         expected = {
             "xblock_id": "id",
             "messages": [

@@ -16,29 +16,30 @@ messages = json.dumps(xblock.validate().to_json())
 <%namespace name='static' file='static_content.html'/>
 
 <%block name="header_extras">
-<script type="text/template" id="component-validation-messages-tpl">
-    <%static:include path="js/component-validation-messages.underscore" />
+<script type="text/template" id="xblock-validation-messages-tpl">
+    <%static:include path="js/xblock-validation-messages.underscore" />
 </script>
 </%block>
 
 <script type='text/javascript'>
-    require(["js/views/validation_messages", "js/models/validation_messages"],
-            function (ValidationMessagesView, ValidationMessagesModel) {
+    require(["js/views/xblock_validation", "js/models/xblock_validation"],
+            function (XBlockValidationView, XBlockValidationModel) {
+                var validationMessages = ${messages};
+                % if xblock_url and not is_root:
+                validationMessages.showSummaryOnly = true;
+                % endif
 
-                var model = new ValidationMessagesModel(${messages});
-                debugger
+                var model = new XBlockValidationModel(validationMessages, {parse: true});
                 if (!model.get("is_empty")) {
                     var validationEle = $('div.xblock-validation-messages[data-locator="${xblock.location | h}"]');
-                    % if xblock_url and not is_root:
-                    model.set("show_summary_only", true);
-                    % endif
-                    % if is_root:
-                    model.set("is_root", true);
-                    % endif
-                    var view = new ValidationMessagesView({
+                    var viewOptions = {
                         el: validationEle,
                         model: model
-                    });
+                    };
+                    % if is_root:
+                    viewOptions.is_root = true;
+                    % endif
+                    var view = new XBlockValidationView(viewOptions);
                     view.render();
                 }
             });

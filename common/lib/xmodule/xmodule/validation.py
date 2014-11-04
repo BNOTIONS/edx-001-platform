@@ -4,7 +4,7 @@ Extension of XBlock Validation class to include information for presentation in 
 from xblock.validation import Validation, ValidationMessageTypes
 
 
-class StudioValidationMessagesTypes (ValidationMessageTypes):
+class StudioValidationMessageTypes (ValidationMessageTypes):
     """
     Supported validation message types.
     """
@@ -19,7 +19,7 @@ class StudioValidation(Validation):
     Extends `Validation` to add Studio-specific information.
     """
 
-    MESSAGE_TYPES = StudioValidationMessagesTypes()
+    MESSAGE_TYPES = StudioValidationMessageTypes()
 
     @classmethod
     def copy(cls, validation):
