@@ -1,6 +1,5 @@
 var edx = edx || {};
 
-// (function($, _, URI, gettext) {
 (function($, _, gettext) {
     'use strict';
 
@@ -65,35 +64,29 @@ var edx = edx || {};
         },
 
         saveSuccess: function() {
-            // var enrollment = edx.student.account.EnrollmentInterface,
-            //     query = new URI(window.location.search),
-            //     url = '/dashboard',
-            //     query_map = query.search(true),
-            //     next = '';
+            var enrollment = edx.student.account.EnrollmentInterface,
+                redirectUrl = '/dashboard',
+                next = null;
 
-            // // Check for forwarding url
-            // if ("next" in query_map) {
-            //     next = query_map['next'];
+            // Check for forwarding url
+            if ( !_.isNull( $.url('?next') ) ) {
+                next = decodeURIComponent( $.url('?next') );
 
-            //     if (!window.isExternal(next)) {
-            //         url = next;
-            //     }
-            // }
+                if ( !window.isExternal(next) ) {
+                    redirectUrl = next;
+                }
+            }
 
-            // // If we need to enroll in the course, mark as enrolled
-            // if ('enrollment_action' in query_map && query_map['enrollment_action'] === 'enroll'){
-            //     enrollment.enroll( query_map['course_id'], url );
-            // } else {
-            //     this.redirect(url);
-            // }
-            this.redirect('/dashboard');
+            // If we need to enroll in a course, mark as enrolled
+            if ( $.url('?enrollment_action') === 'enroll' ) {
+                enrollment.enroll( decodeURIComponent( $.url('?course_id') ), redirectUrl );
+            } else {
+                this.redirect(redirectUrl);
+            }
         },
 
         redirect: function( url ) {
-            // window.location.href = url;
-            return true;
+            window.location.href = url;
         }
     });
-
-// })(jQuery, _, URI, gettext);
 })(jQuery, _, gettext);

@@ -6,10 +6,12 @@
 <%block name="pagetitle">${_("Log in or Register")}</%block>
 
 <%block name="js_extra">
-    <script type="text/javascript" src="${static.url('js/vendor/underscore-min.js')}"></script>
-    <script type="text/javascript" src="${static.url('js/vendor/underscore.string.min.js')}"></script>
-    <script type="text/javascript" src="${static.url('js/vendor/backbone-min.js')}"></script>
-    <script type="text/javascript" src="${static.url('js/vendor/URI.min.js')}"></script>
+    <script src="${static.url('js/vendor/underscore-min.js')}"></script>
+    <script src="${static.url('js/vendor/underscore.string.min.js')}"></script>
+    <script src="${static.url('js/vendor/backbone-min.js')}"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/js-url/1.8.4/url.min.js"></script>
+    <script>window.jQuery.url || document.write('<script src="${static.url('js/vendor/url.min.js')}"><\/script>')</script>
     <%static:js group='student_account'/>
 </%block>
 

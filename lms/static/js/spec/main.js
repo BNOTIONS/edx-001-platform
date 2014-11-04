@@ -23,6 +23,10 @@
             'jquery.inputnumber': 'xmodule_js/common_static/js/vendor/html5-input-polyfills/number-polyfill',
             'jquery.immediateDescendents': 'xmodule_js/common_static/coffee/src/jquery.immediateDescendents',
             'jquery.simulate': 'xmodule_js/common_static/js/vendor/jquery.simulate',
+            'jquery.url': [
+                '//cdnjs.cloudflare.com/ajax/libs/js-url/1.8.4/url.min',
+                'xmodule_js/common_static/js/vendor/url.min'
+            ],
             'datepair': 'xmodule_js/common_static/js/vendor/timepicker/datepair',
             'date': 'xmodule_js/common_static/js/vendor/date',
             'underscore': 'xmodule_js/common_static/js/vendor/underscore-min',
@@ -143,6 +147,10 @@
                 deps: ['jquery', 'tinymce'],
                 exports: 'jQuery.fn.tinymce'
             },
+            'jquery.url': {
+                deps: ['jquery'],
+                exports: 'jQuery.fn.url'
+            },
             'datepair': {
                 deps: ['jquery.ui', 'jquery.timepicker']
             },
@@ -231,7 +239,6 @@
 
             // LMS class loaded explicitly until they are converted to use RequireJS
             'js/student_account/account': {
-                // This doesn't look right...the edx.student.account is the value on the global object
                 exports: 'js/student_account/account',
                 deps: ['jquery', 'underscore', 'backbone', 'gettext', 'jquery.cookie']
             },
@@ -296,6 +303,7 @@
                 exports: 'edx.student.account.LoginView',
                 deps: [
                     'jquery',
+                    'jquery.url',
                     'underscore',
                     'gettext',
                     'js/student_account/models/LoginModel',
@@ -324,8 +332,8 @@
                 exports: 'edx.student.account.RegisterView',
                 deps: [
                     'jquery',
+                    'jquery.url',
                     'underscore',
-                    'URI',
                     'gettext',
                     'js/student_account/models/RegisterModel',
                     'js/student_account/views/FormView'
