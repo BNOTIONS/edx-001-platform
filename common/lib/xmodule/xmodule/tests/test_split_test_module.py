@@ -10,7 +10,7 @@ from xmodule.tests.xml import factories as xml
 from xmodule.tests.xml import XModuleXmlImportTest
 from xmodule.tests import get_test_system
 from xmodule.x_module import AUTHOR_VIEW, STUDENT_VIEW
-from xmodule.validation import StudioValidation
+from xmodule.validation import StudioValidationMessage
 from xmodule.split_test_module import SplitTestDescriptor, SplitTestFields
 from xmodule.partitions.partitions import Group, UserPartition
 from xmodule.partitions.test_partitions import StaticPartitionService, MemoryUserTagsService
@@ -333,27 +333,27 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             """
             Verify that the validation message has the expected validation message and type.
             """
-            self.assertEqual(message["text"], expected_message)
-            self.assertEqual(message["type"], expected_message_type)
+            self.assertEqual(message.text, expected_message)
+            self.assertEqual(message.type, expected_message_type)
             if expected_action_class:
-                self.assertEqual(message["action_class"], expected_action_class)
+                self.assertEqual(message.action_class, expected_action_class)
             else:
-                self.assertNotIn("action_class", message)
+                self.assertFalse(hasattr(message, "action_class"))
             if expected_action_label:
-                self.assertEqual(message["action_label"], expected_action_label)
+                self.assertEqual(message.action_label, expected_action_label)
             else:
-                self.assertNotIn("action_label", message)
+                self.assertFalse(hasattr(message, "action_label"))
             if expected_action_runtime_event:
-                self.assertEqual(message["action_runtime_event"], expected_action_runtime_event)
+                self.assertEqual(message.action_runtime_event, expected_action_runtime_event)
             else:
-                self.assertNotIn("action_runtime_event", message)
+                self.assertFalse(hasattr(message, "action_runtime_event"))
 
         def verify_summary_message(general_validation, expected_message, expected_message_type):
             """
             Verify that the general validation message has the expected validation message and type.
             """
-            self.assertEqual(general_validation['text'], expected_message)
-            self.assertEqual(general_validation['type'], expected_message_type)
+            self.assertEqual(general_validation.text, expected_message)
+            self.assertEqual(general_validation.type, expected_message_type)
 
         # Verify the messages for an unconfigured user partition
         split_test_module.user_partition_id = -1
@@ -362,7 +362,7 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
         verify_validation_message(
             validation.summary,
             u"The experiment is not associated with a group configuration.",
-            StudioValidation.MESSAGE_TYPES.NOT_CONFIGURED,
+            StudioValidationMessage.NOT_CONFIGURED,
             'edit-button',
             u"Select a Group Configuration",
         )
@@ -386,14 +386,14 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
         verify_validation_message(
             validation.messages[0],
             u"The experiment does not contain all of the groups in the configuration.",
-            StudioValidation.MESSAGE_TYPES.ERROR,
+            StudioValidationMessage.ERROR,
             expected_action_runtime_event='add-missing-groups',
             expected_action_label=u"Add Missing Groups"
         )
         verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
-            StudioValidation.MESSAGE_TYPES.ERROR
+            StudioValidationMessage.ERROR
         )
         # Verify the messages for a split test with children that are not associated with any group
         split_test_module.user_partitions = [
@@ -405,12 +405,12 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
         verify_validation_message(
             validation.messages[0],
             u"The experiment has an inactive group. Move content into active groups, then delete the inactive group.",
-            StudioValidation.MESSAGE_TYPES.WARNING
+            StudioValidationMessage.WARNING
         )
         verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
-            StudioValidation.MESSAGE_TYPES.WARNING
+            StudioValidationMessage.WARNING
         )
         # Verify the messages for a split test with both missing and inactive children
         split_test_module.user_partitions = [
@@ -422,20 +422,20 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
         verify_validation_message(
             validation.messages[0],
             u"The experiment does not contain all of the groups in the configuration.",
-            StudioValidation.MESSAGE_TYPES.ERROR,
+            StudioValidationMessage.ERROR,
             expected_action_runtime_event='add-missing-groups',
             expected_action_label=u"Add Missing Groups"
         )
         verify_validation_message(
             validation.messages[1],
             u"The experiment has an inactive group. Move content into active groups, then delete the inactive group.",
-            StudioValidation.MESSAGE_TYPES.WARNING
+            StudioValidationMessage.WARNING
         )
         # With two messages of type error and warning priority given to error.
         verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
-            StudioValidation.MESSAGE_TYPES.ERROR
+            StudioValidationMessage.ERROR
         )
 
         # Verify the messages for a split test referring to a non-existent user partition
@@ -446,10 +446,10 @@ class SplitTestModuleStudioTest(SplitTestModuleTest):
             validation.messages[0],
             u"The experiment uses a deleted group configuration. "
             u"Select a valid group configuration or delete this experiment.",
-            StudioValidation.MESSAGE_TYPES.ERROR
+            StudioValidationMessage.ERROR
         )
         verify_summary_message(
             validation.summary,
             u"This content experiment has issues that affect content visibility.",
-            StudioValidation.MESSAGE_TYPES.ERROR
+            StudioValidationMessage.ERROR
         )
