@@ -45,14 +45,13 @@ from opaque_keys.edx.locator import CourseLocator
 from opaque_keys.edx.keys import UsageKey, CourseKey, AssetKey
 from xmodule.exceptions import HeartbeatFailure
 from xmodule.modulestore.edit_info import EditInfoRuntimeMixin
-from xmodule.assetstore import AssetMetadata, AssetThumbnailMetadata
+from xmodule.assetstore import AssetMetadata
 
 log = logging.getLogger(__name__)
 
 new_contract('CourseKey', CourseKey)
 new_contract('AssetKey', AssetKey)
 new_contract('AssetMetadata', AssetMetadata)
-new_contract('AssetThumbnailMetadata', AssetThumbnailMetadata)
 
 # sort order that returns DRAFT items first
 SORT_REVISION_FAVOR_DRAFT = ('_id.revision', pymongo.DESCENDING)
@@ -1465,25 +1464,22 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         course_key = self.fill_in_run(course_key)
         course_assets = self.asset_collection.find_one(
             {'course_id': unicode(course_key)},
-            fields=('course_id', 'storage', 'assets', 'thumbnails')
         )
 
         if course_assets is None:
             # Not found, so create.
-            course_assets = {'course_id': unicode(course_key), 'storage': 'FILLMEIN-TMP', 'assets': [], 'thumbnails': []}
+            course_assets = {'course_id': unicode(course_key), 'storage': 'FILLMEIN-TMP', 'assets': []}
             course_assets['_id'] = self.asset_collection.insert(course_assets)
 
         return course_assets
 
-    @contract(course_key='CourseKey', asset_metadata='AssetMetadata | AssetThumbnailMetadata')
-    def _save_asset_info(self, course_key, asset_metadata, user_id, thumbnail=False):
+    @contract(asset_metadata='AssetMetadata')
+    def save_asset_metadata(self, asset_metadata, user_id):
         """
-        Saves the info for a particular course's asset/thumbnail.
+        Saves the info for a particular course's asset.
 
         Arguments:
-            course_key (CourseKey): course identifier
-            asset_metadata (AssetMetadata/AssetThumbnailMetadata): data about the course asset/thumbnail
-            thumbnail (bool): True if saving thumbnail metadata, False if saving asset metadata
+            asset_metadata (AssetMetadata): data about the course asset
 
         Returns:
             True if info save was successful, else False
@@ -1491,13 +1487,10 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         if self.asset_collection is None:
             return False
 
-        course_assets, asset_idx = self._find_course_asset(course_key, asset_metadata.asset_id.path, thumbnail)
-        info = 'thumbnails' if thumbnail else 'assets'
-        all_assets = course_assets[info]
+        course_assets, asset_idx = self._find_course_asset(asset_metadata.asset_id)
+        all_assets = course_assets[asset_metadata.asset_id.block_type]
 
-        # Set the edited information for assets only - not thumbnails.
-        if not thumbnail:
-            asset_metadata.update({'edited_by': user_id, 'edited_on': datetime.now(UTC)})
+        asset_metadata.update({'edited_by': user_id, 'edited_on': datetime.now(UTC)})
 
         # Translate metadata to Mongo format.
         metadata_to_insert = asset_metadata.to_mongo()
@@ -1510,7 +1503,10 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             all_assets[asset_idx] = metadata_to_insert
 
         # Update the document.
-        self.asset_collection.update({'_id': course_assets['_id']}, {'$set': {info: all_assets}})
+        self.asset_collection.update(
+            {'_id': course_assets['_id']},
+            {'$set': {asset_metadata.asset_id.block_type: all_assets}}
+        )
         return True
 
     @contract(asset_key='AssetKey', attr_dict=dict)
@@ -1529,12 +1525,12 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         if self.asset_collection is None:
             return
 
-        course_assets, asset_idx = self._find_course_asset(asset_key.course_key, asset_key.path)
+        course_assets, asset_idx = self._find_course_asset(asset_key)
         if asset_idx is None:
             raise ItemNotFoundError(asset_key)
 
         # Form an AssetMetadata.
-        all_assets = course_assets['assets']
+        all_assets = course_assets[asset_key.block_type]
         md = AssetMetadata(asset_key, asset_key.path)
         md.from_mongo(all_assets[asset_idx])
         md.update(attr_dict)
@@ -1542,34 +1538,34 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         # Generate a Mongo doc from the metadata and update the course asset info.
         all_assets[asset_idx] = md.to_mongo()
 
-        self.asset_collection.update({'_id': course_assets['_id']}, {"$set": {'assets': all_assets}})
+        self.asset_collection.update({'_id': course_assets['_id']}, {"$set": {asset_key.block_type: all_assets}})
 
     @contract(asset_key='AssetKey')
-    def _delete_asset_data(self, asset_key, user_id, thumbnail=False):
+    def delete_asset_metadata(self, asset_key, user_id):
         """
-        Internal; deletes a single asset's metadata -or- thumbnail.
+        Internal; deletes a single asset's metadata.
 
         Arguments:
-            asset_key (AssetKey): key containing original asset/thumbnail filename
-            thumbnail: True if thumbnail deletion, False if asset metadata deletion
+            asset_key (AssetKey): key containing original asset filename
 
         Returns:
-            Number of asset metadata/thumbnail entries deleted (0 or 1)
+            Number of asset metadata entries deleted (0 or 1)
         """
         if self.asset_collection is None:
             return 0
 
-        course_assets, asset_idx = self._find_course_asset(asset_key.course_key, asset_key.path, get_thumbnail=thumbnail)
+        course_assets, asset_idx = self._find_course_asset(asset_key)
         if asset_idx is None:
             return 0
 
-        info = 'thumbnails' if thumbnail else 'assets'
-
-        all_asset_info = course_assets[info]
+        all_asset_info = course_assets[asset_key.block_type]
         all_asset_info.pop(asset_idx)
 
         # Update the document.
-        self.asset_collection.update({'_id': course_assets['_id']}, {'$set': {info: all_asset_info}})
+        self.asset_collection.update(
+            {'_id': course_assets['_id']},
+            {'$set': {asset_key.block_type: all_asset_info}}
+        )
         return 1
 
     # pylint: disable=unused-argument

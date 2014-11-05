@@ -21,7 +21,7 @@ from xblock.plugin import default_select
 
 from .exceptions import InvalidLocationError, InsufficientSpecificationError
 from xmodule.errortracker import make_error_tracker
-from xmodule.assetstore import AssetMetadata, AssetThumbnailMetadata
+from xmodule.assetstore import AssetMetadata
 from opaque_keys.edx.keys import CourseKey, UsageKey, AssetKey
 from opaque_keys.edx.locations import Location  # For import backwards compatibility
 from opaque_keys import InvalidKeyError
@@ -34,7 +34,6 @@ log = logging.getLogger('edx.modulestore')
 new_contract('CourseKey', CourseKey)
 new_contract('AssetKey', AssetKey)
 new_contract('AssetMetadata', AssetMetadata)
-new_contract('AssetThumbnailMetadata', AssetThumbnailMetadata)
 
 
 class ModuleStoreEnum(object):
@@ -272,65 +271,38 @@ class ModuleStoreAssetInterface(object):
     """
     def _find_course_assets(self, course_key):
         """
-        Base method to override.
+        Finds the persisted repr of the asset metadata not converted to AssetMetadata yet.
+        Returns the container holding a dict indexed by asset block_type whose values are a list
+        of raw metadata documents
         """
         raise NotImplementedError()
 
-    def _find_course_asset(self, course_key, filename, get_thumbnail=False):
+    def _find_course_asset(self, asset_key):
         """
-        Internal; finds or creates course asset info -and- finds existing asset (or thumbnail) metadata.
+        Returns same as _find_course_assets plus the index to the given asset or None. Does not convert
+        to AssetMetadata; thus, is internal.
 
         Arguments:
-            course_key (CourseKey): course identifier
-            filename (str): filename of the asset or thumbnail
-            get_thumbnail (bool): True gets thumbnail data, False gets asset data
+            asset_key (AssetKey): what to look for
 
         Returns:
-            Asset info for the course, index of asset/thumbnail in list (None if asset/thumbnail does not exist)
+            AssetMetadata[] for all assets of the given asset_key's type, & the index of asset in list
+            (None if asset does not exist)
         """
-        course_assets = self._find_course_assets(course_key)
+        course_assets = self._find_course_assets(asset_key.course_key)
         if course_assets is None:
             return None, None
 
-        if get_thumbnail:
-            all_assets = course_assets['thumbnails']
-        else:
-            all_assets = course_assets['assets']
+        all_assets = course_assets.setdefault(asset_key.block_type, [])
 
         # See if this asset already exists by checking the external_filename.
         # Studio doesn't currently support using multiple course assets with the same filename.
         # So use the filename as the unique identifier.
         for idx, asset in enumerate(all_assets):
-            if asset['filename'] == filename:
+            if asset['filename'] == asset_key.block_id:
                 return course_assets, idx
 
         return course_assets, None
-
-    @contract(asset_key='AssetKey')
-    def _find_asset_info(self, asset_key, thumbnail=False, **kwargs):
-        """
-        Find the info for a particular course asset/thumbnail.
-
-        Arguments:
-            asset_key (AssetKey): key containing original asset filename
-            thumbnail (bool): True if finding thumbnail, False if finding asset metadata
-
-        Returns:
-            asset/thumbnail metadata (AssetMetadata/AssetThumbnailMetadata) -or- None if not found
-        """
-        course_assets, asset_idx = self._find_course_asset(asset_key.course_key, asset_key.path, thumbnail)
-        if asset_idx is None:
-            return None
-
-        if thumbnail:
-            info = 'thumbnails'
-            mdata = AssetThumbnailMetadata(asset_key, asset_key.path, **kwargs)
-        else:
-            info = 'assets'
-            mdata = AssetMetadata(asset_key, asset_key.path, **kwargs)
-        all_assets = course_assets[info]
-        mdata.from_mongo(all_assets[asset_idx])
-        return mdata
 
     @contract(asset_key='AssetKey')
     def find_asset_metadata(self, asset_key, **kwargs):
@@ -343,81 +315,24 @@ class ModuleStoreAssetInterface(object):
         Returns:
             asset metadata (AssetMetadata) -or- None if not found
         """
-        return self._find_asset_info(asset_key, thumbnail=False, **kwargs)
-
-    @contract(asset_key='AssetKey')
-    def find_asset_thumbnail_metadata(self, asset_key, **kwargs):
-        """
-        Find the metadata for a particular course asset.
-
-        Arguments:
-            asset_key (AssetKey): key containing original asset filename
-
-        Returns:
-            asset metadata (AssetMetadata) -or- None if not found
-        """
-        return self._find_asset_info(asset_key, thumbnail=True, **kwargs)
-
-    @contract(course_key='CourseKey', start='int | None', maxresults='int | None', sort='list | None', get_thumbnails='bool')
-    def _get_all_asset_metadata(self, course_key, start=0, maxresults=-1, sort=None, get_thumbnails=False, **kwargs):
-        """
-        Returns a list of static asset (or thumbnail) metadata for a course.
-
-        Args:
-            course_key (CourseKey): course identifier
-            start (int): optional - start at this asset number
-            maxresults (int): optional - return at most this many, -1 means no limit
-            sort (array): optional - None means no sort
-                (sort_by (str), sort_order (str))
-                sort_by - one of 'uploadDate' or 'displayname'
-                sort_order - one of 'ascending' or 'descending'
-            get_thumbnails (bool): True if getting thumbnail metadata, else getting asset metadata
-
-        Returns:
-            List of AssetMetadata or AssetThumbnailMetadata objects.
-        """
-        course_assets = self._find_course_assets(course_key)
-        if course_assets is None:
-            # If no course assets are found, return None instead of empty list
-            # to distinguish zero assets from "not able to retrieve assets".
+        course_assets, asset_idx = self._find_course_asset(asset_key)
+        if asset_idx is None:
             return None
 
-        if get_thumbnails:
-            all_assets = course_assets.get('thumbnails', [])
-        else:
-            all_assets = course_assets.get('assets', [])
+        info = asset_key.block_type
+        mdata = AssetMetadata(asset_key, asset_key.path, **kwargs)
+        all_assets = course_assets[info]
+        mdata.from_mongo(all_assets[asset_idx])
+        return mdata
 
-        # DO_NEXT: Add start/maxresults/sort functionality as part of https://openedx.atlassian.net/browse/PLAT-74
-        if start and maxresults and sort:
-            pass
-
-        ret_assets = []
-        for asset in all_assets:
-            if get_thumbnails:
-                thumb = AssetThumbnailMetadata(
-                    course_key.make_asset_key('thumbnail', asset['filename']),
-                    internal_name=asset['filename'], **kwargs
-                )
-                ret_assets.append(thumb)
-            else:
-                asset = AssetMetadata(
-                    course_key.make_asset_key('asset', asset['filename']),
-                    basename=asset['filename'],
-                    edited_on=asset['edit_info']['edited_on'],
-                    contenttype=asset['contenttype'],
-                    md5=str(asset['md5']), **kwargs
-                )
-                ret_assets.append(asset)
-        return ret_assets
-
-    @contract(course_key='CourseKey', start='int | None', maxresults='int | None', sort='list | None')
-    def get_all_asset_metadata(self, course_key, start=0, maxresults=-1, sort=None, **kwargs):
+    @contract(course_key='CourseKey', start='int | None', maxresults='int | None', sort='list | None',)
+    def get_all_asset_metadata(self, course_key, block_type, start=0, maxresults=-1, sort=None, **kwargs):
         """
-        Returns a list of static assets for a course.
-        By default all assets are returned, but start and maxresults can be provided to limit the query.
+        Returns a list of asset metadata for all assets of the given block_type in the course.
 
         Args:
             course_key (CourseKey): course identifier
+            block_type (str): the block_type of the assets to return
             start (int): optional - start at this asset number
             maxresults (int): optional - return at most this many, -1 means no limit
             sort (array): optional - None means no sort
@@ -428,59 +343,43 @@ class ModuleStoreAssetInterface(object):
         Returns:
             List of AssetMetadata objects.
         """
-        return self._get_all_asset_metadata(course_key, start, maxresults, sort, get_thumbnails=False, **kwargs)
+        course_assets = self._find_course_assets(course_key)
+        if course_assets is None:
+            # If no course assets are found, return None instead of empty list
+            # to distinguish zero assets from "not able to retrieve assets".
+            return None
 
-    @contract(course_key='CourseKey')
-    def get_all_asset_thumbnail_metadata(self, course_key, **kwargs):
-        """
-        Returns a list of thumbnails for all course assets.
+        all_assets = course_assets.get(block_type, [])
 
-        Args:
-            course_key (CourseKey): course identifier
+        # DO_NEXT: Add start/maxresults/sort functionality as part of https://openedx.atlassian.net/browse/PLAT-74
+        if start and maxresults and sort:
+            pass
 
-        Returns:
-            List of AssetThumbnailMetadata objects.
-        """
-        return self._get_all_asset_metadata(course_key, get_thumbnails=True, **kwargs)
+        ret_assets = []
+        for raw_asset in all_assets:
+            asset = AssetMetadata(course_key.make_asset_key(block_type, raw_asset['filename']))
+            asset.from_mongo(raw_asset)
+            ret_assets.append(asset)
+        return ret_assets
 
 
 class ModuleStoreAssetWriteInterface(ModuleStoreAssetInterface):
     """
     The write operations for assets and asset metadata
     """
-    def _save_asset_info(self, course_key, asset_metadata, user_id, thumbnail=False):
-        """
-        Base method to over-ride in modulestore.
-        """
-        raise NotImplementedError()
-
-    @contract(course_key='CourseKey', asset_metadata='AssetMetadata')
-    def save_asset_metadata(self, course_key, asset_metadata, user_id):
+    @contract(asset_metadata='AssetMetadata')
+    def save_asset_metadata(self, asset_metadata, user_id):
         """
         Saves the asset metadata for a particular course's asset.
 
         Arguments:
-            course_key (CourseKey): course identifier
-            asset_metadata (AssetMetadata): data about the course asset data
+            asset_metadata (AssetMetadata): data about the course asset data (must have asset_id
+            set)
 
         Returns:
             True if metadata save was successful, else False
         """
-        return self._save_asset_info(course_key, asset_metadata, user_id, thumbnail=False)
-
-    @contract(course_key='CourseKey', asset_thumbnail_metadata='AssetThumbnailMetadata')
-    def save_asset_thumbnail_metadata(self, course_key, asset_thumbnail_metadata, user_id):
-        """
-        Saves the asset thumbnail metadata for a particular course asset's thumbnail.
-
-        Arguments:
-            course_key (CourseKey): course identifier
-            asset_thumbnail_metadata (AssetThumbnailMetadata): data about the course asset thumbnail
-
-        Returns:
-            True if thumbnail metadata save was successful, else False
-        """
-        return self._save_asset_info(course_key, asset_thumbnail_metadata, user_id, thumbnail=True)
+        raise NotImplementedError()
 
     def set_asset_metadata_attrs(self, asset_key, attrs, user_id):
         """
@@ -488,7 +387,7 @@ class ModuleStoreAssetWriteInterface(ModuleStoreAssetInterface):
         """
         raise NotImplementedError()
 
-    def _delete_asset_data(self, asset_key, user_id, thumbnail=False):
+    def delete_asset_metadata(self, asset_key, user_id):
         """
         Base method to over-ride in modulestore.
         """
@@ -510,36 +409,13 @@ class ModuleStoreAssetWriteInterface(ModuleStoreAssetInterface):
         """
         return self.set_asset_metadata_attrs(asset_key, {attr: value}, user_id)
 
-    @contract(asset_key='AssetKey')
-    def delete_asset_metadata(self, asset_key, user_id):
-        """
-        Deletes a single asset's metadata.
-
-        Arguments:
-            asset_key (AssetKey): locator containing original asset filename
-
-        Returns:
-            Number of asset metadata entries deleted (0 or 1)
-        """
-        return self._delete_asset_data(asset_key, user_id, thumbnail=False)
-
-    @contract(asset_key='AssetKey')
-    def delete_asset_thumbnail_metadata(self, asset_key, user_id):
-        """
-        Deletes a single asset's metadata.
-
-        Arguments:
-            asset_key (AssetKey): locator containing original asset filename
-
-        Returns:
-            Number of asset metadata entries deleted (0 or 1)
-        """
-        return self._delete_asset_data(asset_key, user_id, thumbnail=True)
-
     @contract(source_course_key='CourseKey', dest_course_key='CourseKey')
     def copy_all_asset_metadata(self, source_course_key, dest_course_key, user_id):
         """
         Copy all the course assets from source_course_key to dest_course_key.
+        NOTE: unlike get_all_asset_metadata, this does not take an asset type because
+        this function is intended for things like cloning or exporting courses not for
+        clients to list assets.
 
         Arguments:
             source_course_key (CourseKey): identifier of course to copy from
