@@ -23,10 +23,10 @@ from xmodule.fields import RelativeTime
 
 from xmodule.errortracker import exc_info_to_str
 from xmodule.modulestore.exceptions import ItemNotFoundError
-from xmodule.validation import StudioValidation
 from opaque_keys.edx.keys import UsageKey
 from xmodule.exceptions import UndefinedContext
 import dogstats_wrapper as dog_stats_api
+
 
 log = logging.getLogger(__name__)
 
@@ -443,13 +443,6 @@ class XModuleMixin(XBlockMixin):
         # pylint: disable=attribute-defined-outside-init
         self.xmodule_runtime = xmodule_runtime
         self._field_data = field_data
-
-    def validate(self):
-        """
-        Overrides general XBlock validate method to convert to a `StudioValidation` instance.
-        """
-        validation = super(XModuleMixin, self).validate()
-        return StudioValidation.copy(validation)
 
 
 class ProxyAttribute(object):

@@ -12,7 +12,7 @@ from xmodule.progress import Progress
 from xmodule.seq_module import SequenceDescriptor
 from xmodule.studio_editable import StudioEditableModule, StudioEditableDescriptor
 from xmodule.x_module import XModule, module_attr, STUDENT_VIEW
-from xmodule.validation import StudioValidation
+from xmodule.validation import StudioValidation, StudioValidationMessage
 from xmodule.modulestore.inheritance import UserPartitionList
 
 from lxml import etree
@@ -528,7 +528,7 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
         Validates the state of this split_test instance. This is the override of the general XBlock method,
         and it will also ask its superclass to validate.
         """
-        validation = super(SplitTestDescriptor, self).validate()
+        validation = StudioValidation.copy(super(SplitTestDescriptor, self).validate())
         split_test_validation = self.validate_split_test()
 
         if split_test_validation:
@@ -551,31 +551,40 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
         split_validation = StudioValidation(self.location)
         if self.user_partition_id < 0:
             split_validation.add(
-                StudioValidation.MESSAGE_TYPES.NOT_CONFIGURED,
-                _(u"The experiment is not associated with a group configuration."),
-                action_class='edit-button',
-                action_label=_(u"Select a Group Configuration")
+                StudioValidationMessage(
+                    StudioValidationMessage.NOT_CONFIGURED,
+                    _(u"The experiment is not associated with a group configuration."),
+                    action_class='edit-button',
+                    action_label=_(u"Select a Group Configuration")
+                )
             )
         else:
             user_partition = self.get_selected_partition()
             if not user_partition:
                 split_validation.add(
-                    StudioValidation.MESSAGE_TYPES.ERROR,
-                    _(u"The experiment uses a deleted group configuration. Select a valid group configuration or delete this experiment.")
+                    StudioValidationMessage(
+                        StudioValidationMessage.ERROR,
+                        _(u"The experiment uses a deleted group configuration. Select a valid group configuration or delete this experiment.")
+                    )
                 )
             else:
                 [active_children, inactive_children] = self.active_and_inactive_children()
                 if len(active_children) < len(user_partition.groups):
                     split_validation.add(
-                        StudioValidation.MESSAGE_TYPES.ERROR,
-                        _(u"The experiment does not contain all of the groups in the configuration."),
-                        action_runtime_event='add-missing-groups',
-                        action_label=_(u"Add Missing Groups")
+                        StudioValidationMessage(
+                            StudioValidationMessage.ERROR,
+                            _(u"The experiment does not contain all of the groups in the configuration."),
+                            action_runtime_event='add-missing-groups',
+                            action_label=_(u"Add Missing Groups")
+                        )
                     )
                 if len(inactive_children) > 0:
                     split_validation.add(
-                        StudioValidation.MESSAGE_TYPES.WARNING,
-                        _(u"The experiment has an inactive group. Move content into active groups, then delete the inactive group."))
+                        StudioValidationMessage(
+                            StudioValidationMessage.WARNING,
+                            _(u"The experiment has an inactive group. Move content into active groups, then delete the inactive group.")
+                        )
+                    )
         return split_validation
 
     @XBlock.handler
@@ -610,9 +619,9 @@ class SplitTestDescriptor(SplitTestFields, SequenceDescriptor, StudioEditableDes
             validation = self.validate_split_test()
 
         if not validation:
-            has_error = any(message["type"] == StudioValidation.MESSAGE_TYPES.ERROR for message in validation.messages)
-            return StudioValidation.create_message(
-                StudioValidation.MESSAGE_TYPES.ERROR if has_error else StudioValidation.MESSAGE_TYPES.WARNING,
+            has_error = any(message.type == StudioValidationMessage.ERROR for message in validation.messages)
+            return StudioValidationMessage(
+                StudioValidationMessage.ERROR if has_error else StudioValidationMessage.WARNING,
                 u"This content experiment has issues that affect content visibility."
             )
         return None
