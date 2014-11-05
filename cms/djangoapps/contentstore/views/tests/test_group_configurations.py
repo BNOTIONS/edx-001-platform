@@ -9,7 +9,7 @@ from contentstore.views.course import GroupConfiguration
 from contentstore.tests.utils import CourseTestCase
 from xmodule.partitions.partitions import Group, UserPartition
 from xmodule.modulestore.tests.factories import ItemFactory
-from xmodule.validation import StudioValidation
+from xmodule.validation import StudioValidation, StudioValidationMessage
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import ModuleStoreEnum
 
@@ -550,15 +550,15 @@ class GroupConfigurationsValidationTestCase(CourseTestCase, HelperMethods):
         split_test = self._create_content_experiment(cid=0, name_suffix='0')[1]
 
         validation = StudioValidation(split_test.location)
-        validation.add(StudioValidation.MESSAGE_TYPES.ERROR, u"Validation message")
+        validation.add(StudioValidationMessage(StudioValidationMessage.ERROR, u"Validation message"))
         mocked_validation_messages.return_value = validation
 
-        expected_result = StudioValidation.create_message(
-            StudioValidation.MESSAGE_TYPES.ERROR, u"This content experiment has issues that affect content visibility."
+        expected_result = StudioValidationMessage(
+            StudioValidationMessage.ERROR, u"This content experiment has issues that affect content visibility."
         )
 
         group_configuration = GroupConfiguration.add_usage_info(self.course, self.store)[0]
-        self.assertEqual(expected_result, group_configuration['usage'][0]['validation'])
+        self.assertEqual(expected_result.to_json(), group_configuration['usage'][0]['validation'])
 
     @patch('xmodule.split_test_module.SplitTestDescriptor.validate_split_test')
     def test_warning_message_present(self, mocked_validation_messages):
@@ -569,16 +569,15 @@ class GroupConfigurationsValidationTestCase(CourseTestCase, HelperMethods):
         split_test = self._create_content_experiment(cid=0, name_suffix='0')[1]
 
         validation = StudioValidation(split_test.location)
-        validation.add(StudioValidation.MESSAGE_TYPES.WARNING, u"Validation message")
+        validation.add(StudioValidationMessage(StudioValidationMessage.WARNING, u"Validation message"))
         mocked_validation_messages.return_value = validation
 
-        expected_result = StudioValidation.create_message(
-            StudioValidation.MESSAGE_TYPES.WARNING,
-            u"This content experiment has issues that affect content visibility."
+        expected_result = StudioValidationMessage(
+            StudioValidationMessage.WARNING, u"This content experiment has issues that affect content visibility."
         )
 
         group_configuration = GroupConfiguration.add_usage_info(self.course, self.store)[0]
-        self.assertEqual(expected_result, group_configuration['usage'][0]['validation'])
+        self.assertEqual(expected_result.to_json(), group_configuration['usage'][0]['validation'])
 
     @patch('xmodule.split_test_module.SplitTestDescriptor.validate_split_test')
     def test_update_usage_info(self, mocked_validation_messages):
@@ -589,18 +588,17 @@ class GroupConfigurationsValidationTestCase(CourseTestCase, HelperMethods):
         split_test = self._create_content_experiment(cid=0, name_suffix='0')[1]
 
         validation = StudioValidation(split_test.location)
-        validation.add(StudioValidation.MESSAGE_TYPES.WARNING, u"Validation message")
+        validation.add(StudioValidationMessage(StudioValidationMessage.WARNING, u"Validation message"))
         mocked_validation_messages.return_value = validation
 
-        expected_result = StudioValidation.create_message(
-            StudioValidation.MESSAGE_TYPES.WARNING,
-            u"This content experiment has issues that affect content visibility."
+        expected_result = StudioValidationMessage(
+            StudioValidationMessage.WARNING, u"This content experiment has issues that affect content visibility."
         )
 
         group_configuration = GroupConfiguration.update_usage_info(
             self.store, self.course, self.course.user_partitions[0]
         )
-        self.assertEqual(expected_result, group_configuration['usage'][0]['validation'])
+        self.assertEqual(expected_result.to_json(), group_configuration['usage'][0]['validation'])
 
     @patch('xmodule.split_test_module.SplitTestDescriptor.validate_split_test')
     def test_update_usage_info_no_message(self, mocked_validation_messages):
