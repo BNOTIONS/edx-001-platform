@@ -104,9 +104,12 @@ class CourseAboutDetail(generics.RetrieveAPIView):
 
         * overview: The HTML for the course About page.
     """
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
 
-    @mobile_course_access(verify_enrolled=False)
-    def get(self, request, course, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        course_id = CourseKey.from_string(kwargs['course_id'])
+        course = modulestore().get_course(course_id)
         # There are other fields, but they don't seem to be in use.
         # see courses.py:get_course_about_section.
         #
