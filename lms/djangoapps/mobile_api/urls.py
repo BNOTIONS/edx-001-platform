@@ -12,4 +12,8 @@ urlpatterns = patterns(
     url(r'^my_user_info', my_user_info),
     url(r'^video_outlines/', include('mobile_api.video_outlines.urls')),
     url(r'^course_info/', include('mobile_api.course_info.urls')),
+    url(r'^groups/', include('mobile_api.groups.urls')),
+    url(r'^courses/', include('mobile_api.courses.urls')),
+    url(r'^friends/', include('mobile_api.friends.urls')),
+    url(r'^settings/', include('mobile_api.user_sharing_pref.urls')),
 )
