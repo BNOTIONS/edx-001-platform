@@ -18,15 +18,28 @@ class Groups(generics.RetrieveAPIView):
     """
     **Use Case**
 
-        TODO
+        An API to support retrival of all the groups related to the edX app
 
     **Example request**:
 
-        TODO
+        GET /api/mobile/v0.5/groups/
 
     **Response Values**
 
-        TODO
+        {"groups": [ {  "id": "912988378712053", 
+                            "owner": {  "id": "10154805434030300", 
+                                        "name": "Daniel Eidan"
+                                        }, 
+                            "name": "edX public test1", 
+                            "venue": { "street": ""
+                                        }, 
+                            "privacy": "OPEN", 
+                            "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y1/r/vF2XT-TEoHq.png", 
+                            "updated_time": "2014-12-03T20:38:32+0000", 
+                            "email": "912988378712053@groups.facebook.com"
+                        } ... 
+                        ]
+            }
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
@@ -54,7 +67,7 @@ class GroupsCreate(generics.RetrieveAPIView):
     """
     **Use Case**
 
-        TODO
+        An API to create new course groups
 
     **Example request**:
 

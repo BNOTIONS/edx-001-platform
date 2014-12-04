@@ -23,13 +23,11 @@ class TestVideoOutline(ModuleStoreTestCase, APITestCase):
     def test_get_app_groups(self):
         url = reverse('get-app-groups')
         response = self.client.get(url)
-        # self.assertTrue(False)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('groups' in response.data)  # pylint: disable=E1103
 
-    # def test_create_new_group(self):
-    #     url = reverse('create-new-group', kwargs={'group_name': "The Best Group Name"}) 
-    #     response = self.client.get(url)
-    #     self.assertTrue(False)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertTrue('groups' in response.data)  # pylint: disable=E1103
+    def test_create_new_group(self):
+        url = reverse('create-new-group', kwargs={'group_name': "TheBestGroupName"}) 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('group-id' in response.data)  # pylint: disable=E1103
