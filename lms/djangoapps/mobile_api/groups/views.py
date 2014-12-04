@@ -63,7 +63,7 @@ class Groups(generics.RetrieveAPIView):
         )
 
 
-class GroupsCreate(generics.RetrieveAPIView):
+class GroupsCreate(generics.CreateAPIView):
     """
     **Use Case**
 
@@ -80,9 +80,9 @@ class GroupsCreate(generics.RetrieveAPIView):
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     
-    def get(self, request, *args, **kwargs): 
-        group_name = kwargs["group_name"]
+    def create(self, request, *args, **kwargs):
+        group_id = request.POST['group-id']
         # TODO: Change this to actually make the group
         return Response(
-            {"group-id": "912988378712053"}
+            {"group-id": group_id}
         )

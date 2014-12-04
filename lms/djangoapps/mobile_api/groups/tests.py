@@ -1,6 +1,7 @@
 """
 Tests for groups
 """
+# TODO: clean up imports
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
@@ -9,14 +10,15 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 from courseware.tests.tests import TEST_DATA_MONGO_MODULESTORE
 
+from nose.tools import set_trace
 
-@override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
-class TestVideoOutline(ModuleStoreTestCase, APITestCase):
+
+class TestGroups(ModuleStoreTestCase, APITestCase):
     """
     Tests for /api/mobile/v0.5/groups/...
     """
     def setUp(self):
-        super(TestVideoOutline, self).setUp()
+        # super(TestVideoOutline, self).setUp()
         self.user = UserFactory.create()
         self.client.login(username=self.user.username, password='test')
 
@@ -27,7 +29,9 @@ class TestVideoOutline(ModuleStoreTestCase, APITestCase):
         self.assertTrue('groups' in response.data)  # pylint: disable=E1103
 
     def test_create_new_group(self):
-        url = reverse('create-new-group', kwargs={'group_name': "TheBestGroupName"}) 
-        response = self.client.get(url)
+        url = reverse('create-new-group') 
+        # set_trace()
+        response = self.client.post(url, {'group-id': '123456789'})
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('group-id' in response.data)  # pylint: disable=E1103
+        self.assertTrue('123456789' in response.data['group-id'])  # pylint: disable=E1103
+

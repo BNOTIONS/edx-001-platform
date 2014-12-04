@@ -14,7 +14,7 @@ urlpatterns = patterns(
         name='get-app-groups'
     ),
     url(
-        r'^(?P<group_name>[\w]*)/$',        # does this pose any restrictions on what group names can be?
+        r'^create/$',        # does this pose any restrictions on what group names can be?
         GroupsCreate.as_view(),               
         name='create-new-group'
     ),
