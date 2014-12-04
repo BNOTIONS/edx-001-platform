@@ -86,3 +86,27 @@ class GroupsCreate(generics.CreateAPIView):
         return Response(
             {"group-id": group_id}
         )
+
+class GroupsInvite(generics.CreateAPIView):
+    """
+    **Use Case**
+
+        An API to create new course groups
+
+    **Example request**:
+
+        TODO
+
+    **Response Values**
+
+        TODO
+    """
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def create(self, request, *args, **kwargs):
+        member = request.POST['member']
+        # TODO: Change this to actually add the members
+        return Response(
+            {"member": member}
+        )

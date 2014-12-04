@@ -30,8 +30,14 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     def test_create_new_group(self):
         url = reverse('create-new-group') 
-        # set_trace()
         response = self.client.post(url, {'group-id': '123456789'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('123456789' in response.data['group-id'])  # pylint: disable=E1103
+
+    def test_invite_members(self):
+        url = reverse('invite-to-group', kwargs={'group_id':'123456789'}) 
+        # set_trace()
+        response = self.client.post(url, {'member': '121212'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('121212' in response.data['member'])  # pylint: disable=E1103
 
