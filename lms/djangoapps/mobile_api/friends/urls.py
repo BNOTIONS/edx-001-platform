@@ -4,23 +4,23 @@ URLs for course_info API
 from django.conf.urls import patterns, url
 from django.conf import settings
 
-from .views import CourseAboutDetail, CourseUpdatesList, CourseHandoutsList
+from .views import CoursesWithFriends, FriendsInCourse, FriendsInGroup
 
 urlpatterns = patterns(
     'mobile_api.course_info.views',
     url(
         r'^$',
-        CourseWithFriends.as_view(),
-        name='course-withfriends'
+        CoursesWithFriends.as_view(),
+        name='courses-with-friends'
     ),
     url(
-        r'^course$',
-        FriendsCourses.as_view(),
-        name='friends-courses'
+        r'^course/(?P<course_id>[\d]*)$',   #TODO: look into course formatter
+        FriendsInCourse.as_view(),
+        name='friends-in-course'
     ),
     url(
-        r'^groups$',
-        FriendsGroups.as_view(),
-        name='friends-groups'
+        r'^group/(?P<group_id>[\d]*)$',
+        FriendsInGroup.as_view(),
+        name='friends-in-group'
     ),
 )

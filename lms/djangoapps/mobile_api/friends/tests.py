@@ -9,32 +9,35 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 from courseware.tests.tests import TEST_DATA_MONGO_MODULESTORE
 
-
-@override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
-class TestVideoOutline(ModuleStoreTestCase, APITestCase):
+from nose.tools import set_trace
+class TestFriends(ModuleStoreTestCase, APITestCase):
     """
-    Tests for /api/mobile/v0.5/course_info/...
+    Tests for /api/mobile/v0.5/friends/...
     """
     def setUp(self):
-        super(TestVideoOutline, self).setUp()
         self.user = UserFactory.create()
-        self.course = CourseFactory.create(mobile_available=True)
         self.client.login(username=self.user.username, password='test')
 
-    def test_about(self):
-        url = reverse('course-about-detail', kwargs={'course_id': unicode(self.course.id)})
+    def test_friends(self):
+        url = reverse('courses-with-friends')
         response = self.client.get(url)
+        # set_trace()
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('overview' in response.data)  # pylint: disable=E1103
+        self.assertTrue('courses' in response.data)  # pylint: disable=E1103
+        self.assertTrue('course' in response.data['courses'][0])  # pylint: disable=E1103
 
-    def test_handouts(self):
-        url = reverse('course-handouts-list', kwargs={'course_id': unicode(self.course.id)})
+    def test_friends_in_course(self):
+        url = reverse('friends-in-course', kwargs={"course_id": "12345"})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
-
-    def test_updates(self):
-        url = reverse('course-updates-list', kwargs={'course_id': unicode(self.course.id)})
-        response = self.client.get(url)
+        # set_trace()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, [])  # pylint: disable=E1103
-        
+        self.assertTrue('friends' in response.data)
+        self.assertTrue('id' in response.data['friends'][0])
+
+    def test_friends_in_group(self):
+        url = reverse('friends-in-group', kwargs={"group_id": "12345"})
+        response = self.client.get(url)
+        # set_trace()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('friends' in response.data)
+        self.assertTrue('id' in response.data['friends'][0])
