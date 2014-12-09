@@ -12,7 +12,7 @@ urlpatterns = patterns(
         name='courses-with-friends'
     ),
     url(
-        r'^course/(?P<course_id>[\d]*)$',   #TODO: look into course formatter
+        r'^course/(?P<course_id>[\d]*)$',
         FriendsInCourse.as_view(),
         name='friends-in-course'
     ),

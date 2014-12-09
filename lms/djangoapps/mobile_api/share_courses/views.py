@@ -12,7 +12,7 @@ class ShareCourses(generics.CreateAPIView):
     """
     **Use Case**
 
-        An API to create new course groups
+        An API to set toggle for sharing a users course info publicly
 
     **Example request**:
 
@@ -27,7 +27,6 @@ class ShareCourses(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         boolean = request.POST['share_courses']
-        # TODO: Change this to actually add the members
         return Response(
             {"share_courses": boolean}
         )

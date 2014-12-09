@@ -66,18 +66,17 @@ class GroupsCreate(generics.CreateAPIView):
 
     **Example request**:
 
-        TODO
+        POST /api/mobile/v0.5/groups/create
 
     **Response Values**
 
-        TODO
+        {"group-id": group_id}
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
         group_id = request.POST['group-id']
-        # TODO: Change this to actually make the group
         return Response(
             {"group-id": group_id}
         )
@@ -88,22 +87,22 @@ class GroupsInvite(generics.CreateAPIView):
     """
     **Use Case**
 
-        An API to create new course groups
+        An API to invite members to a group
 
     **Example request**:
 
-        TODO
+        POST /groups/invite/<group-id>/members
+
 
     **Response Values**
 
-        TODO
+        {"member": member}
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
         member = request.POST['member']
-        # TODO: Change this to actually add the members
         return Response(
             {"member": member}
         )
