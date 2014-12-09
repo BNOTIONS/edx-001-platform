@@ -2,8 +2,6 @@
 URLs for course_info API
 """
 from django.conf.urls import patterns, url
-from django.conf import settings
-
 from .views import CoursesWithFriends, FriendsInCourse, FriendsInGroup
 
 urlpatterns = patterns(

@@ -1,13 +1,10 @@
 """
 Tests for course_info
 """
-from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase
-from xmodule.modulestore.tests.factories import CourseFactory
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
-from courseware.tests.tests import TEST_DATA_MONGO_MODULESTORE
 
 from nose.tools import set_trace
 class TestFriends(ModuleStoreTestCase, APITestCase):

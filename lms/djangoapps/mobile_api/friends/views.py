@@ -1,17 +1,11 @@
 """
 Views for course info API
 """
-from django.http import Http404
+
 from rest_framework import generics, permissions
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 
-from courseware.courses import get_course_about_section, get_course_info_section_module
-from opaque_keys.edx.keys import CourseKey
-
-from xmodule.modulestore.django import modulestore
-
-from nose.tools import set_trace
 
 class CoursesWithFriends(generics.ListAPIView):
     """
@@ -80,6 +74,7 @@ class CoursesWithFriends(generics.ListAPIView):
         )
 
 
+
 class FriendsInCourse(generics.ListAPIView):
     """
     **Use Case**
@@ -121,6 +116,7 @@ class FriendsInCourse(generics.ListAPIView):
                 }]
             }
         )
+
 
 
 class FriendsInGroup(generics.ListAPIView):

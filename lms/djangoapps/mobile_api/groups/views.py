@@ -2,16 +2,10 @@
 Views for course info API
 """
 
-# TODO go over imports 
-from django.http import Http404
 from rest_framework import generics, permissions
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 
-from courseware.courses import get_course_about_section, get_course_info_section_module
-from opaque_keys.edx.keys import CourseKey
-
-from xmodule.modulestore.django import modulestore
 
 
 class Groups(generics.RetrieveAPIView):
@@ -63,6 +57,7 @@ class Groups(generics.RetrieveAPIView):
         )
 
 
+
 class GroupsCreate(generics.CreateAPIView):
     """
     **Use Case**
@@ -86,6 +81,8 @@ class GroupsCreate(generics.CreateAPIView):
         return Response(
             {"group-id": group_id}
         )
+
+
 
 class GroupsInvite(generics.CreateAPIView):
     """
