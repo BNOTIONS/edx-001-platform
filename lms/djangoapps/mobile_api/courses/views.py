@@ -1,5 +1,5 @@
 """
-Views for share_courses info API
+Views for courses info API
 """
 
 from rest_framework import generics, permissions

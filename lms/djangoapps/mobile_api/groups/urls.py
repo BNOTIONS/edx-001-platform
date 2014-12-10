@@ -1,5 +1,5 @@
 """
-URLs for course_info API
+URLs for groups API
 """
 from django.conf.urls import patterns, url
 from django.conf import settings

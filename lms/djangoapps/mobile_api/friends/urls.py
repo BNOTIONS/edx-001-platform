@@ -1,5 +1,5 @@
 """
-URLs for course_info API
+URLs for friends API
 """
 from django.conf.urls import patterns, url
 from .views import FriendsInCourse, FriendsInGroup
