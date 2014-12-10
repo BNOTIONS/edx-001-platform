@@ -14,13 +14,6 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.user = UserFactory.create()
         self.client.login(username=self.user.username, password='test')
 
-    def test_friends(self):
-        url = reverse('courses-with-friends')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('courses' in response.data)  # pylint: disable=E1103
-        self.assertTrue('course' in response.data['courses'][0])  # pylint: disable=E1103
-
     def test_friends_in_course(self):
         url = reverse('friends-in-course', kwargs={"course_id": "12345"})
         response = self.client.get(url)

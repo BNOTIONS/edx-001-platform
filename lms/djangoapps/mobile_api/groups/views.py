@@ -7,16 +7,18 @@ from rest_framework.authentication import OAuth2Authentication, SessionAuthentic
 from rest_framework.response import Response
 
 
+_APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
+_APP_ID = "734266930001243"
 
 class Groups(generics.RetrieveAPIView):
     """
     **Use Case**
 
-        An API to support retrival of all the groups related to the edX app
+        An API to support retrival of all the groups related to the edX app that the user is in. 
 
     **Example request**:
 
-        GET /api/mobile/v0.5/groups/
+        GET /api/mobile/v0.5/groups
 
     **Response Values**
 
@@ -39,6 +41,9 @@ class Groups(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
+        # To get all groups associated with the app /734266930001243/groups
+        # To get all the user /me/groups
+        # The intersection of these is the desired response
         return Response(
             {"groups": [ {  "id": "912988378712053", 
                             "owner": {  "id": "10154805434030300", 
