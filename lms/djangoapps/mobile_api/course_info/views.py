@@ -98,7 +98,6 @@ class CourseAboutDetail(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         course_id = CourseKey.from_string(kwargs['course_id'])
         course = modulestore().get_course(course_id)
-
         # There are other fields, but they don't seem to be in use.
         # see courses.py:get_course_about_section.
         #
