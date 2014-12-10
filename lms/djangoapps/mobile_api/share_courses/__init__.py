@@ -1,3 +1,3 @@
 """
-Course info API
+Share courses API
 """

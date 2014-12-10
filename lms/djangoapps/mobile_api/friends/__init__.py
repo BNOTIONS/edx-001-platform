@@ -1,3 +1,3 @@
 """
-Course info API
+Friends API
 """

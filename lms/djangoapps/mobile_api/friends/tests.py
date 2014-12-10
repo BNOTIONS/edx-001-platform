@@ -1,5 +1,5 @@
 """
-Tests for course_info
+Tests for friends
 """
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase

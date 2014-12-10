@@ -1,3 +1,3 @@
 """
-Course info API
+Groups API
 """

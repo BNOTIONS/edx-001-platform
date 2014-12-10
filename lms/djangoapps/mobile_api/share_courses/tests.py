@@ -1,5 +1,5 @@
 """
-Tests for groups
+Tests for share_courses
 """
 
 from django.core.urlresolvers import reverse
