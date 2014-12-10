@@ -8,7 +8,7 @@ from .views import ShareCourses
 urlpatterns = patterns(
     'mobile_api.share_courses.views',
     url(
-        r'^$',           # invite to group
+        r'^$',
         ShareCourses.as_view(),
         name='share_courses'
     ),

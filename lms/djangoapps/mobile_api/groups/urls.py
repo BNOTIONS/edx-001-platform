@@ -10,16 +10,16 @@ urlpatterns = patterns(
     'mobile_api.course_info.views',
     url(
         r'^$',                        
-        Groups.as_view(),                           # retrive all app groups
+        Groups.as_view(),
         name='get-app-groups'
     ),
     url(
-        r'^create/$',                               # does this pose any restrictions on what group names can be?
+        r'^create/$',
         GroupsCreate.as_view(),               
         name='create-new-group'
     ),
     url(
-        r'^invite/(?P<group_id>[\d]*)/members$',           # invite to group
+        r'^invite/(?P<group_id>[\d]*)/members$',
         GroupsInvite.as_view(),               
         name='invite-to-group'
     ),

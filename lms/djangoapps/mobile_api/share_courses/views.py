@@ -1,5 +1,5 @@
 """
-Views for course info API
+Views for share_courses info API
 """
 
 from rest_framework import generics, permissions
@@ -16,11 +16,12 @@ class ShareCourses(generics.CreateAPIView):
 
     **Example request**:
 
-        TODO
+        GET /api/mobile/v0.5/share_courses
+
 
     **Response Values**
 
-        TODO
+        {"share_courses": boolean}
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
