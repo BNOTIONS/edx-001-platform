@@ -8,6 +8,8 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 
 
+from nose.tools import set_trace
+
 class TestGroups(ModuleStoreTestCase, APITestCase):
     """
     Tests for /api/mobile/v0.5/groups/...
@@ -20,6 +22,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         url = reverse('get-app-groups')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        set_trace()
         self.assertTrue('groups' in response.data)  # pylint: disable=E1103
 
     def test_create_new_group(self):
