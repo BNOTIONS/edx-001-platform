@@ -47,6 +47,7 @@ class Groups(generics.RetrieveAPIView):
         # To get all groups associated with the app /734266930001243/groups
         # To get all the user /me/groups
         # The intersection of these is the desired response
+        oauth_token = request.GET['oauth-token']
         return Response(
             {"groups": [ {  "id": "912988378712053", 
                             "owner": {  "id": "10154805434030300", 

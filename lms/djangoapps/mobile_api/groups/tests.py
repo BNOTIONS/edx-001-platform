@@ -18,7 +18,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     def test_get_app_groups(self):
         url = reverse('get-app-groups')
-        response = self.client.get(url)
+        response = self.client.get(url, {'oauth-token' : 'abcd1234'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('groups' in response.data)  # pylint: disable=E1103
 
