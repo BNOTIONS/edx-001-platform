@@ -32,8 +32,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('TheBestGroup' in response.data['name'])  # pylint: disable=E1103
 
-    def test_invite_one_member(self):
+    def test_invite_members(self):
         url = reverse('invite-to-group', kwargs={'group_id':'123456789'}) 
-        response = self.client.post(url, {'member': '121212'})
+        response = self.client.post(url, {  'member-ids': '1,2,3,4,5,6',
+                                            'oauth-token' : 'abcd1234'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('true' in response.data['success'])  # pylint: disable=E1103

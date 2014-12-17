@@ -84,7 +84,6 @@ class GroupsCreate(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
-        set_trace()
         name = request.POST['name']
         description = request.POST['description']
         privacy = request.POST['privacy']
@@ -118,7 +117,8 @@ class GroupsInvite(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
-        member = request.POST['member']
+        member_ids = request.POST['member-ids']
+        oauth_token = request.POST['oauth-token']
         return Response(
             {"success": "true"}
         )
