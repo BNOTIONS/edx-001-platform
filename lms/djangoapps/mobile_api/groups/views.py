@@ -7,8 +7,11 @@ from rest_framework.authentication import OAuth2Authentication, SessionAuthentic
 from rest_framework.response import Response
 
 
+# TODO: don't leave this here. 
 _APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
 _APP_ID = "734266930001243"
+
+from nose.tools import set_trace
 
 class Groups(generics.RetrieveAPIView):
     """
@@ -81,10 +84,18 @@ class GroupsCreate(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
-        group_id = request.POST['group-id']
-        return Response(
-            {"group-id": group_id}
-        )
+        set_trace()
+        name = request.POST['name']
+        description = request.POST['description']
+        privacy = request.POST['privacy']
+        admin_id = request.POST['admin-id']
+        oauth_token = request.POST['oauth-token']
+        return Response({'name' : name,
+                        'description' : description,
+                        'privacy' : privacy,
+                        'admin-id' : admin_id,
+                        'oauth-token' : oauth_token
+                        })
 
 
 
@@ -101,7 +112,7 @@ class GroupsInvite(generics.CreateAPIView):
 
     **Response Values**
 
-        {"member": member}
+        {"success": "true"}
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
@@ -109,5 +120,5 @@ class GroupsInvite(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         member = request.POST['member']
         return Response(
-            {"member": member}
+            {"success": "true"}
         )
