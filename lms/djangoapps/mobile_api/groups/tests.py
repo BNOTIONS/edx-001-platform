@@ -30,7 +30,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                             'admin-id' : '12345',
                                             'oauth-token' : 'abcd1234'})
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('TheBestGroup' in response.data['name'])  # pylint: disable=E1103
+        self.assertTrue('12345' in response.data['group-id'])  # pylint: disable=E1103
 
     def test_invite_members(self):
         url = reverse('invite-to-group', kwargs={'group_id':'123456789'}) 

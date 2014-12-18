@@ -60,6 +60,22 @@ class Groups(generics.RetrieveAPIView):
                             "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y1/r/vF2XT-TEoHq.png", 
                             "updated_time": "2014-12-03T20:38:32+0000", 
                             "email": "912988378712053@groups.facebook.com"
+                        }, 
+                        {
+                          "id": "753283111432958", 
+                          "name": "Bnauts", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "OPEN", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-12-17T19:36:33+0000", 
+                          "email": "753283111432958@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
                         }
                         ]
             }
@@ -90,12 +106,7 @@ class GroupsCreate(generics.CreateAPIView):
         privacy = request.POST['privacy']
         admin_id = request.POST['admin-id']
         oauth_token = request.POST['oauth-token']
-        return Response({'name' : name,
-                        'description' : description,
-                        'privacy' : privacy,
-                        'admin-id' : admin_id,
-                        'oauth-token' : oauth_token
-                        })
+        return Response({"group-id": '12345'})
 
 
 
