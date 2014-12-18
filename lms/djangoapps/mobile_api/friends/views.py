@@ -6,6 +6,7 @@ from rest_framework import generics, permissions
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 
+from nose.tools import set_trace
 
 class FriendsInCourse(generics.ListAPIView):
     """
@@ -73,13 +74,32 @@ class FriendsInGroup(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        return Response(
-            {"friends": [{  "name": "Daniel Eidan",
-                            "id": "10154831816670300"},
-                        {   "name": "Marc Ashman", 
-                            "id": "10154833899435243"},
-                        {   "name": "Peter Organa", 
-                            "id": "10154805420820176"}
-                        ]
-            }
-        )
+        if kwargs['group_id'] == "912988378712053":
+            return Response(
+                {"friends": [{  "name": "Daniel Eidan",
+                                "id": "10154831816670300"},
+                            {   "name": "Marc Ashman", 
+                                "id": "10154833899435243"},
+                            {   "name": "Peter Organa", 
+                                "id": "10154805420820176"}
+                            ]
+                }
+            )
+        else:
+            return Response(
+                {"friends": [{  "name": "Daniel Eidan",
+                                "id": "10154831816670300"},
+                            {   "name": "Marc Ashman", 
+                                "id": "10154833899435243"},
+                            {   "name": "Peter Organa", 
+                                "id": "10154805420820176"},
+                            {   "name": "Joey Freund", 
+                                "id": "1279985874"}, 
+                            {   "name": "Yin Zhuoqun", 
+                                "id": "1600206076"},    
+                            {   "name": "David Liu", 
+                                "id": "1658520223"} 
+                            ]
+                }
+            )
+
