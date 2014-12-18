@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 
+from nose.tools import set_trace
 
 class TestGroups(ModuleStoreTestCase, APITestCase):
     """
@@ -38,3 +39,10 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                             'oauth-token' : 'abcd1234'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('true' in response.data['success'])  # pylint: disable=E1103
+
+    def test_get_all_group_members(self):
+        # set_trace() 
+        url = reverse('members-in-group', kwargs={'group_id':'123456789'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('members' in response.data)  # pylint: disable=E1103
