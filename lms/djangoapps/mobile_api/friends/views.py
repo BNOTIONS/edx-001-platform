@@ -87,18 +87,18 @@ class FriendsInGroup(generics.ListAPIView):
             )
         else:
             return Response(
-                {"friends": [{  "name": "Daniel Eidan",
+                {"friends": [{   "name": "Joey Freund", 
+                                "id": "1279985874"}, 
+                            {   "name": "Yin Zhuoqun", 
+                                "id": "1600206076"},    
+                            {   "name": "David Liu", 
+                                "id": "1658520223"}, 
+                            {  "name": "Daniel Eidan",
                                 "id": "10154831816670300"},
                             {   "name": "Marc Ashman", 
                                 "id": "10154833899435243"},
                             {   "name": "Peter Organa", 
                                 "id": "10154805420820176"},
-                            {   "name": "Joey Freund", 
-                                "id": "1279985874"}, 
-                            {   "name": "Yin Zhuoqun", 
-                                "id": "1600206076"},    
-                            {   "name": "David Liu", 
-                                "id": "1658520223"} 
                             ]
                 }
             )

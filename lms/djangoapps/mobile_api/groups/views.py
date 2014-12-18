@@ -76,7 +76,136 @@ class Groups(generics.RetrieveAPIView):
                             "namespace": "edxbnotionsns", 
                             "id": "734266930001243"
                           }
+                        }, 
+                        {
+                          "id": "734295443331725", 
+                          "name": "devA_groupA", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-12-11T22:53:03+0000", 
+                          "email": "734295443331725@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        }, 
+                        {
+                          "id": "734297203331549", 
+                          "name": "devA_groupB", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-11T19:48:43+0000", 
+                          "email": "734297203331549@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        }, 
+                        {
+                          "id": "734297936664809", 
+                          "name": "devA_groupc", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-11T19:50:42+0000", 
+                          "email": "734297936664809@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        },
+                        {
+                          "id": "734693669958569", 
+                          "name": "testmesh", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "OPEN", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-12T20:29:26+0000", 
+                          "email": "734693669958569@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        }, 
+                        {
+                          "id": "734713993289870", 
+                          "name": "weirdtest", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-12T20:29:31+0000", 
+                          "email": "734713993289870@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        },
+                        {
+                          "id": "734805136614089", 
+                          "name": "test123", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-12T20:31:54+0000", 
+                          "email": "734805136614089@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        },
+                        {
+                          "id": "735235816571021", 
+                          "name": "dumbpotatosonly", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-13T17:09:42+0000", 
+                          "email": "735235816571021@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
+                        }, 
+                        {
+                          "id": "735277569900179", 
+                          "name": "supercooltestgroup?admin", 
+                          "venue": {
+                            "street": ""
+                          }, 
+                          "privacy": "CLOSED", 
+                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
+                          "updated_time": "2014-11-13T18:59:00+0000", 
+                          "email": "735277569900179@groups.facebook.com", 
+                          "parent": {
+                            "name": "edX_bnotion_devA", 
+                            "namespace": "edxbnotionsns", 
+                            "id": "734266930001243"
+                          }
                         }
+
                         ]
             }
         )
