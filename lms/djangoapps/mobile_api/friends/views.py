@@ -68,7 +68,7 @@ class FriendsInGroup(generics.ListAPIView):
                 },
                 ...
                 ]
-            }
+        }
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)

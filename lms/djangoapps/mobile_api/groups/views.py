@@ -134,3 +134,90 @@ class GroupsInvite(generics.CreateAPIView):
         return Response(
             {"success": "true"}
         )
+
+
+class GroupsMembers(generics.RetrieveAPIView): 
+    """
+    **Use Case**
+
+        An API to retrive all members of a group
+
+    **Example request**:
+
+        GET /groups/<group-id>/members
+
+
+    **Response Values**
+
+        {   "members":
+                [{
+                    "name": "test",
+                    "id": "12345",
+                },
+                ...
+                ]
+        }
+    """    
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        # set_trace()
+        return Response({"members": 
+                            [{  "name": "Daniel Eidan",
+                                "id": "10154831816670300"},
+                            {   "name": "Marc Ashman", 
+                                "id": "10154833899435243"},
+                            {   "name": "Peter Organa", 
+                                "id": "10154805420820176"},
+                            {   "name": "Joey Freund", 
+                                "id": "1279985874"}, 
+                            {   "name": "Yin Zhuoqun", 
+                                "id": "1600206076"},    
+                            {   "name": "David Liu", 
+                                "id": "1658520223"},
+                            {   "name": "Andrew Joe", 
+                                "id": "120401174"}, 
+                            {   "name": "Gaelan D'costa", 
+                                "id": "122600141"}, 
+                            {   "name": "Hafiz Vellani", 
+                                "id": "122609084"}, 
+                            {   "name": "Adir Krafman", 
+                                "id": "500301193"}, 
+                            {   "name": "Naeem Lakhani", 
+                                "id": "502193756"}, 
+                            {   "name": "Alex Mann", 
+                                "id": "502576321"}, 
+                            {   "name": "Natasha Dalal", 
+                                "id": "506753913"}, 
+                            {   "name": "Adam Borzecki", 
+                                "id": "507174319"}, 
+                            {   "name": "Bryant Balatbat", 
+                                "id": "512414329"}, 
+                            {   "name": "Nahim Nasser", 
+                                "id": "516528519"}, 
+                            {   "name": "Farzana Nasser", 
+                                "id": "572710051"}, 
+                            {   "name": "Aaron Ritchie", 
+                                "id": "578710450"}, 
+                            {   "name": "Karthik Ramakrishnan", 
+                                "id": "584467742"}, 
+                            {   "name": "Sinai Gross", 
+                                "id": "591867536"}, 
+                            {   "name": "Ani Tumanyan", 
+                                "id": "617573112"}, 
+                            {   "name": "Paul Jeffrey Crowe", 
+                                "id": "635195067"}, 
+                            {   "name": "Eitan Cohen", 
+                                "id": "657887138"}, 
+                            {   "name": "Eli Atlas", 
+                                "id": "674674636"}, 
+                            {   "name": "Mark Reale", 
+                                "id": "676480219"}]
+                })
+
+
+
+
+
+
