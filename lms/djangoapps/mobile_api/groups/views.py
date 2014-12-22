@@ -100,12 +100,23 @@ class GroupsCreate(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
-        name = request.POST['name']
-        description = request.POST['description']
-        privacy = request.POST['privacy']
-        admin_id = request.POST['admin-id']
-        oauth_token = request.POST['oauth-token']
-        return Response({"group-id": '12345'})
+        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+        url = "/v2.2/" + _APP_ID + "/groups"
+        
+        post_args = {}
+        if 'name' in request.POST:
+            post_args["name"] = request.POST['name'];
+        if 'description' in request.POST:
+            post_args["description"] = request.POST['description'];
+        if 'privacy' in request.POST:
+            post_args["privacy"] = request.POST['privacy'];
+        try:
+            app_groups_response = graph.request(url, post_args=post_args)
+        except Exception, e:
+            print(e)
+            return e
+
+        return Response(app_groups_response)
 
 
 
