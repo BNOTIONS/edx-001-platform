@@ -52,8 +52,6 @@ class Groups(generics.RetrieveAPIView):
         # Get all the groups associated with the app /734266930001243/groups
         # Get all the user /me/groups
         # The intersection of these is the desired response
-        
-        set_trace()
 
         # TODO: pass this in as a param 
         oauth_access_token = "CAACEdEose0cBAMh8IJXYlonj1ZCzvKwCv6v7rKdYlV164ezcuHAqZCig11OlQPRZCvFhG3aBGb78IKIeIhXC1UIZA3DJyNIZCHIZBWNAhF2ymleGNZB92Li4yIO1V19rMZBY3JjbVeIRuAsyzg97hYLi1jJAy4uwjsGG0J2mlCTYtpq9K7nup0xsUpcfIGyco6DxtZBM0BZBNHNtA9sfrfrXwB"

@@ -11,7 +11,7 @@ urlpatterns = patterns(
     url(
         r'^$',                        
         Groups.as_view(),
-        name='get-app-groups'
+        name='get-app-groups'   # TODO: Deprecated
     ),
     url(
         r'^create/$',
@@ -26,6 +26,6 @@ urlpatterns = patterns(
     url(
         r'^(?P<group_id>[\d]*)/members$',
         GroupsMembers.as_view(),
-        name='members-in-group'
+        name='members-in-group' # TODO: Deprecated
     ),
 )
