@@ -65,18 +65,96 @@ class GroupsInvite(generics.CreateAPIView):
 
         POST /groups/invite/<group-id>/members
 
+        Parameters: members : int,int,int... 
+
 
     **Response Values**
 
-        {"success": "true"}
+        {"success" : "true"}        If adding all the member succeeded.
+        
+        {"error" : "error message", 
+         "member" : "id"}           If one of the members provided can't be added to the group. 
+                                    The error message pertains to the first member that couldn't be added.
+                                    Note that either all the memebers are added or none at all. 
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
-        member_ids = request.POST['member-ids']
-        oauth_token = request.POST['oauth-token']
-        return Response(
-            {"success": "true"}
-        )
+        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+        set_trace()
+        if 'group_id' in kwargs: 
+            url = "/v2.2/" + kwargs['group_id'] + "/members"
+        else: 
+            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if 'member-ids' in request.POST:
+            member_ids = request.POST['member-ids'].split(',')
+            successful_additions = []
+            for member_id in member_ids:
+                post_args = {'member' : member_id}
+                try:
+                    response = graph.request(url, post_args=post_args)
+                    if 'success' in response: 
+                        successful_additions.append(member_id)
+                except Exception, e:
+                    for member_to_remove in successful_additions:
+                        post_args = {'member' : member_to_remove, 'method' : 'delete'}
+                        graph.request(url, post_args=post_args) #TODO: assuming that all the deletions happen properly
+                    return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"success" : "true"})
+
+
+class GroupsDelete(generics.DestroyAPIView):
+    """
+    **Use Case**
+
+        An API to delete a group
+
+    **Example request**:
+
+        DELETE <app-id>/groups/<group-id>
+
+    **Response Values**
+
+        {"success" : "true"}
+    """
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, *args, **kwargs):
+        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+        set_trace()
+        post_args = {'method' : 'delete'}
+        url = "/v2.2/" + _APP_ID + "/groups/" + kwargs['group_id']
+        result = graph.request(url, post_args=post_args)
+        return Response(result)
+
+
+class GroupsRemoveMember(generics.DestroyAPIView):
+    """
+    **Use Case**
+
+        An API to delete a group
+
+    **Example request**:
+
+        DELETE <app-id>/groups/<group-id>
+
+    **Response Values**
+
+        {"success" : "true"}
+    """
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request, *args, **kwargs):
+        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+        set_trace()
+        post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
+        url = "/v2.2/" + kwargs['group_id'] + "/members" 
+        result = graph.request(url, post_args=post_args)
+        return Response(result)
+
+
 
