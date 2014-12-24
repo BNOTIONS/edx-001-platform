@@ -82,7 +82,6 @@ class GroupsInvite(generics.CreateAPIView):
     
     def create(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        set_trace()
         if 'group_id' in kwargs: 
             url = "/v2.2/" + kwargs['group_id'] + "/members"
         else: 
@@ -124,7 +123,6 @@ class GroupsDelete(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        set_trace()
         post_args = {'method' : 'delete'}
         url = "/v2.2/" + _APP_ID + "/groups/" + kwargs['group_id']
         result = graph.request(url, post_args=post_args)
@@ -150,7 +148,6 @@ class GroupsRemoveMember(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        set_trace()
         post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
         url = "/v2.2/" + kwargs['group_id'] + "/members" 
         result = graph.request(url, post_args=post_args)

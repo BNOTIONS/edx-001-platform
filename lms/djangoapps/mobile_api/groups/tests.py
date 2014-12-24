@@ -45,31 +45,86 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
 
     def test_invite_single_member(self):
-        url = reverse('invite-to-group', kwargs={'group_id' : '756869167741019'}) 
-        response = self.client.post(url, {  'member-ids' : '10154831816670300' })
+        group_id = '756869167741019'
+        member_id = '10154831816670300'
+        # Note that the memeber must be a member of the app and not a member 
+        # of the group in order to be able to join the group.
+        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        response = self.client.post(url, {  'member-ids' : member_id })
         self.assertEqual(response.status_code, 200)
-        set_trace()
         self.assertTrue('success' in response.data)  # pylint: disable=E1103
 
+        # Remove user from the group
+        url = reverse('group-remove-member', kwargs={ 'group_id' : group_id,
+                                                      'member_id' : member_id}) 
+        response = self.client.delete(url)
+
     
-    def test_invite_multiple_members(self):
-        set_trace()
-        url = reverse('invite-to-group', kwargs={'group_id' : '756869167741019'}) 
-        response = self.client.post(url, {  'member-ids' : '366785273488903,939400156088941,10154831816670300' })
+    def test_invite_multiple_members_successfully(self):
+        member_ids = '366785273488903,939400156088941,10154831816670300'
+        group_id = '756869167741019'
+        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        response = self.client.post(url, {  'member-ids' : member_ids })
         self.assertEqual(response.status_code, 200)        
         self.assertTrue('success' in response.data)  # pylint: disable=E1103
 
+        # Remove the members added
+        for member_id in member_ids.split(','):
+            url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
+                                                      'member_id' : member_id}) 
+            response = self.client.delete(url)
 
-    def test_delete(self): 
-        url = reverse('delete-group', kwargs={'group_id' : '757474821013787'}) 
+
+    def test_invite_multiple_members_unsuccessfully(self):
+        # Add a single user
+        member_id = '10154831816670300'
+        group_id = '756869167741019'
+        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        response = self.client.post(url, {  'member-ids' : member_id })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('success' in response.data)  # pylint: disable=E1103
+
+        # Invite three members, two who are not in the group and one that is a member already.
+        member_ids = '366785273488903,939400156088941,10154831816670300'
+        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        response = self.client.post(url, {  'member-ids' : member_ids })
+        self.assertEqual(response.status_code, 400)        
+
+        # Remove the members added
+        for member_id in member_ids.split(','):
+            url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
+                                                      'member_id' : member_id}) 
+            response = self.client.delete(url)
+
+    def test_delete_group(self): 
+        # Create new group
+        url = reverse('create-new-group')
+        response = self.client.post(url, {  'name' : 'TheBestGroup',
+                                            'description' : 'The group for the best people',
+                                            'privacy' : 'open'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('id' in response.data)  # pylint: disable=E1103
+        
+        url = reverse('delete-group', kwargs={'group_id' : response.data['id']}) 
         response = self.client.delete(url)
+        self.assertEqual(response.status_code, 200)
 
     def test_remove_member(self): 
-        url = reverse('group-remove-member', kwargs={ 'group_id' : '756869167741019', 
-                                                      'member_id' : '10154831816670300'}) 
+        group_id = '756869167741019'
+        member_id = '10154831816670300'
+        # Note that the memeber must be a member of the app and not a member 
+        # of the group in order to be able to join the group.
+        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        response = self.client.post(url, {  'member-ids' : member_id })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('success' in response.data)  # pylint: disable=E1103
+        
+        # Remove member 
+        url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
+                                                      'member_id' : member_id}) 
         response = self.client.delete(url)
 
-    # TODO: member doesn't exist, memmer already in group
+    # TODO: member doesn't exist, member already in group
 
 
 
