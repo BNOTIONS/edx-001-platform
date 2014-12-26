@@ -132,7 +132,7 @@ class GroupsRemoveMember(generics.DestroyAPIView):
     """
     **Use Case**
 
-        An API to delete a group
+        An API to remove a group member form a group
 
     **Example request**:
 
