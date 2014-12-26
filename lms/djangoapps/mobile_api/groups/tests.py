@@ -7,8 +7,10 @@ from rest_framework.test import APITestCase
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 
+# TODO: use this for debugging.
 from nose.tools import set_trace
 
+# TODO: keep tests consistent with the regestered Facebook app
 
 class TestGroups(ModuleStoreTestCase, APITestCase):
     """
@@ -123,8 +125,6 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
                                                       'member_id' : member_id}) 
         response = self.client.delete(url)
-
-    # TODO: member doesn't exist, member already in group
 
 
 

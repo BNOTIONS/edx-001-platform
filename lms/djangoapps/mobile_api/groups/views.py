@@ -6,16 +6,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 
-import httplib2
-import urllib 
-import facebook     # TODO: talk to lee about dependencies.
+import facebook     # TODO: dependencies to be added to the vagrant 
 
 
 
-# TODO: don't leave this here. 
+# TODO: This should not be in the final commit
 _APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
 _APP_ID = "734266930001243"
 
+_FACEBOOK_API_VERSION = "/v2.2/"
 from nose.tools import set_trace
 
 
@@ -42,7 +41,7 @@ class GroupsCreate(generics.CreateAPIView):
     
     def create(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        url = "/v2.2/" + _APP_ID + "/groups"
+        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
         
         post_args = {}
         for key in request.POST.keys(): 
@@ -83,7 +82,7 @@ class GroupsInvite(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
         if 'group_id' in kwargs: 
-            url = "/v2.2/" + kwargs['group_id'] + "/members"
+            url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members"
         else: 
             return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -99,7 +98,7 @@ class GroupsInvite(generics.CreateAPIView):
                 except Exception, e:
                     for member_to_remove in successful_additions:
                         post_args = {'member' : member_to_remove, 'method' : 'delete'}
-                        graph.request(url, post_args=post_args) #TODO: assuming that all the deletions happen properly
+                        graph.request(url, post_args=post_args) 
                     return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"success" : "true"})
 
@@ -112,7 +111,7 @@ class GroupsDelete(generics.DestroyAPIView):
 
     **Example request**:
 
-        DELETE <app-id>/groups/<group-id>
+        DELETE /groups/<group-id>
 
     **Response Values**
 
@@ -124,7 +123,7 @@ class GroupsDelete(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
         post_args = {'method' : 'delete'}
-        url = "/v2.2/" + _APP_ID + "/groups/" + kwargs['group_id']
+        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
         result = graph.request(url, post_args=post_args)
         return Response(result)
 
@@ -137,7 +136,7 @@ class GroupsRemoveMember(generics.DestroyAPIView):
 
     **Example request**:
 
-        DELETE <app-id>/groups/<group-id>
+        DELETE /remove/<group-id>/member/<member-id>
 
     **Response Values**
 
@@ -149,7 +148,7 @@ class GroupsRemoveMember(generics.DestroyAPIView):
     def delete(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
         post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
-        url = "/v2.2/" + kwargs['group_id'] + "/members" 
+        url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
         result = graph.request(url, post_args=post_args)
         return Response(result)
 
