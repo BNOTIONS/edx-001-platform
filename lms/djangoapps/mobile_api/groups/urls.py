@@ -4,7 +4,7 @@ URLs for groups API
 from django.conf.urls import patterns, url
 from django.conf import settings
 
-from .views import Groups, GroupsMembers, GroupsRemoveMember
+from .views import Groups, GroupsMembers
 
 urlpatterns = patterns(
     'mobile_api.course_info.views',
@@ -14,13 +14,8 @@ urlpatterns = patterns(
         name='create-delete-group'
     ),
     url(
-        r'^invite/(?P<group_id>[\d]*)$',
-        GroupsMembers.as_view(),               
-        name='invite-to-group'
-    ), 
-    url(
-        r'^remove/(?P<group_id>[\d]*)/member/(?P<member_id>[\d]*)$',
-        GroupsRemoveMember.as_view(),               
+        r'^member/(?P<group_id>[\d]*)/(?P<member_id>[\d]*,*)$',
+        GroupsMembers.as_view(),
         name='group-remove-member'
     )
 )

@@ -50,7 +50,6 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         member_id = '10154831816670300'
         # Note that the memeber must be a member of the app and not a member 
         # of the group in order to be able to join the group.
-        set_trace()
         response = invite_to_group(self, group_id, member_id)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('success' in response.data)  # pylint: disable=E1103
@@ -128,7 +127,7 @@ def delete_group(self, group_id):
     self.assertEqual(response.status_code, 200)
 
 def invite_to_group(self, group_id, member_ids):
-        url = reverse('invite-to-group', kwargs={'group_id' : group_id}) 
+        url = reverse('group-remove-member', kwargs={'group_id' : group_id, 'member_id' : ''}) 
         return self.client.post(url, {  'member-ids' : member_ids })
 
 

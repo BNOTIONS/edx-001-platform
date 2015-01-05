@@ -15,8 +15,6 @@ _APP_ID = "734266930001243"
 
 _FACEBOOK_API_VERSION = "/v2.2/"
 
-from nose.tools import set_trace
-
 
 class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
@@ -26,7 +24,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Creation Example request**:
 
-        POST /api/mobile/v0.5/groups/create
+        POST /api/mobile/v0.5/create/<group_id>
 
         Paramters:  name : string, 
                     description : string, 
@@ -39,7 +37,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Deletion Example request**:
         
-        DELETE /groups/<group-id>
+        DELETE /api/mobile/v0.5/create/<group_id>
 
     **Deletion Response Values**
 
@@ -72,20 +70,20 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
 
 
-class GroupsMembers(generics.CreateAPIView):
+class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     **Use Case**
 
-        An API to invite members to a group
+        An API to Invite and Remove members to a group
 
-    **Example request**:
+    **Invite Example request**:
 
-        POST /groups/invite/<group-id>/members
+        POST /api/mobile/v0.5/member/<group_id>/
 
         Parameters: members : int,int,int... 
 
 
-    **Response Values**
+    **Invite Response Values**
 
         {"success" : "true"}        If adding all the member succeeded.
         
@@ -93,6 +91,14 @@ class GroupsMembers(generics.CreateAPIView):
          "member" : "id"}           If one of the members provided can't be added to the group. 
                                     The error message pertains to the first member that couldn't be added.
                                     Note that either all the memebers are added or none at all. 
+
+    **Remove Example request**:
+
+        DELETE /api/mobile/v0.5/member/<group_id>/<member_id>
+
+    **Remove Response Values**
+
+        {"success" : "true"}                                    
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
@@ -121,44 +127,13 @@ class GroupsMembers(generics.CreateAPIView):
                     return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"success" : "true"})
 
-
-
-class GroupsDelete(generics.DestroyAPIView):
-    """
-    **Use Case**
-
-        An API to delete a group
-
-    **Example request**:
-
-        
-    """
-
-
-
-class GroupsRemoveMember(generics.DestroyAPIView):
-    """
-    **Use Case**
-
-        An API to remove a group member form a group
-
-    **Example request**:
-
-        DELETE /remove/<group-id>/member/<member-id>
-
-    **Response Values**
-
-        {"success" : "true"}
-    """
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
-
     def delete(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
         post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
         url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
         result = graph.request(url, post_args=post_args)
         return Response(result)
+
 
 
 
