@@ -2,29 +2,29 @@
 Views for groups info API
 """
 
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 
-import facebook     # TODO: dependencies to be added to the vagrant 
-
-
+# TODO: dependencies to be added to the vagrant 
+import facebook     
 
 # TODO: This should not be in the final commit
 _APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
 _APP_ID = "734266930001243"
 
 _FACEBOOK_API_VERSION = "/v2.2/"
+
 from nose.tools import set_trace
 
 
-class GroupsCreate(generics.CreateAPIView):
+class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     **Use Case**
 
-        An API to create new course groups
+        An API to Create or Delete course groups.
 
-    **Example request**:
+    **Creation Example request**:
 
         POST /api/mobile/v0.5/groups/create
 
@@ -32,14 +32,25 @@ class GroupsCreate(generics.CreateAPIView):
                     description : string, 
                     privacy : open/closed
 
-    **Response Values**
+    **Creation Response Values**
 
         {"group-id": group_id}
+    
+
+    **Deletion Example request**:
+        
+        DELETE /groups/<group-id>
+
+    **Deletion Response Values**
+
+        {"success" : "true"}
+
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
     
-    def create(self, request, *args, **kwargs):
+
+    def post(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
         url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
         
@@ -52,9 +63,16 @@ class GroupsCreate(generics.CreateAPIView):
             return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
         return Response(app_groups_response)
 
+    def delete(self, request, *args, **kwargs):
+        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+        post_args = {'method' : 'delete'}
+        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
+        result = graph.request(url, post_args=post_args)
+        return Response(result)
 
 
-class GroupsInvite(generics.CreateAPIView):
+
+class GroupsMembers(generics.CreateAPIView):
     """
     **Use Case**
 
@@ -78,6 +96,7 @@ class GroupsInvite(generics.CreateAPIView):
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
+
     
     def create(self, request, *args, **kwargs):
         graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
@@ -103,6 +122,7 @@ class GroupsInvite(generics.CreateAPIView):
         return Response({"success" : "true"})
 
 
+
 class GroupsDelete(generics.DestroyAPIView):
     """
     **Use Case**
@@ -111,21 +131,9 @@ class GroupsDelete(generics.DestroyAPIView):
 
     **Example request**:
 
-        DELETE /groups/<group-id>
-
-    **Response Values**
-
-        {"success" : "true"}
+        
     """
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
 
-    def delete(self, request, *args, **kwargs):
-        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        post_args = {'method' : 'delete'}
-        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
-        result = graph.request(url, post_args=post_args)
-        return Response(result)
 
 
 class GroupsRemoveMember(generics.DestroyAPIView):
