@@ -55,11 +55,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         self.assertTrue('success' in response.data)  # pylint: disable=E1103
 
         # Remove user from the group
-        url = reverse('group-remove-member', kwargs={ 'group_id' : group_id,
-                                                      'member_id' : member_id}) 
-        response = self.client.delete(url)
+        remove_from_group(self, group_id, member_id)
 
-    
+
     def test_invite_multiple_members_successfully(self):
         member_ids = '366785273488903,939400156088941,10154831816670300'
         group_id = '756869167741019'
@@ -69,9 +67,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
         # Remove the members added
         for member_id in member_ids.split(','):
-            url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
-                                                      'member_id' : member_id}) 
-            response = self.client.delete(url)
+            remove_from_group(self, group_id, member_id)
 
 
     def test_invite_multiple_members_unsuccessfully(self):
@@ -89,9 +85,8 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
         # Remove the members added
         for member_id in member_ids.split(','):
-            url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
-                                                      'member_id' : member_id}) 
-            response = self.client.delete(url)
+            remove_from_group(self, group_id, member_id)
+
 
     def test_delete_group(self): 
         # Create new group
@@ -116,9 +111,8 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         self.assertTrue('success' in response.data)  # pylint: disable=E1103
         
         # Remove member
-        url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
-                                                      'member_id' : member_id}) 
-        response = self.client.delete(url)
+        remove_from_group(self, group_id, member_id)
+        
 
 
 def delete_group(self, group_id):
@@ -130,6 +124,10 @@ def invite_to_group(self, group_id, member_ids):
         url = reverse('group-remove-member', kwargs={'group_id' : group_id, 'member_id' : ''}) 
         return self.client.post(url, {  'member-ids' : member_ids })
 
-
+def remove_from_group(self, group_id, member_id): 
+    url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
+                                                  'member_id' : member_id}) 
+    response = self.client.delete(url)
+    self.assertEqual(response.status_code, 200)
 
 
