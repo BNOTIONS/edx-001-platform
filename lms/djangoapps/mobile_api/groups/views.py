@@ -62,11 +62,14 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
         return Response(app_groups_response)
 
     def delete(self, request, *args, **kwargs):
-        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        post_args = {'method' : 'delete'}
-        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
-        result = graph.request(url, post_args=post_args)
-        return Response(result)
+        if 'group_id' in kwargs:
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            post_args = {'method' : 'delete'}
+            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
+            result = graph.request(url, post_args=post_args)
+            return Response(result)
+        else:
+            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -128,11 +131,17 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
         return Response({"success" : "true"})
 
     def delete(self, request, *args, **kwargs):
-        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
-        url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
-        result = graph.request(url, post_args=post_args)
-        return Response(result)
+        if 'member_id' in kwargs and 'group_id' in kwargs:
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
+            url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
+            result = graph.request(url, post_args=post_args)
+            return Response(result)
+        if 'member_id' not in kwargs: 
+            return Response({'error' : 'Missing member id'}, status=status.HTTP_400_BAD_REQUEST)
+        else: 
+            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
