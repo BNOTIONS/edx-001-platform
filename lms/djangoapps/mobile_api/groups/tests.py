@@ -114,19 +114,18 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         remove_from_group(self, group_id, member_id)
         
 
-
+# Helper functions
 def delete_group(self, group_id):
     url = reverse('create-delete-group', kwargs={'group_id' : group_id}) 
     response = self.client.delete(url)
     self.assertEqual(response.status_code, 200)
 
 def invite_to_group(self, group_id, member_ids):
-        url = reverse('group-remove-member', kwargs={'group_id' : group_id, 'member_id' : ''}) 
+        url = reverse('add-remove-member', kwargs={'group_id' : group_id, 'member_id' : ''}) 
         return self.client.post(url, {  'member-ids' : member_ids })
 
 def remove_from_group(self, group_id, member_id): 
-    url = reverse('group-remove-member', kwargs={ 'group_id' : group_id, 
-                                                  'member_id' : member_id}) 
+    url = reverse('add-remove-member', kwargs={ 'group_id' : group_id, 'member_id' : member_id}) 
     response = self.client.delete(url)
     self.assertEqual(response.status_code, 200)
 
