@@ -11,15 +11,17 @@ and then for each combination of modulestores, performing the sequence:
     4) Compare all modules in the source and destination modulestores to make sure that they line up
 
 """
-import ddt
-import itertools
-import random
 from contextlib import contextmanager, nested
+import itertools
+from path import path
+import random
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from xmodule.tests import CourseComparisonTest
+import ddt
+from nose.plugins.attrib import attr
 
+from xmodule.tests import CourseComparisonTest
 from xmodule.modulestore.mongo.base import ModuleStoreEnum
 from xmodule.modulestore.mongo.draft import DraftModuleStore
 from xmodule.modulestore.mixed import MixedModuleStore
@@ -29,14 +31,18 @@ from xmodule.modulestore.xml_exporter import export_to_xml
 from xmodule.modulestore.split_mongo.split_draft import DraftVersioningModuleStore
 from xmodule.modulestore.tests.mongo_connection import MONGO_PORT_NUM, MONGO_HOST
 from xmodule.modulestore.inheritance import InheritanceMixin
+from xmodule.partitions.tests.test_partitions import PartitionTestCase
 from xmodule.x_module import XModuleMixin
+from xmodule.modulestore.xml import XMLModuleStore
+
+TEST_DATA_DIR = 'common/test/data/'
 
 
 COMMON_DOCSTORE_CONFIG = {
     'host': MONGO_HOST,
     'port': MONGO_PORT_NUM,
 }
-
+DATA_DIR = path(__file__).dirname().parent.parent / "tests" / "data" / "xml-course-root"
 
 XBLOCK_MIXINS = (InheritanceMixin, XModuleMixin)
 
@@ -163,6 +169,30 @@ class VersioningModulestoreBuilder(object):
         return 'SplitModulestoreBuilder()'
 
 
+class XmlModulestoreBuilder(object):
+    """
+    A builder class for a XMLModuleStore.
+    """
+    # pylint: disable=unused-argument
+    @contextmanager
+    def build(self, contentstore=None, course_ids=None):
+        """
+        A contextmanager that returns an isolated xml modulestore
+
+        Args:
+            contentstore: The contentstore that this modulestore should use to store
+                all of its assets.
+        """
+        modulestore = XMLModuleStore(
+            DATA_DIR,
+            course_ids=course_ids,
+            default_class='xmodule.hidden_module.HiddenDescriptor',
+            xblock_mixins=XBLOCK_MIXINS,
+        )
+
+        yield modulestore
+
+
 class MixedModulestoreBuilder(object):
     """
     A builder class for a MixedModuleStore.
@@ -237,13 +267,20 @@ class MongoContentstoreBuilder(object):
     def __repr__(self):
         return 'MongoContentstoreBuilder()'
 
-
-MODULESTORE_SETUPS = (
-    MongoModulestoreBuilder(),
-#     VersioningModulestoreBuilder(),  # FIXME LMS-11227
+MIXED_MODULESTORE_BOTH_SETUP = MixedModulestoreBuilder([
+    ('draft', MongoModulestoreBuilder()),
+    ('split', VersioningModulestoreBuilder())
+])
+MIXED_MODULESTORE_SETUPS = (
     MixedModulestoreBuilder([('draft', MongoModulestoreBuilder())]),
     MixedModulestoreBuilder([('split', VersioningModulestoreBuilder())]),
 )
+DIRECT_MODULESTORE_SETUPS = (
+    MongoModulestoreBuilder(),
+    # VersioningModulestoreBuilder(),  # FUTUREDO: LMS-11227
+)
+MODULESTORE_SETUPS = DIRECT_MODULESTORE_SETUPS + MIXED_MODULESTORE_SETUPS
+
 CONTENTSTORE_SETUPS = (MongoContentstoreBuilder(),)
 COURSE_DATA_NAMES = (
     'toy',
@@ -254,7 +291,8 @@ COURSE_DATA_NAMES = (
 
 
 @ddt.ddt
-class CrossStoreXMLRoundtrip(CourseComparisonTest):
+@attr('mongo')
+class CrossStoreXMLRoundtrip(CourseComparisonTest, PartitionTestCase):
     """
     This class exists to test XML import and export between different modulestore
     classes.
@@ -289,7 +327,7 @@ class CrossStoreXMLRoundtrip(CourseComparisonTest):
                         import_from_xml(
                             source_store,
                             'test_user',
-                            'common/test/data',
+                            TEST_DATA_DIR,
                             course_dirs=[course_data_name],
                             static_content_store=source_content,
                             target_course_id=source_course_key,

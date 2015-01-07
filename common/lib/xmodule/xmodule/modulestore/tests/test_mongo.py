@@ -1,6 +1,9 @@
-# pylint: disable=E1101
-# pylint: disable=W0212
-# pylint: disable=E0611
+"""
+Unit tests for the Mongo modulestore
+"""
+# pylint: disable=no-member
+# pylint: disable=protected-access
+# pylint: disable=no-name-in-module
 from nose.tools import assert_equals, assert_raises, \
     assert_not_equals, assert_false, assert_true, assert_greater, assert_is_instance, assert_is_none
 # pylint: enable=E0611
@@ -26,6 +29,7 @@ from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.mongo import MongoKeyValueStore
 from xmodule.modulestore.draft import DraftModuleStore
 from opaque_keys.edx.locations import SlashSeparatedCourseKey, AssetLocation
+from opaque_keys.edx.locator import LibraryLocator
 from opaque_keys.edx.keys import UsageKey
 from xmodule.modulestore.xml_exporter import export_to_xml
 from xmodule.modulestore.xml_importer import import_from_xml, perform_xlint
@@ -85,7 +89,6 @@ class TestMongoModuleStoreBase(unittest.TestCase):
 
     @classmethod
     def teardownClass(cls):
-#         cls.patcher.stop()
         if cls.connection:
             cls.connection.drop_database(DB)
             cls.connection.close()
@@ -232,6 +235,16 @@ class TestMongoModuleStore(TestMongoModuleStoreBase):
             )
             assert_false(self.draft_store.has_course(mix_cased))
             assert_false(self.draft_store.has_course(mix_cased, ignore_case=True))
+
+    def test_has_course_with_library(self):
+        """
+        Test that has_course() returns False when called with a LibraryLocator.
+        This is required because MixedModuleStore will use has_course() to check
+        where a given library are stored.
+        """
+        lib_key = LibraryLocator("TestOrg", "TestLib")
+        result = self.draft_store.has_course(lib_key)
+        assert_false(result)
 
     def test_loads(self):
         assert_not_none(
@@ -407,7 +420,7 @@ class TestMongoModuleStore(TestMongoModuleStoreBase):
         assert_equals(len(course_locations), 1)
         assert_in(SlashSeparatedCourseKey('edX', 'simple', '2012_Fall'), course_locations)
 
-    @Plugin.register_temp_plugin(ReferenceTestXBlock, 'ref_test')
+    @XBlock.register_temp_plugin(ReferenceTestXBlock, 'ref_test')
     def test_reference_converters(self):
         """
         Test that references types get deserialized correctly
@@ -685,12 +698,8 @@ class TestMongoModuleStoreWithNoAssetCollection(TestMongoModuleStore):
     def test_no_asset_collection(self):
         courses = self.draft_store.get_courses()
         course = courses[0]
-        # Confirm that no asset collection means no asset metadata.
-        self.assertEquals(self.draft_store.get_all_asset_metadata(course.id), None)
-        # Now delete the non-existent asset metadata.
-        self.draft_store.delete_all_asset_metadata(course.id, ModuleStoreEnum.UserID.test)
-        # Should still be nothing.
-        self.assertEquals(self.draft_store.get_all_asset_metadata(course.id), None)
+        # Confirm that no specified asset collection name means empty asset metadata.
+        self.assertEquals(self.draft_store.get_all_asset_metadata(course.id, 'asset'), [])
 
 
 class TestMongoKeyValueStore(object):

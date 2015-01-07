@@ -13,18 +13,18 @@ from django.test.client import Client
 
 from edxmako.shortcuts import render_to_string
 from student.tests.factories import UserFactory, CourseEnrollmentFactory
-from courseware.tests.modulestore_config import TEST_DATA_MIXED_MODULESTORE
+from xmodule.modulestore.tests.django_utils import TEST_DATA_MONGO_MODULESTORE
 from xblock.field_data import DictFieldData
 from xmodule.tests import get_test_system, get_test_descriptor_system
 from opaque_keys.edx.locations import Location
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.tests.factories import CourseFactory, ItemFactory
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
-from lms.lib.xblock.field_data import LmsFieldData
-from lms.lib.xblock.runtime import quote_slashes
+from lms.djangoapps.lms_xblock.field_data import LmsFieldData
+from lms.djangoapps.lms_xblock.runtime import quote_slashes
 
 
-@override_settings(MODULESTORE=TEST_DATA_MIXED_MODULESTORE)
+@override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
 class BaseTestXmodule(ModuleStoreTestCase):
     """Base class for testing Xmodules with mongo store.
 

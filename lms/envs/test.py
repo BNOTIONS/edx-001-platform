@@ -10,13 +10,14 @@ sessions. Assumes structure:
 
 # We intentionally define lots of variables that aren't used, and
 # want to import all variables from base settings files
-# pylint: disable=W0401, W0614
+# pylint: disable=wildcard-import, unused-wildcard-import
 
 from .common import *
 import os
 from path import path
-from warnings import filterwarnings, simplefilter
+from tempfile import mkdtemp
 from uuid import uuid4
+from warnings import filterwarnings, simplefilter
 
 # mongo connection settings
 MONGO_PORT_NUM = int(os.environ.get('EDXAPP_TEST_MONGO_PORT', '27017'))
@@ -52,6 +53,8 @@ FEATURES['ALLOW_COURSE_STAFF_GRADE_DOWNLOADS'] = True
 
 # Toggles embargo on for testing
 FEATURES['EMBARGO'] = True
+
+FEATURES['ENABLE_COMBINED_LOGIN_REGISTRATION'] = True
 
 # Need wiki for courseware views to work. TODO (vshnayder): shouldn't need it.
 WIKI_ENABLED = True
@@ -119,8 +122,8 @@ STATICFILES_DIRS += [
 # If we don't add these settings, then Django templates that can't
 # find pipelined assets will raise a ValueError.
 # http://stackoverflow.com/questions/12816941/unit-testing-with-django-pipeline
-STATICFILES_STORAGE='pipeline.storage.NonPackagingPipelineStorage'
-PIPELINE_ENABLED=False
+STATICFILES_STORAGE = 'pipeline.storage.NonPackagingPipelineStorage'
+PIPELINE_ENABLED = False
 
 update_module_store_settings(
     MODULESTORE,
@@ -128,7 +131,7 @@ update_module_store_settings(
         'fs_root': TEST_ROOT / "data",
     },
     xml_store_options={
-        'data_dir': COMMON_TEST_DATA_ROOT,
+        'data_dir': mkdtemp(dir=TEST_ROOT),  # never inadvertently load all the XML courses
     },
     doc_store_settings={
         'host': MONGO_HOST,
@@ -197,8 +200,9 @@ filterwarnings('ignore', message='No request passed to the backend, unable to ra
 
 # Ignore deprecation warnings (so we don't clutter Jenkins builds/production)
 # https://docs.python.org/2/library/warnings.html#the-warnings-filter
-simplefilter('ignore')  # Change to "default" to see the first instance of each hit
-                        # or "error" to convert all into errors
+# Change to "default" to see the first instance of each hit
+# or "error" to convert all into errors
+simplefilter('ignore')
 
 ######### Third-party auth ##########
 FEATURES['ENABLE_THIRD_PARTY_AUTH'] = True
@@ -350,6 +354,10 @@ MICROSITE_CONFIGURATION = {
         "course_index_overlay_logo_file": "test_microsite/images/header-logo.png",
         "homepage_overlay_html": "<h1>This is a Test Microsite Overlay HTML</h1>",
         "ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER": False,
+        "COURSE_CATALOG_VISIBILITY_PERMISSION": "see_in_catalog",
+        "COURSE_ABOUT_VISIBILITY_PERMISSION": "see_about_page",
+        "ENABLE_SHOPPING_CART": True,
+        "ENABLE_PAID_COURSE_REGISTRATION": True,
     },
     "default": {
         "university": "default_university",
@@ -372,8 +380,8 @@ LINKEDIN_API['COMPANY_ID'] = '0000000'
 
 # Setting for the testing of Software Secure Result Callback
 VERIFY_STUDENT["SOFTWARE_SECURE"] = {
-        "API_ACCESS_KEY": "BBBBBBBBBBBBBBBBBBBB",
-        "API_SECRET_KEY": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "API_ACCESS_KEY": "BBBBBBBBBBBBBBBBBBBB",
+    "API_SECRET_KEY": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
 }
 
 VIDEO_CDN_URL = {

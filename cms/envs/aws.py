@@ -4,7 +4,7 @@ This is the default template for our main set of AWS servers.
 
 # We intentionally define lots of variables that aren't used, and
 # want to import all variables from base settings files
-# pylint: disable=W0401, W0614
+# pylint: disable=wildcard-import, unused-wildcard-import
 
 import json
 
@@ -215,7 +215,8 @@ with open(CONFIG_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
 ############### XBlock filesystem field config ##########
-DJFS = AUTH_TOKENS.get('DJFS', None)
+if 'DJFS' in AUTH_TOKENS and AUTH_TOKENS['DJFS'] is not None:
+    DJFS = AUTH_TOKENS['DJFS']
 
 EMAIL_HOST_USER = AUTH_TOKENS.get('EMAIL_HOST_USER', EMAIL_HOST_USER)
 EMAIL_HOST_PASSWORD = AUTH_TOKENS.get('EMAIL_HOST_PASSWORD', EMAIL_HOST_PASSWORD)
@@ -294,3 +295,10 @@ ADVANCED_SECURITY_CONFIG = ENV_TOKENS.get('ADVANCED_SECURITY_CONFIG', {})
 
 ADVANCED_COMPONENT_TYPES = ENV_TOKENS.get('ADVANCED_COMPONENT_TYPES', ADVANCED_COMPONENT_TYPES)
 ADVANCED_PROBLEM_TYPES = ENV_TOKENS.get('ADVANCED_PROBLEM_TYPES', ADVANCED_PROBLEM_TYPES)
+DEPRECATED_ADVANCED_COMPONENT_TYPES = ENV_TOKENS.get(
+    'DEPRECATED_ADVANCED_COMPONENT_TYPES', DEPRECATED_ADVANCED_COMPONENT_TYPES
+)
+
+################ VIDEO UPLOAD PIPELINE ###############
+
+VIDEO_UPLOAD_PIPELINE = ENV_TOKENS.get('VIDEO_UPLOAD_PIPELINE', VIDEO_UPLOAD_PIPELINE)

@@ -1,12 +1,10 @@
 """
 Test for LMS instructor background task queue management
 """
-
+from bulk_email.models import CourseEmail, SEND_TO_ALL
+from courseware.tests.factories import UserFactory
 from xmodule.modulestore.exceptions import ItemNotFoundError
 
-from courseware.tests.factories import UserFactory
-
-from bulk_email.models import CourseEmail, SEND_TO_ALL
 from instructor_task.api import (
     get_running_instructor_tasks,
     get_instructor_task_history,
@@ -16,6 +14,7 @@ from instructor_task.api import (
     submit_delete_problem_state_for_all_students,
     submit_bulk_course_email,
     submit_calculate_students_features_csv,
+    submit_cohort_students,
 )
 
 from instructor_task.api_helper import AlreadyRunningError
@@ -170,7 +169,7 @@ class InstructorTaskCourseSubmitTest(TestReportMixin, InstructorTaskCourseTestCa
     def _define_course_email(self):
         """Create CourseEmail object for testing."""
         course_email = CourseEmail.create(self.course.id, self.instructor, SEND_TO_ALL, "Test Subject", "<p>This is a test message</p>")
-        return course_email.id  # pylint: disable=E1101
+        return course_email.id  # pylint: disable=no-member
 
     def _test_resubmission(self, api_call):
         """
@@ -181,7 +180,7 @@ class InstructorTaskCourseSubmitTest(TestReportMixin, InstructorTaskCourseTestCa
         `AlreadyRunningError`.
         """
         instructor_task = api_call()
-        instructor_task = InstructorTask.objects.get(id=instructor_task.id)  # pylint: disable=E1101
+        instructor_task = InstructorTask.objects.get(id=instructor_task.id)  # pylint: disable=no-member
         instructor_task.task_state = PROGRESS
         instructor_task.save()
         with self.assertRaises(AlreadyRunningError):
@@ -201,5 +200,13 @@ class InstructorTaskCourseSubmitTest(TestReportMixin, InstructorTaskCourseTestCa
             self.create_task_request(self.instructor),
             self.course.id,
             features=[]
+        )
+        self._test_resubmission(api_call)
+
+    def test_submit_cohort_students(self):
+        api_call = lambda: submit_cohort_students(
+            self.create_task_request(self.instructor),
+            self.course.id,
+            file_name=u'filename.csv'
         )
         self._test_resubmission(api_call)

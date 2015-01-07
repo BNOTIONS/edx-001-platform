@@ -13,8 +13,9 @@ from contracts import contract, new_contract
 
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey, AssetKey
+from opaque_keys.edx.locator import LibraryLocator
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
-from xmodule.assetstore import AssetMetadata, AssetThumbnailMetadata
+from xmodule.assetstore import AssetMetadata
 
 from . import ModuleStoreWriteBase
 from . import ModuleStoreEnum
@@ -25,7 +26,7 @@ from .split_migrator import SplitMigrator
 new_contract('CourseKey', CourseKey)
 new_contract('AssetKey', AssetKey)
 new_contract('AssetMetadata', AssetMetadata)
-new_contract('AssetThumbnailMetadata', AssetThumbnailMetadata)
+new_contract('LibraryLocator', LibraryLocator)
 
 log = logging.getLogger(__name__)
 
@@ -260,6 +261,23 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
                     courses[course_id] = course
         return courses.values()
 
+    @strip_key
+    def get_libraries(self, **kwargs):
+        """
+        Returns a list containing the top level XBlock of the libraries (LibraryRoot) in this modulestore.
+        """
+        libraries = {}
+        for store in self.modulestores:
+            if not hasattr(store, 'get_libraries'):
+                continue
+            # filter out ones which were fetched from earlier stores but locations may not be ==
+            for course in store.get_libraries(**kwargs):
+                course_id = self._clean_course_id_for_mapping(course.location)
+                if course_id not in libraries:
+                    # course is indeed unique. save it in result
+                    libraries[course_id] = course
+        return libraries.values()
+
     def make_course_key(self, org, course, run):
         """
         Return a valid :class:`~opaque_keys.edx.keys.CourseKey` for this modulestore
@@ -292,6 +310,24 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
             return None
 
     @strip_key
+    @contract(library_key='LibraryLocator')
+    def get_library(self, library_key, depth=0, **kwargs):
+        """
+        returns the library block associated with the given key. If no such library exists,
+        it returns None
+
+        :param library_key: must be a LibraryLocator
+        """
+        try:
+            store = self._verify_modulestore_support(library_key, 'get_library')
+            return store.get_library(library_key, depth=depth, **kwargs)
+        except NotImplementedError:
+            log.exception("Modulestore configured for %s does not have get_library method", library_key)
+            return None
+        except ItemNotFoundError:
+            return None
+
+    @strip_key
     def has_course(self, course_id, ignore_case=False, **kwargs):
         """
         returns the course_id of the course if it was found, else None
@@ -315,8 +351,8 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         store = self._get_modulestore_for_courseid(course_key)
         return store.delete_course(course_key, user_id)
 
-    @contract(course_key='CourseKey', asset_metadata='AssetMetadata')
-    def save_asset_metadata(self, course_key, asset_metadata, user_id):
+    @contract(asset_metadata='AssetMetadata')
+    def save_asset_metadata(self, asset_metadata, user_id):
         """
         Saves the asset metadata for a particular course's asset.
 
@@ -324,20 +360,8 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         course_key (CourseKey): course identifier
         asset_metadata (AssetMetadata): data about the course asset data
         """
-        store = self._get_modulestore_for_courseid(course_key)
-        return store.save_asset_metadata(course_key, asset_metadata, user_id)
-
-    @contract(course_key='CourseKey', asset_thumbnail_metadata='AssetThumbnailMetadata')
-    def save_asset_thumbnail_metadata(self, course_key, asset_thumbnail_metadata, user_id):
-        """
-        Saves the asset thumbnail metadata for a particular course asset's thumbnail.
-
-        Arguments:
-            course_key (CourseKey): course identifier
-            asset_thumbnail_metadata (AssetThumbnailMetadata): data about the course asset thumbnail
-        """
-        store = self._get_modulestore_for_courseid(course_key)
-        return store.save_asset_thumbnail_metadata(course_key, asset_thumbnail_metadata, user_id)
+        store = self._get_modulestore_for_courseid(asset_metadata.asset_id.course_key)
+        return store.save_asset_metadata(asset_metadata, user_id)
 
     @strip_key
     @contract(asset_key='AssetKey')
@@ -355,23 +379,8 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         return store.find_asset_metadata(asset_key, **kwargs)
 
     @strip_key
-    @contract(asset_key='AssetKey')
-    def find_asset_thumbnail_metadata(self, asset_key, **kwargs):
-        """
-        Find the metadata for a particular course asset.
-
-        Arguments:
-            asset_key (AssetKey): key containing original asset filename
-
-        Returns:
-            asset metadata (AssetMetadata) -or- None if not found
-        """
-        store = self._get_modulestore_for_courseid(asset_key.course_key)
-        return store.find_asset_thumbnail_metadata(asset_key, **kwargs)
-
-    @strip_key
-    @contract(course_key='CourseKey', start=int, maxresults=int, sort='list | None')
-    def get_all_asset_metadata(self, course_key, start=0, maxresults=-1, sort=None, **kwargs):
+    @contract(course_key='CourseKey', start=int, maxresults=int, sort='tuple|None')
+    def get_all_asset_metadata(self, course_key, asset_type, start=0, maxresults=-1, sort=None, **kwargs):
         """
         Returns a list of static assets for a course.
         By default all assets are returned, but start and maxresults can be provided to limit the query.
@@ -394,22 +403,7 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
                 md5: An md5 hash of the asset content
         """
         store = self._get_modulestore_for_courseid(course_key)
-        return store.get_all_asset_metadata(course_key, start, maxresults, sort, **kwargs)
-
-    @strip_key
-    @contract(course_key='CourseKey')
-    def get_all_asset_thumbnail_metadata(self, course_key, **kwargs):
-        """
-        Returns a list of thumbnails for all course assets.
-
-        Args:
-            course_key (CourseKey): course identifier
-
-        Returns:
-            List of AssetThumbnailMetadata objects.
-        """
-        store = self._get_modulestore_for_courseid(course_key)
-        return store.get_all_asset_thumbnail_metadata(course_key, **kwargs)
+        return store.get_all_asset_metadata(course_key, asset_type, start, maxresults, sort, **kwargs)
 
     @contract(asset_key='AssetKey')
     def delete_asset_metadata(self, asset_key, user_id):
@@ -425,31 +419,6 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         store = self._get_modulestore_for_courseid(asset_key.course_key)
         return store.delete_asset_metadata(asset_key, user_id)
 
-    @contract(asset_key='AssetKey')
-    def delete_asset_thumbnail_metadata(self, asset_key, user_id):
-        """
-        Deletes a single asset's metadata.
-
-        Arguments:
-            asset_key (AssetKey): locator containing original asset filename
-
-        Returns:
-            Number of asset metadata entries deleted (0 or 1)
-        """
-        store = self._get_modulestore_for_courseid(asset_key.course_key)
-        return store.delete_asset_thumbnail_metadata(asset_key, user_id)
-
-    @contract(course_key='CourseKey')
-    def delete_all_asset_metadata(self, course_key, user_id):
-        """
-        Delete all of the assets which use this course_key as an identifier.
-
-        Arguments:
-            course_key (CourseKey): course_identifier
-        """
-        store = self._get_modulestore_for_courseid(course_key)
-        return store.delete_all_asset_metadata(course_key, user_id)
-
     @contract(source_course_key='CourseKey', dest_course_key='CourseKey')
     def copy_all_asset_metadata(self, source_course_key, dest_course_key, user_id):
         """
@@ -459,11 +428,21 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
             source_course_key (CourseKey): identifier of course to copy from
             dest_course_key (CourseKey): identifier of course to copy to
         """
-        # When implementing this in https://openedx.atlassian.net/browse/PLAT-78 , consider this:
-        #  Check the modulestores of both the source and dest course_keys. If in different modulestores,
-        #  export all asset data from one modulestore and import it into the dest one.
-        store = self._get_modulestore_for_courseid(source_course_key)
-        return store.copy_all_asset_metadata(source_course_key, dest_course_key, user_id)
+        source_store = self._get_modulestore_for_courseid(source_course_key)
+        dest_store = self._get_modulestore_for_courseid(dest_course_key)
+        if source_store != dest_store:
+            with self.bulk_operations(dest_course_key):
+                # Get all the asset metadata in the source course.
+                all_assets = source_store.get_all_asset_metadata(source_course_key, 'asset')
+                # Store it all in the dest course.
+                for asset in all_assets:
+                    new_asset_key = dest_course_key.make_asset_key('asset', asset.asset_id.path)
+                    copied_asset = AssetMetadata(new_asset_key)
+                    copied_asset.from_storable(asset.to_storable())
+                    dest_store.save_asset_metadata(copied_asset, user_id)
+        else:
+            # Courses in the same modulestore can be handled by the modulestore itself.
+            source_store.copy_all_asset_metadata(source_course_key, dest_course_key, user_id)
 
     @contract(asset_key='AssetKey', attr=str)
     def set_asset_metadata_attr(self, asset_key, attr, value, user_id):
@@ -564,6 +543,34 @@ class MixedModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase):
         self.mappings[course_key] = store
 
         return course
+
+    @strip_key
+    def create_library(self, org, library, user_id, fields, **kwargs):
+        """
+        Creates and returns a new library.
+
+        Args:
+            org (str): the organization that owns the course
+            library (str): the code/number/name of the library
+            user_id: id of the user creating the course
+            fields (dict): Fields to set on the course at initialization - e.g. display_name
+            kwargs: Any optional arguments understood by a subset of modulestores to customize instantiation
+
+        Returns: a LibraryRoot
+        """
+        # first make sure an existing course/lib doesn't already exist in the mapping
+        lib_key = LibraryLocator(org=org, library=library)
+        if lib_key in self.mappings:
+            raise DuplicateCourseError(lib_key, lib_key)
+
+        # create the library
+        store = self._verify_modulestore_support(None, 'create_library')
+        library = store.create_library(org, library, user_id, fields, **kwargs)
+
+        # add new library to the mapping
+        self.mappings[lib_key] = store
+
+        return library
 
     @strip_key
     def clone_course(self, source_course_id, dest_course_id, user_id, fields=None, **kwargs):

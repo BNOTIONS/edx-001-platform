@@ -22,7 +22,7 @@ from xblock.django.request import webob_to_django_response, django_to_webob_requ
 from xblock.exceptions import NoSuchHandlerError
 from xblock.fragment import Fragment
 
-from lms.lib.xblock.field_data import LmsFieldData
+from lms.djangoapps.lms_xblock.field_data import LmsFieldData
 from cms.lib.xblock.field_data import CmsFieldData
 from cms.lib.xblock.runtime import local_resource_url
 
@@ -95,6 +95,10 @@ class PreviewModuleSystem(ModuleSystem):  # pylint: disable=abstract-method
     def local_resource_url(self, block, uri):
         return local_resource_url(block, uri)
 
+    def get_asides(self, block):
+        # TODO: Implement this to enable XBlockAsides on previews in Studio
+        return []
+
 
 class StudioUserService(object):
     """
@@ -110,7 +114,7 @@ class StudioUserService(object):
         return self._request.user.id
 
 
-def _preview_module_system(request, descriptor):
+def _preview_module_system(request, descriptor, field_data):
     """
     Returns a ModuleSystem for the specified descriptor that is specialized for
     rendering module previews.
@@ -151,7 +155,7 @@ def _preview_module_system(request, descriptor):
         replace_urls=partial(static_replace.replace_static_urls, data_directory=None, course_id=course_id),
         user=request.user,
         can_execute_unsafe_code=(lambda: can_execute_unsafe_code(course_id)),
-        get_python_lib_zip=(lambda :get_python_lib_zip(contentstore, course_id)),
+        get_python_lib_zip=(lambda: get_python_lib_zip(contentstore, course_id)),
         mixins=settings.XBLOCK_MIXINS,
         course_id=course_id,
         anonymous_student_id='student',
@@ -163,6 +167,7 @@ def _preview_module_system(request, descriptor):
         descriptor_runtime=descriptor.runtime,
         services={
             "i18n": ModuleI18nService(),
+            "field-data": field_data,
         },
     )
 
@@ -181,7 +186,7 @@ def _load_preview_module(request, descriptor):
     else:
         field_data = LmsFieldData(descriptor._field_data, student_data)  # pylint: disable=protected-access
     descriptor.bind_for_student(
-        _preview_module_system(request, descriptor),
+        _preview_module_system(request, descriptor, field_data),
         field_data
     )
     return descriptor
@@ -227,7 +232,7 @@ def get_preview_fragment(request, descriptor, context):
 
     try:
         fragment = module.render(preview_view, context)
-    except Exception as exc:                          # pylint: disable=W0703
+    except Exception as exc:                          # pylint: disable=broad-except
         log.warning("Unable to render %s for %r", preview_view, module, exc_info=True)
         fragment = Fragment(render_to_string('html_error.html', {'message': str(exc)}))
     return fragment

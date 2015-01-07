@@ -201,7 +201,7 @@ nav.sequence-nav {
           color: #fff;
           font-family: $sans-serif;
           line-height: lh();
-          left: 0px;
+          right: 0px;
           opacity: 0.0;
           padding: 6px;
           position: absolute;
@@ -212,6 +212,7 @@ nav.sequence-nav {
           z-index: 99;
           visibility: hidden;
           pointer-events: none;
+
 
           &:empty {
             background: none;
@@ -226,7 +227,7 @@ nav.sequence-nav {
             content: " ";
             display: block;
             height: 10px;
-            left: 18px;
+            right: 18px;
             position: absolute;
             top: -5px;
             @include transform(rotate(45deg));

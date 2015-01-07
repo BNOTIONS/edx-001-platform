@@ -10,7 +10,7 @@
 # Ha Ngoc Chung <ngocchung75@gmail.com>, 2013
 # Nguyen Quang Huy <huynq23091@gmail.com>, 2013-2014
 # hoad, 2013
-# HoaD, 2013
+# HoaD, 2013-2014
 # Hoang Ha <halink0803@gmail.com>, 2014
 # Minh Tue Vo <mvo@edx.org>, 2014
 # Ha Ngoc Chung <ngocchung75@gmail.com>, 2013
@@ -61,7 +61,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: openedx-translation@googlegroups.com\n"
-"POT-Creation-Date: 2014-11-03 13:19-0500\n"
+"POT-Creation-Date: 2014-12-15 18:24+0000\n"
 "PO-Revision-Date: 2014-10-18 07:50+0000\n"
 "Last-Translator: Doan Viet Hung <viethung.doan@gmail.com>\n"
 "Language-Team: Vietnamese (http://www.transifex.com/projects/p/edx-platform/language/vi/)\n"
@@ -93,8 +93,6 @@ msgstr "OK"
 #: cms/static/js/views/modals/course_outline_modals.js
 #: cms/static/js/views/utils/view_utils.js
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
 msgid "Cancel"
 msgstr "Hủy bỏ"
 
@@ -107,7 +105,7 @@ msgstr "Liên kết này sẽ mở ra trong một cửa sổ hoặc tab mới c�
 #: lms/static/coffee/src/instructor_dashboard/util.js
 #: lms/static/coffee/src/instructor_dashboard/util.js
 msgid "Unknown"
-msgstr ""
+msgstr "Không biết"
 
 #: cms/static/js/factories/manage_users.js cms/static/js/views/asset.js
 #: cms/static/js/views/group_configuration_item.js
@@ -123,6 +121,10 @@ msgstr "Xóa"
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 msgid "Name"
 msgstr "Tên"
+
+#: cms/static/js/views/metadata.js lms/static/js/views/file_uploader.js
+msgid "Upload File"
+msgstr ""
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -169,7 +171,7 @@ msgstr[0] "(%(earned)s/%(possible)s điểm)"
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
 msgid "(%(num_points)s point possible)"
 msgid_plural "(%(num_points)s points possible)"
-msgstr[0] "(có khả năng đạt %(num_points)s)"
+msgstr[0] ""
 
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
@@ -195,7 +197,7 @@ msgstr "Tiết Lộ Câu Trả Lời"
 
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
 msgid "Answer hidden"
-msgstr "Câu trả lời ẩn"
+msgstr ""
 
 #. Translators: the word unanswered here is about answering a problem the
 #. student must solve.;
@@ -212,7 +214,7 @@ msgstr "Trạng thái: chưa gửi"
 #. they feel they were graded on this problem
 #: common/lib/xmodule/xmodule/js/src/combinedopenended/display.js
 msgid "You need to pick a rating before you can submit."
-msgstr "Cần bình chọn trước khi gửi."
+msgstr ""
 
 #. Translators: this message appears when transitioning between openended
 #. grading
@@ -304,7 +306,7 @@ msgstr "Ẩn Câu Hỏi"
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 msgid "Paragraph"
-msgstr ""
+msgstr "Đoạn văn"
 
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 msgid "Preformatted"
@@ -2132,161 +2134,6 @@ msgstr ""
 msgid "Tags:"
 msgstr ""
 
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Available %s"
-msgstr "Có sẵn %s"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid ""
-"This is the list of available %s. You may choose some by selecting them in "
-"the box below and then clicking the \"Choose\" arrow between the two boxes."
-msgstr ""
-"Đây là danh sách %s có sẵn. Bạn có thể lựa chọn bằng cách chọn chúng trong "
-"hộp dưới đây rồi nhấn vào mũi tên \"Chọn\" giữa hai hộp."
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Type into this box to filter down the list of available %s."
-msgstr "Gõ vào ô này để lọc ra danh sách %s có sẵn."
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Filter"
-msgstr "Lọc"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Choose all"
-msgstr "Chọn tất cả"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Click to choose all %s at once."
-msgstr "Nhấn vào đây để chọn tất cả %s cùng một lúc."
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Choose"
-msgstr "Chọn"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Remove"
-msgstr "Loại bỏ"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Chosen %s"
-msgstr "%s đã được chọn"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid ""
-"This is the list of chosen %s. You may remove some by selecting them in the "
-"box below and then clicking the \"Remove\" arrow between the two boxes."
-msgstr ""
-"Đây là danh sách %s đã lựa chọn. Bạn có thể loại bỏ một số bằng cách chọn "
-"chúng ở ô bên dưới và sau đó nhấp vào mũi tên \"Loại Bỏ\" giữa hai hộp."
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Remove all"
-msgstr "Loại bỏ tất cả"
-
-#: lms/static/admin/js/SelectFilter2.js
-msgid "Click to remove all chosen %s at once."
-msgstr "Nhấn để loại bỏ tất cả %s đã chọn cùng một lúc."
-
-#: lms/static/admin/js/actions.js lms/static/admin/js/actions.min.js
-msgid "%(sel)s of %(cnt)s selected"
-msgid_plural "%(sel)s of %(cnt)s selected"
-msgstr[0] "%(sel)s của %(cnt)s đã chọn"
-
-#: lms/static/admin/js/actions.js lms/static/admin/js/actions.min.js
-msgid ""
-"You have unsaved changes on individual editable fields. If you run an "
-"action, your unsaved changes will be lost."
-msgstr ""
-"Bạn chưa lưu thay đổi trong các mục chỉnh sửa cá nhân. Nếu bạn chạy một tác "
-"vụ, những thay đổi  chưa lưu sẽ bị mất."
-
-#: lms/static/admin/js/actions.js lms/static/admin/js/actions.min.js
-msgid ""
-"You have selected an action, but you haven't saved your changes to "
-"individual fields yet. Please click OK to save. You'll need to re-run the "
-"action."
-msgstr ""
-"Bạn đã chọn một tác vụ, nhưng bạn chưa lưu những thay đổi của bạn trong mục "
-"cá nhân. Hãy nhấn OK để lưu. Bạn sẽ cần chạy lại tác vụ."
-
-#: lms/static/admin/js/actions.js lms/static/admin/js/actions.min.js
-msgid ""
-"You have selected an action, and you haven't made any changes on individual "
-"fields. You're probably looking for the Go button rather than the Save "
-"button."
-msgstr ""
-
-#. Translators: the names of months, keep the pipe (|) separators.
-#: lms/static/admin/js/calendar.js lms/static/admin/js/dateparse.js
-msgid ""
-"January|February|March|April|May|June|July|August|September|October|November|December"
-msgstr ""
-"Tháng 1|Tháng 2|Tháng 3|Tháng 4|Tháng 5|Tháng 6|Tháng 7|Tháng 8|Tháng "
-"9|Tháng 10|Tháng 11|Tháng 12"
-
-#. Translators: abbreviations for days of the week, keep the pipe (|)
-#. separators.
-#: lms/static/admin/js/calendar.js
-msgid "S|M|T|W|T|F|S"
-msgstr "CN|T2|T3|T4|T5|T6|T7"
-
-#: lms/static/admin/js/collapse.js lms/static/admin/js/collapse.js.c
-#: lms/static/admin/js/collapse.min.js
-msgid "Show"
-msgstr "Hiện"
-
-#: lms/static/admin/js/collapse.js lms/static/admin/js/collapse.min.js
-msgid "Hide"
-msgstr "Ẩn"
-
-#. Translators: the names of days, keep the pipe (|) separators.
-#: lms/static/admin/js/dateparse.js
-msgid "Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday"
-msgstr "Chủ Nhật|Thứ 2|Thứ 3|Thứ 4|Thứ 5|Thứ 6|Thứ 7"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Now"
-msgstr "Bây giờ"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Clock"
-msgstr "Đồng hồ"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Choose a time"
-msgstr "Chọn thời gian"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Midnight"
-msgstr "Nửa đêm"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "6 a.m."
-msgstr "6h sáng"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Noon"
-msgstr "Giữa trưa"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Today"
-msgstr "Hôm nay"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Calendar"
-msgstr "Lịch"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Yesterday"
-msgstr "Hôm qua"
-
-#: lms/static/admin/js/admin/DateTimeShortcuts.js
-msgid "Tomorrow"
-msgstr "Ngày mai"
-
 #: lms/static/coffee/src/calculator.js
 msgid "Open Calculator"
 msgstr ""
@@ -2297,33 +2144,6 @@ msgstr ""
 
 #: lms/static/coffee/src/customwmd.js
 msgid "Post body"
-msgstr ""
-
-#. Translators: "Distribution" refers to a grade distribution. This error
-#. message appears when there is an error getting the data on grade
-#. distribution.;
-#: lms/static/coffee/src/instructor_dashboard/analytics.js
-msgid "Error fetching distribution."
-msgstr ""
-
-#: lms/static/coffee/src/instructor_dashboard/analytics.js
-#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
-msgid "Unavailable metric display."
-msgstr ""
-
-#: lms/static/coffee/src/instructor_dashboard/analytics.js
-#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
-msgid "Error fetching grade distributions."
-msgstr ""
-
-#: lms/static/coffee/src/instructor_dashboard/analytics.js
-#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
-msgid "Last Updated: <%= timestamp %>"
-msgstr ""
-
-#: lms/static/coffee/src/instructor_dashboard/analytics.js
-#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
-msgid "<%= num_students %> students scored."
 msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/data_download.js
@@ -2354,6 +2174,22 @@ msgstr ""
 msgid ""
 "Links are generated on demand and expire within 5 minutes due to the "
 "sensitive nature of student information."
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
+msgid "Unavailable metric display."
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
+msgid "Error fetching grade distributions."
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
+msgid "Last Updated: <%= timestamp %>"
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/instructor_analytics.js
+msgid "<%= num_students %> students scored."
 msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/membership.js
@@ -2399,11 +2235,23 @@ msgid "Error: You cannot remove yourself from the Instructor group!"
 msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/membership.js
+msgid "Errors"
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/membership.js
 msgid "The following errors were generated:"
 msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/membership.js
+msgid "Warnings"
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/membership.js
 msgid "The following warnings were generated:"
+msgstr ""
+
+#: lms/static/coffee/src/instructor_dashboard/membership.js
+msgid "Success"
 msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/membership.js
@@ -2514,6 +2362,12 @@ msgstr "Tin nhắn của bạn phải có tiêu đề."
 #: lms/static/coffee/src/instructor_dashboard/send_email.js
 msgid "Your message cannot be blank."
 msgstr "Tin nhắn của bạn phải có nội dung."
+
+#: lms/static/coffee/src/instructor_dashboard/send_email.js
+msgid ""
+"There are invalid keywords in your email. Please check the following "
+"keywords and try again:"
+msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/send_email.js
 msgid "Your email was successfully queued for sending."
@@ -3027,7 +2881,7 @@ msgstr ""
 
 #: lms/static/js/student_profile/profile.js
 msgid "Full name cannot be blank"
-msgstr ""
+msgstr "Tên đầy đủ không được để trống"
 
 #: lms/static/js/student_profile/profile.js
 msgid "Language cannot be blank"
@@ -3095,6 +2949,36 @@ msgstr ""
 
 #: lms/static/js/views/cohorts.js
 msgid "Please enter a name for your new cohort group."
+msgstr ""
+
+#: lms/static/js/views/cohorts.js
+msgid "Assign students to cohort groups by uploading a CSV file."
+msgstr ""
+
+#: lms/static/js/views/cohorts.js
+msgid "Choose a .csv file"
+msgstr ""
+
+#: lms/static/js/views/cohorts.js
+msgid "Only properly formatted .csv files will be accepted."
+msgstr ""
+
+#: lms/static/js/views/cohorts.js
+msgid "Upload File and Assign Students"
+msgstr ""
+
+#: lms/static/js/views/cohorts.js
+msgid ""
+"Your file '{file}' has been uploaded. Please allow a few minutes for "
+"processing."
+msgstr ""
+
+#: lms/static/js/views/file_uploader.js
+msgid "Your upload of '{file}' succeeded."
+msgstr ""
+
+#: lms/static/js/views/file_uploader.js
+msgid "Your upload of '{file}' failed."
 msgstr ""
 
 #: lms/templates/class_dashboard/all_section_metrics.js
@@ -3178,14 +3062,14 @@ msgstr ""
 
 #: cms/static/js/collections/group.js
 msgid "Group %s"
-msgstr ""
+msgstr "Nhóm %s"
 
 #. Translators: Dictionary used for creation ids that are used in
 #. default group names. For example: A, B, AA in Group A,
 #. Group B, ..., Group AA, etc.
 #: cms/static/js/collections/group.js
 msgid "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-msgstr ""
+msgstr "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 #: cms/static/js/factories/export.js
 msgid "There has been an error while exporting."
@@ -3356,6 +3240,10 @@ msgstr ""
 msgid "or"
 msgstr "hoặc"
 
+#: cms/static/js/models/xblock_validation.js
+msgid "This component has validation issues."
+msgstr ""
+
 #: cms/static/js/models/settings/course_details.js
 msgid "The course must have an assigned start date."
 msgstr "Khoá học phải ấn định ngày bắt đầu."
@@ -3424,7 +3312,25 @@ msgid "Date Added"
 msgstr "Ngày Thêm Vào"
 
 #: cms/static/js/views/assets.js
-msgid "Uploading…"
+msgid "File {filename} exceeds maximum size of {maxFileSizeInMBs} MB"
+msgstr ""
+
+#: cms/static/js/views/assets.js
+msgid ""
+"Please follow the instructions here to upload a file elsewhere and link to "
+"it: {maxFileSizeRedirectUrl}"
+msgstr ""
+
+#: cms/static/js/views/assets.js
+msgid "Your file could not be uploaded"
+msgstr ""
+
+#: cms/static/js/views/assets.js
+msgid "Max file size exceeded"
+msgstr ""
+
+#: cms/static/js/views/assets.js
+msgid "Uploading"
 msgstr ""
 
 #: cms/static/js/views/assets.js
@@ -3432,12 +3338,12 @@ msgstr ""
 msgid "Choose File"
 msgstr ""
 
-#: cms/static/js/views/assets.js
+#: cms/static/js/views/assets.js cms/static/js/views/assets.js.c
 #: cms/templates/js/asset-upload-modal.underscore
 msgid "Upload New File"
 msgstr ""
 
-#: cms/static/js/views/assets.js
+#: cms/static/js/views/assets.js cms/static/js/views/assets.js.c
 msgid "Load Another File"
 msgstr ""
 
@@ -3520,7 +3426,7 @@ msgstr ""
 
 #: cms/static/js/views/import.js
 msgid "There was an error with the upload"
-msgstr "Có lỗi trong quá trình tải lên"
+msgstr ""
 
 #: cms/static/js/views/import.js
 msgid ""
@@ -3529,10 +3435,6 @@ msgid ""
 msgstr ""
 "Định dạng tập tin không được hỗ trợ. Xin vui lòng tải lên một tập tin với "
 "phần mở rộng <code>tar.gz</code>."
-
-#: cms/static/js/views/metadata.js
-msgid "Upload File"
-msgstr ""
 
 #: cms/static/js/views/overview.js
 msgid "Collapse All Sections"
@@ -3639,6 +3541,20 @@ msgstr "Thiết lập"
 
 #: cms/static/js/views/xblock_outline.js
 msgid "New %(component_type)s"
+msgstr ""
+
+#. Translators: This message will be added to the front of messages of type
+#. warning,
+#. e.g. "Warning: this component has not been configured yet".
+#: cms/static/js/views/xblock_validation.js
+msgid "Warning"
+msgstr ""
+
+#. Translators: This message will be added to the front of messages of type
+#. error,
+#. e.g. "Error: required field is missing".
+#: cms/static/js/views/xblock_validation.js
+msgid "Error"
 msgstr ""
 
 #: cms/static/js/views/components/add_xblock.js
@@ -3959,6 +3875,10 @@ msgid "Cohort Management"
 msgstr ""
 
 #: lms/templates/instructor/instructor_dashboard_2/cohorts.underscore
+msgid "Assign students to cohort groups manually"
+msgstr ""
+
+#: lms/templates/instructor/instructor_dashboard_2/cohorts.underscore
 msgid "Select a cohort group to manage"
 msgstr ""
 
@@ -3967,9 +3887,37 @@ msgid "View Cohort Group"
 msgstr ""
 
 #: lms/templates/instructor/instructor_dashboard_2/cohorts.underscore
+msgid "Assign students to cohort groups by uploading a CSV file"
+msgstr ""
+
+#: lms/templates/instructor/instructor_dashboard_2/cohorts.underscore
 msgid ""
-"To review all student cohort group assignments, download course profile "
-"information on %(link_start)s the Data Download page. %(link_end)s"
+"To review student cohort group assignments or see the results of uploading a"
+" CSV file, download course profile information or cohort results on "
+"%(link_start)s the Data Download page. %(link_end)s"
+msgstr ""
+
+#: lms/templates/student_account/access.underscore
+msgid "Welcome!"
+msgstr ""
+
+#: lms/templates/student_account/access.underscore
+msgid "Log in or register to take courses from the world's best universities."
+msgstr ""
+
+#: lms/templates/student_account/access.underscore
+msgid ""
+"Sorry, we're having some technical problems. Wait a few minutes and try "
+"again."
+msgstr ""
+
+#: lms/templates/student_account/access.underscore
+#: lms/templates/student_account/access.underscore
+msgid "I am a new user"
+msgstr ""
+
+#: lms/templates/student_account/access.underscore
+msgid "I am a returning user"
 msgstr ""
 
 #: lms/templates/student_account/account.underscore
@@ -3985,7 +3933,81 @@ msgid "Change My Email Address"
 msgstr ""
 
 #: lms/templates/student_account/account.underscore
+#: lms/templates/student_account/password_reset.underscore
 msgid "Reset Password"
+msgstr ""
+
+#: lms/templates/student_account/form_field.underscore
+msgid "Forgot password?"
+msgstr ""
+
+#: lms/templates/student_account/login.underscore
+msgid ""
+"You've successfully logged into %(currentProvider)s, but your "
+"%(currentProvider)s account isn't linked with an %(platformName)s account. "
+"To link your accounts, go to your %(platformName)s dashboard."
+msgstr ""
+
+#: lms/templates/student_account/login.underscore
+msgid "We couldn't log you in."
+msgstr ""
+
+#: lms/templates/student_account/login.underscore
+msgid "Log in"
+msgstr ""
+
+#: lms/templates/student_account/login.underscore
+msgid "Log in using %(name)s"
+msgstr ""
+
+#: lms/templates/student_account/password_reset.underscore
+msgid ""
+"Enter the email address you used to create your account. We'll send you a "
+"link you can use to reset your password."
+msgstr ""
+
+#: lms/templates/student_account/password_reset.underscore
+msgid "An error occurred."
+msgstr ""
+
+#: lms/templates/student_account/password_reset.underscore
+msgid "Reset password"
+msgstr ""
+
+#: lms/templates/student_account/password_reset.underscore
+msgid "Password Reset Email Sent"
+msgstr ""
+
+#: lms/templates/student_account/password_reset.underscore
+msgid ""
+"We've sent instructions for resetting your password to the email address you"
+" provided."
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid "You've successfully logged into %(currentProvider)s."
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid ""
+"We just need a little more information before you start learning with "
+"%(platformName)s."
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid "Register using %(name)s"
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid "We couldn't complete your registration."
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid "Register"
+msgstr ""
+
+#: lms/templates/student_account/register.underscore
+msgid "Required field"
 msgstr ""
 
 #: lms/templates/student_profile/profile.underscore
@@ -4585,6 +4607,10 @@ msgstr ""
 
 #: cms/templates/js/mock/mock-group-configuration-page.underscore
 msgid "New Group Configuration"
+msgstr ""
+
+#: cms/templates/js/video/metadata-translations-item.underscore
+msgid "Remove"
 msgstr ""
 
 #: cms/templates/js/video/transcripts/metadata-videolist-entry.underscore
