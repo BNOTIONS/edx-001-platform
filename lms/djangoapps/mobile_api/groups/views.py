@@ -5,7 +5,7 @@ Views for groups info API
 from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
-
+import serializers
 # TODO: dependencies to be added to the vagrant 
 import facebook     
 
@@ -46,20 +46,25 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
-    
+    serializer_class = serializers.GroupSerializer
 
-    def post(self, request, *args, **kwargs):
-        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
-        
-        post_args = {}
-        for key in request.POST.keys(): 
-            post_args[key] = request.POST[key]
-        try:
-            app_groups_response = graph.request(url, post_args=post_args)
-        except Exception, e:
-            return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(app_groups_response)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        if serializer.is_valid():
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
+            
+            post_args = {}
+            for key in request.POST.keys(): 
+                post_args[key] = request.POST[key]
+            try:
+                app_groups_response = graph.request(url, post_args=post_args)
+            except Exception, e:
+                return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(app_groups_response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request, *args, **kwargs):
         if 'group_id' in kwargs:
@@ -105,30 +110,33 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = serializers.GroupsMembersSerializer
 
-    
     def create(self, request, *args, **kwargs):
-        graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-        if 'group_id' in kwargs: 
-            url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members"
-        else: 
-            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        if serializer.is_valid():
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            if 'group_id' in kwargs: 
+                url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members"
+            else: 
+                return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if 'member-ids' in request.POST:
-            member_ids = request.POST['member-ids'].split(',')
-            successful_additions = []
-            for member_id in member_ids:
-                post_args = {'member' : member_id}
-                try:
-                    response = graph.request(url, post_args=post_args)
-                    if 'success' in response: 
-                        successful_additions.append(member_id)
-                except Exception, e:
-                    for member_to_remove in successful_additions:
-                        post_args = {'member' : member_to_remove, 'method' : 'delete'}
-                        graph.request(url, post_args=post_args) 
-                    return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"success" : "true"})
+            if 'member_ids' in request.POST:
+                member_ids = request.POST['member_ids'].split(',')
+                successful_additions = []
+                for member_id in member_ids:
+                    post_args = {'member' : member_id}
+                    try:
+                        response = graph.request(url, post_args=post_args)
+                        if 'success' in response: 
+                            successful_additions.append(member_id)
+                    except Exception, e:
+                        for member_to_remove in successful_additions:
+                            post_args = {'member' : member_to_remove, 'method' : 'delete'}
+                            graph.request(url, post_args=post_args) 
+                        return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success" : "true"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
         if 'member_id' in kwargs and 'group_id' in kwargs:
@@ -141,8 +149,3 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
             return Response({'error' : 'Missing member id'}, status=status.HTTP_400_BAD_REQUEST)
         else: 
             return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
