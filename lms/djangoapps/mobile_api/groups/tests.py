@@ -94,6 +94,12 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         response = invite_to_group(self, group_id, member_id)
         self.assertEqual(response.status_code, 400)
 
+    def test_invite_single_member_malformed_member_id_3(self):
+        group_id = '756869167741019'
+        member_id = '1234,abc,5678'
+        response = invite_to_group(self, group_id, member_id)
+        self.assertEqual(response.status_code, 400)
+
     def test_invite_single_member(self):
         group_id = '756869167741019'
         member_id = '10154831816670300'
@@ -101,7 +107,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         # of the group in order to be able to join the group.
         response = invite_to_group(self, group_id, member_id)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('success' in response.data)  # pylint: disable=E1103
+        self.assertTrue('success' in response.data[member_id])  # pylint: disable=E1103
         # Remove user from the group
         remove_from_group(self, group_id, member_id)
 
@@ -109,8 +115,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         member_ids = '366785273488903,939400156088941,10154831816670300'
         group_id = '756869167741019'
         response = invite_to_group(self, group_id, member_ids)
-        self.assertEqual(response.status_code, 200)        
-        self.assertTrue('success' in response.data)  # pylint: disable=E1103
+        self.assertEqual(response.status_code, 200)
+        for member_id in member_ids.split(','):
+            self.assertTrue('success' in response.data[member_id])  # pylint: disable=E1103
         # Remove the members added
         for member_id in member_ids.split(','):
             remove_from_group(self, group_id, member_id)
@@ -121,11 +128,15 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         group_id = '756869167741019'
         response = invite_to_group(self, group_id, member_id)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('success' in response.data)  # pylint: disable=E1103
+        self.assertTrue('success' in response.data[member_id])  # pylint: disable=E1103
         # Invite three members, two who are not in the group and one that is a member already.
         member_ids = '366785273488903,939400156088941,10154831816670300'
         response = invite_to_group(self, group_id, member_ids)
-        self.assertEqual(response.status_code, 400)        
+        self.assertEqual(response.status_code, 201)
+        for member_id in '366785273488903,939400156088941'.split(','):
+            self.assertTrue('success' in response.data[member_id])
+        self.assertTrue('(#4001) User is not eligible to be added to group' in response.data['10154831816670300'])
+
         # Remove the members added
         for member_id in member_ids.split(','):
             remove_from_group(self, group_id, member_id)
@@ -137,7 +148,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         # of the group in order to be able to join the group.
         response = invite_to_group(self, group_id, member_id)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('success' in response.data)  # pylint: disable=E1103        
+        self.assertTrue('success' in response.data[member_id])  # pylint: disable=E1103        
         # Remove member
         remove_from_group(self, group_id, member_id)
         

@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 import serializers
+
 # TODO: dependencies to be added to the vagrant 
 import facebook     
 
@@ -93,13 +94,10 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Invite Response Values**
 
-        {"success" : "true"}        If adding all the member succeeded.
+        {"member_id" : success/error_message}       A response with each member_id and wheather or not
+                                                    the member was added successfully. If the member was 
+                                                    not added successfully the Facebook error message is provided. 
         
-        {"error" : "error message", 
-         "member" : "id"}           If one of the members provided can't be added to the group. 
-                                    The error message pertains to the first member that couldn't be added.
-                                    Note that either all the memebers are added or none at all. 
-
     **Remove Example request**:
 
         DELETE /api/mobile/v0.5/member/<group_id>/<member_id>
@@ -123,19 +121,20 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
             if 'member_ids' in request.POST:
                 member_ids = request.POST['member_ids'].split(',')
-                successful_additions = []
+                response = {}
+                contains_error = False
                 for member_id in member_ids:
                     post_args = {'member' : member_id}
                     try:
-                        response = graph.request(url, post_args=post_args)
-                        if 'success' in response: 
-                            successful_additions.append(member_id)
+                        individual_response = graph.request(url, post_args=post_args)
+                        if 'success' in individual_response: 
+                            response[member_id] = 'success'
                     except Exception, e:
-                        for member_to_remove in successful_additions:
-                            post_args = {'member' : member_to_remove, 'method' : 'delete'}
-                            graph.request(url, post_args=post_args) 
-                        return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
-            return Response({"success" : "true"})
+                        response[member_id] = e.result['error']['message']
+                        contains_error = True
+                status_code = status.HTTP_201_CREATED if contains_error else status.HTTP_200_OK
+                return Response(response, status=status_code)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
