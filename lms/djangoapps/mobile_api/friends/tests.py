@@ -15,7 +15,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.client.login(username=self.user.username, password='test')
 
     def test_friends_in_course(self):
-        url = reverse('friends-in-course', kwargs={"course_id": "12345"})
+        url = reverse('friends-in-course', kwargs={"course_id": "/edX/DemoX/Demo_Course"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)

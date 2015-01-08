@@ -17,7 +17,9 @@ class FriendsInCourse(generics.ListAPIView):
 
     **Example request**:
 
-        GET /api/mobile/v0.5/friends/course/<course-id>
+        GET /api/mobile/v0.5/friends/course/<course_id>
+
+        where course_id is in the form of /edX/DemoX/Demo_Course
 
     **Response Values**
 
