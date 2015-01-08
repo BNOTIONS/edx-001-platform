@@ -27,7 +27,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
         POST /api/mobile/v0.5/create/<group_id>
 
-        Paramters:  name : string, 
+        Parameters:  name : string, 
                     description : string, 
                     privacy : open/closed
 
@@ -94,7 +94,7 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Invite Response Values**
 
-        {"member_id" : success/error_message}       A response with each member_id and wheather or not
+        {"member_id" : success/error_message}       A response with each member_id and whether or not
                                                     the member was added successfully. If the member was 
                                                     not added successfully the Facebook error message is provided. 
         
