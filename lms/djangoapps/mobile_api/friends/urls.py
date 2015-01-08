@@ -7,7 +7,7 @@ from .views import FriendsInCourse, FriendsInGroup
 urlpatterns = patterns(
     'mobile_api.course_info.views',
     url(
-        r'^course/(?P<course_id>(/[\w]+)+)$',
+        r'^course/(?P<course_id>([\w]+/?)+)$',
         FriendsInCourse.as_view(),
         name='friends-in-course'
     ),
