@@ -14,7 +14,7 @@ urlpatterns = patterns(
         name='create-delete-group'
     ),
     url(
-        r'^(?P<group_id>[\d]*)/member/(?P<member_id>[\d]*,*)$',
+        r'^(?P<group_id>[\d]+)/member/(?P<member_id>[\d]*,*)$',
         GroupsMembers.as_view(),
         name='add-remove-member'
     )
