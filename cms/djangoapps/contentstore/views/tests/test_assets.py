@@ -1,19 +1,15 @@
 """
 Unit tests for the asset upload endpoint.
 """
-
-# pylint: disable=C0111
-# pylint: disable=W0621
-# pylint: disable=W0212
-
 from datetime import datetime
 from io import BytesIO
 from pytz import UTC
 import json
+from django.conf import settings
 from contentstore.tests.utils import CourseTestCase
 from contentstore.views import assets
 from contentstore.utils import reverse_course_url
-from xmodule.assetstore.assetmgr import UnknownAssetType, AssetMetadataFoundTemporary
+from xmodule.assetstore.assetmgr import AssetMetadataFoundTemporary
 from xmodule.assetstore import AssetMetadata
 from xmodule.contentstore.content import StaticContent
 from xmodule.contentstore.django import contentstore
@@ -21,6 +17,13 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.xml_importer import import_from_xml
 from django.test.utils import override_settings
 from opaque_keys.edx.locations import SlashSeparatedCourseKey, AssetLocation
+import mock
+from ddt import ddt
+from ddt import data
+
+TEST_DATA_DIR = settings.COMMON_TEST_DATA_ROOT
+
+MAX_FILE_SIZE = settings.MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB * 1000 ** 2
 
 
 class AssetsTestCase(CourseTestCase):
@@ -32,12 +35,23 @@ class AssetsTestCase(CourseTestCase):
         self.url = reverse_course_url('assets_handler', self.course.id)
 
     def upload_asset(self, name="asset-1"):
+        """
+        Post to the asset upload url
+        """
+        f = self.get_sample_asset(name)
+        return self.client.post(self.url, {"name": name, "file": f})
+
+    def get_sample_asset(self, name):
+        """Returns an in-memory file with the given name for testing"""
         f = BytesIO(name)
         f.name = name + ".txt"
-        return self.client.post(self.url, {"name": name, "file": f})
+        return f
 
 
 class BasicAssetsTestCase(AssetsTestCase):
+    """
+    Test getting assets via html w/o additional args
+    """
     def test_basic(self):
         resp = self.client.get(self.url, HTTP_ACCEPT='text/html')
         self.assertEquals(resp.status_code, 200)
@@ -54,7 +68,7 @@ class BasicAssetsTestCase(AssetsTestCase):
         course_items = import_from_xml(
             module_store,
             self.user.id,
-            'common/test/data/',
+            TEST_DATA_DIR,
             ['toy'],
             static_content_store=contentstore(),
             verbose=True
@@ -78,6 +92,9 @@ class PaginationTestCase(AssetsTestCase):
     Tests the pagination of assets returned from the REST API.
     """
     def test_json_responses(self):
+        """
+        Test the ajax asset interfaces
+        """
         self.upload_asset("asset-1")
         self.upload_asset("asset-2")
         self.upload_asset("asset-3")
@@ -97,20 +114,26 @@ class PaginationTestCase(AssetsTestCase):
         self.assert_correct_asset_response(self.url + "?page_size=3&page=1", 0, 3, 3)
 
     def assert_correct_asset_response(self, url, expected_start, expected_length, expected_total):
+        """
+        Get from the url and ensure it contains the expected number of responses
+        """
         resp = self.client.get(url, HTTP_ACCEPT='application/json')
         json_response = json.loads(resp.content)
-        assets = json_response['assets']
+        assets_response = json_response['assets']
         self.assertEquals(json_response['start'], expected_start)
-        self.assertEquals(len(assets), expected_length)
+        self.assertEquals(len(assets_response), expected_length)
         self.assertEquals(json_response['totalCount'], expected_total)
 
     def assert_correct_sort_response(self, url, sort, direction):
+        """
+        Get from the url w/ a sort option and ensure items honor that sort
+        """
         resp = self.client.get(url + '?sort=' + sort + '&direction=' + direction, HTTP_ACCEPT='application/json')
         json_response = json.loads(resp.content)
-        assets = json_response['assets']
-        name1 = assets[0][sort]
-        name2 = assets[1][sort]
-        name3 = assets[2][sort]
+        assets_response = json_response['assets']
+        name1 = assets_response[0][sort]
+        name2 = assets_response[1][sort]
+        name3 = assets_response[2][sort]
         if direction == 'asc':
             self.assertLessEqual(name1, name2)
             self.assertLessEqual(name2, name3)
@@ -119,6 +142,7 @@ class PaginationTestCase(AssetsTestCase):
             self.assertGreaterEqual(name2, name3)
 
 
+@ddt
 class UploadTestCase(AssetsTestCase):
     """
     Unit tests for uploading a file
@@ -134,6 +158,24 @@ class UploadTestCase(AssetsTestCase):
     def test_no_file(self):
         resp = self.client.post(self.url, {"name": "file.txt"}, "application/json")
         self.assertEquals(resp.status_code, 400)
+
+    @data(
+        (int(MAX_FILE_SIZE / 2.0), "small.file.test", 200),
+        (MAX_FILE_SIZE, "justequals.file.test", 200),
+        (MAX_FILE_SIZE + 90, "large.file.test", 413),
+    )
+    @mock.patch('contentstore.views.assets.get_file_size')
+    def test_file_size(self, case, get_file_size):
+        max_file_size, name, status_code = case
+
+        get_file_size.return_value = max_file_size
+
+        f = self.get_sample_asset(name=name)
+        resp = self.client.post(self.url, {
+            "name": name,
+            "file": f
+        })
+        self.assertEquals(resp.status_code, status_code)
 
 
 class DownloadTestCase(AssetsTestCase):
@@ -160,15 +202,9 @@ class DownloadTestCase(AssetsTestCase):
         resp = self.client.get(url, HTTP_ACCEPT='text/html')
         self.assertEquals(resp.status_code, 404)
 
-    def test_download_unknown_asset_type(self):
-        # Change the asset type to something unknown.
-        url = self.uploaded_url.replace('/asset/', '/unknown_type/')
-        with self.assertRaises((UnknownAssetType, NameError)):
-            self.client.get(url, HTTP_ACCEPT='text/html')
-
     def test_metadata_found_in_modulestore(self):
         # Insert asset metadata into the modulestore (with no accompanying asset).
-        asset_key = self.course.id.make_asset_key(AssetMetadata.ASSET_TYPE, 'pic1.jpg')
+        asset_key = self.course.id.make_asset_key(AssetMetadata.GENERAL_ASSET_TYPE, 'pic1.jpg')
         asset_md = AssetMetadata(asset_key, {
             'internal_name': 'EKMND332DDBK',
             'basename': 'pix/archive',
@@ -176,7 +212,7 @@ class DownloadTestCase(AssetsTestCase):
             'curr_version': '14',
             'prev_version': '13'
         })
-        modulestore().save_asset_metadata(self.course.id, asset_md, 15)
+        modulestore().save_asset_metadata(asset_md, 15)
         # Get the asset metadata and have it be found in the modulestore.
         # Currently, no asset metadata should be found in the modulestore. The code is not yet storing it there.
         # If asset metadata *is* found there, an exception is raised. This test ensures the exception is indeed raised.
@@ -198,6 +234,7 @@ class AssetToJsonTestCase(AssetsTestCase):
         location = course_key.make_asset_key('asset', 'my_file_name.jpg')
         thumbnail_location = course_key.make_asset_key('thumbnail', 'my_file_name_thumb.jpg')
 
+        # pylint: disable=protected-access
         output = assets._get_asset_json("my_file", upload_date, location, thumbnail_location, True)
 
         self.assertEquals(output["display_name"], "my_file")
@@ -236,6 +273,7 @@ class LockAssetTestCase(AssetsTestCase):
 
             resp = self.client.post(
                 url,
+                # pylint: disable=protected-access
                 json.dumps(assets._get_asset_json("sample_static.txt", upload_date, asset_location, None, lock)),
                 "application/json"
             )
@@ -247,7 +285,7 @@ class LockAssetTestCase(AssetsTestCase):
         course_items = import_from_xml(
             module_store,
             self.user.id,
-            'common/test/data/',
+            TEST_DATA_DIR,
             ['toy'],
             static_content_store=contentstore(),
             verbose=True

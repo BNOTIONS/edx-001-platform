@@ -204,11 +204,20 @@ class CourseInstructorRole(CourseRole):
 
 
 class CourseFinanceAdminRole(CourseRole):
-    """A course Instructor"""
+    """A course staff member with privileges to review financial data."""
     ROLE = 'finance_admin'
 
     def __init__(self, *args, **kwargs):
         super(CourseFinanceAdminRole, self).__init__(self.ROLE, *args, **kwargs)
+
+
+class CourseSalesAdminRole(CourseRole):
+    """A course staff member with privileges to perform sales operations. """
+    ROLE = 'sales_admin'
+
+    def __init__(self, *args, **kwargs):
+        super(CourseSalesAdminRole, self).__init__(self.ROLE, *args, **kwargs)
+
 
 class CourseBetaTesterRole(CourseRole):
     """A course Beta Tester"""
@@ -216,6 +225,17 @@ class CourseBetaTesterRole(CourseRole):
 
     def __init__(self, *args, **kwargs):
         super(CourseBetaTesterRole, self).__init__(self.ROLE, *args, **kwargs)
+
+
+class LibraryUserRole(CourseRole):
+    """
+    A user who can view a library and import content from it, but not edit it.
+    Used in Studio only.
+    """
+    ROLE = 'library_user'
+
+    def __init__(self, *args, **kwargs):
+        super(LibraryUserRole, self).__init__(self.ROLE, *args, **kwargs)
 
 
 class OrgStaffRole(OrgRole):
@@ -228,6 +248,17 @@ class OrgInstructorRole(OrgRole):
     """An organization instructor"""
     def __init__(self, *args, **kwargs):
         super(OrgInstructorRole, self).__init__('instructor', *args, **kwargs)
+
+
+class OrgLibraryUserRole(OrgRole):
+    """
+    A user who can view any libraries in an org and import content from them, but not edit them.
+    Used in Studio only.
+    """
+    ROLE = LibraryUserRole.ROLE
+
+    def __init__(self, *args, **kwargs):
+        super(OrgLibraryUserRole, self).__init__(self.ROLE, *args, **kwargs)
 
 
 class CourseCreatorRole(RoleBase):

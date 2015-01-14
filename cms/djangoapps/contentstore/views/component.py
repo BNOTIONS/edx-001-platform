@@ -25,7 +25,7 @@ from contentstore.views.item import create_xblock_info
 
 from opaque_keys.edx.keys import UsageKey
 
-from .access import has_course_access
+from student.auth import has_course_author_access
 from django.utils.translation import ugettext as _
 from models.settings.course_grading import CourseGradingModel
 
@@ -56,6 +56,22 @@ ADVANCED_COMPONENT_POLICY_KEY = 'advanced_modules'
 ADVANCED_PROBLEM_TYPES = settings.ADVANCED_PROBLEM_TYPES
 
 
+CONTAINER_TEMPATES = [
+    "basic-modal", "modal-button", "edit-xblock-modal",
+    "editor-mode-button", "upload-dialog", "image-modal",
+    "add-xblock-component", "add-xblock-component-button", "add-xblock-component-menu",
+    "add-xblock-component-menu-problem", "xblock-string-field-editor", "publish-xblock", "publish-history",
+    "unit-outline", "container-message"
+]
+
+
+def _advanced_component_types():
+    """
+    Return advanced component types which can be created.
+    """
+    return [c_type for c_type in ADVANCED_COMPONENT_TYPES if c_type not in settings.DEPRECATED_ADVANCED_COMPONENT_TYPES]
+
+
 @require_GET
 @login_required
 def subsection_handler(request, usage_key_string):
@@ -69,11 +85,9 @@ def subsection_handler(request, usage_key_string):
     if 'text/html' in request.META.get('HTTP_ACCEPT', 'text/html'):
         usage_key = UsageKey.from_string(usage_key_string)
         try:
-            course, item, lms_link = _get_item_in_course(request, usage_key)
+            course, item, lms_link, preview_link = _get_item_in_course(request, usage_key)
         except ItemNotFoundError:
             return HttpResponseBadRequest()
-
-        preview_link = get_lms_link_for_item(item.location, preview=True)
 
         # make sure that location references a 'sequential', otherwise return
         # BadRequest
@@ -143,7 +157,7 @@ def container_handler(request, usage_key_string):
         usage_key = UsageKey.from_string(usage_key_string)
         with modulestore().bulk_operations(usage_key.course_key):
             try:
-                course, xblock, lms_link = _get_item_in_course(request, usage_key)
+                course, xblock, lms_link, preview_lms_link = _get_item_in_course(request, usage_key)
             except ItemNotFoundError:
                 return HttpResponseBadRequest()
 
@@ -181,18 +195,6 @@ def container_handler(request, usage_key_string):
                 if child.location == unit.location:
                     break
                 index += 1
-            preview_lms_link = (
-                u'//{preview_lms_base}/courses/{org}/{course}/{course_name}/courseware/{section}/{subsection}/{index}'
-            ).format(
-                preview_lms_base=preview_lms_base,
-                lms_base=settings.LMS_BASE,
-                org=course.location.org,
-                course=course.location.course,
-                course_name=course.location.name,
-                section=section.location.name,
-                subsection=subsection.location.name,
-                index=index
-            )
 
             return render_to_response('container.html', {
                 'context_course': course,  # Needed only for display of menus at top of page.
@@ -209,14 +211,15 @@ def container_handler(request, usage_key_string):
                 'xblock_info': xblock_info,
                 'draft_preview_link': preview_lms_link,
                 'published_preview_link': lms_link,
+                'templates': CONTAINER_TEMPATES
             })
     else:
         return HttpResponseBadRequest("Only supports HTML requests")
 
 
-def get_component_templates(course):
+def get_component_templates(courselike, library=False):
     """
-    Returns the applicable component templates that can be used by the specified course.
+    Returns the applicable component templates that can be used by the specified course or library.
     """
     def create_template_dict(name, cat, boilerplate_name=None, is_common=False):
         """
@@ -247,7 +250,13 @@ def get_component_templates(course):
     categories = set()
     # The component_templates array is in the order of "advanced" (if present), followed
     # by the components in the order listed in COMPONENT_TYPES.
-    for category in COMPONENT_TYPES:
+    component_types = COMPONENT_TYPES[:]
+
+    # Libraries do not support discussions
+    if library:
+        component_types = [component for component in component_types if component != 'discussion']
+
+    for category in component_types:
         templates_for_category = []
         component_class = _load_mixed_class(category)
         # add the default template with localized display name
@@ -261,7 +270,7 @@ def get_component_templates(course):
         if hasattr(component_class, 'templates'):
             for template in component_class.templates():
                 filter_templates = getattr(component_class, 'filter_templates', None)
-                if not filter_templates or filter_templates(template, course):
+                if not filter_templates or filter_templates(template, courselike):
                     templates_for_category.append(
                         create_template_dict(
                             _(template['metadata'].get('display_name')),
@@ -286,16 +295,21 @@ def get_component_templates(course):
             "display_name": component_display_names[category]
         })
 
+    # Libraries do not support advanced components at this time.
+    if library:
+        return component_templates
+
     # Check if there are any advanced modules specified in the course policy.
     # These modules should be specified as a list of strings, where the strings
     # are the names of the modules in ADVANCED_COMPONENT_TYPES that should be
     # enabled for the course.
-    course_advanced_keys = course.advanced_modules
+    course_advanced_keys = courselike.advanced_modules
     advanced_component_templates = {"type": "advanced", "templates": [], "display_name": _("Advanced")}
+    advanced_component_types = _advanced_component_types()
     # Set component types according to course policy file
     if isinstance(course_advanced_keys, list):
         for category in course_advanced_keys:
-            if category in ADVANCED_COMPONENT_TYPES and not category in categories:
+            if category in advanced_component_types and category not in categories:
                 # boilerplates not supported for advanced components
                 try:
                     component_display_name = xblock_type_display_name(category, default_display_name=category)
@@ -332,7 +346,7 @@ def get_component_templates(course):
 def _get_item_in_course(request, usage_key):
     """
     Helper method for getting the old location, containing course,
-    item, and lms_link for a given locator.
+    item, lms_link, and preview_lms_link for a given locator.
 
     Verifies that the caller has permission to access this item.
     """
@@ -341,14 +355,15 @@ def _get_item_in_course(request, usage_key):
 
     course_key = usage_key.course_key
 
-    if not has_course_access(request.user, course_key):
+    if not has_course_author_access(request.user, course_key):
         raise PermissionDenied()
 
     course = modulestore().get_course(course_key)
     item = modulestore().get_item(usage_key, depth=1)
     lms_link = get_lms_link_for_item(item.location)
+    preview_lms_link = get_lms_link_for_item(item.location, preview=True)
 
-    return course, item, lms_link
+    return course, item, lms_link, preview_lms_link
 
 
 @login_required
