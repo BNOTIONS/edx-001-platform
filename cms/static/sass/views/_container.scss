@@ -51,7 +51,7 @@
           .button {
             @extend %t-action3;
             @extend %t-regular;
-            padding: ($baseline/4) ($baseline*.75);
+            padding: ($baseline/4) ($baseline*0.75);
           }
         }
       }
@@ -65,7 +65,7 @@
       padding: ($baseline*1.5) ($baseline*2);
 
       // custom rules to reuse xblock validation styling in ui-well context
-      .icon-warning-sign {
+      .fa-warning {
         display: none;
       }
     }
@@ -137,7 +137,7 @@
 
       .bar-mod-content {
         border: 0;
-        padding: ($baseline/2) ($baseline*.75) ($baseline/4) ($baseline*.75);
+        padding: ($baseline/2) ($baseline*0.75) ($baseline/4) ($baseline*0.75);
 
         .title {
           margin-bottom: ($baseline/10);
@@ -175,7 +175,7 @@
           margin-bottom: ($baseline/10);
         }
 
-        [class^="icon-"] {
+        .icon {
           margin-left: ($baseline/4);
           color: $gray-d1;
         }
@@ -189,7 +189,7 @@
       }
 
       .wrapper-pub-actions {
-        padding: ($baseline*.75);
+        padding: ($baseline*0.75);
 
         .action-publish {
           @extend %btn-primary-blue;
@@ -217,7 +217,7 @@
 
       .wrapper-last-publish {
         margin-bottom: $baseline;
-        padding: ($baseline*.75);
+        padding: ($baseline*0.75);
         background-color: $white;
 
         .copy {
@@ -237,13 +237,13 @@
     }
 
     // location widget
-    .unit-location {
+    .unit-location, .library-location {
       @extend %bar-module;
       border-top: none;
 
-      .wrapper-unit-id {
+      .wrapper-unit-id, .wrapper-library-id {
 
-        .unit-id-value {
+        .unit-id-value, .library-id-value {
           @extend %cont-text-wrap;
           @extend %t-copy-sub1;
           display: inline-block;

@@ -2,351 +2,149 @@
 Views for groups info API
 """
 
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
+import serializers
 
+# TODO: dependencies to be added to the vagrant 
+import facebook     
 
-# TODO: don't leave this here. 
+# TODO: This should not be in the final commit
 _APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
 _APP_ID = "734266930001243"
 
-from nose.tools import set_trace
+_FACEBOOK_API_VERSION = "/v2.2/"
 
-class Groups(generics.RetrieveAPIView):
+
+class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     **Use Case**
 
-        An API to support retrival of all the groups related to the edX app that the user is in. 
+        An API to Create or Delete course groups.
 
-    **Example request**:
+    **Creation Example request**:
 
-        GET /api/mobile/v0.5/groups
+        POST /api/mobile/v0.5/create/<group_id>
 
-    **Response Values**
+        Parameters:  name : string, 
+                    description : string, 
+                    privacy : open/closed
 
-        {"groups": [ {  "id": "912988378712053", 
-                            "owner": {  "id": "10154805434030300", 
-                                        "name": "Daniel Eidan"
-                                        }, 
-                            "name": "edX public test1", 
-                            "venue": { "street": ""
-                                        }, 
-                            "privacy": "OPEN", 
-                            "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y1/r/vF2XT-TEoHq.png", 
-                            "updated_time": "2014-12-03T20:38:32+0000", 
-                            "email": "912988378712053@groups.facebook.com"
-                        } ... 
-                        ]
-            }
-    """
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request, *args, **kwargs):
-        # To get all groups associated with the app /734266930001243/groups
-        # To get all the user /me/groups
-        # The intersection of these is the desired response
-        oauth_token = request.GET['oauth-token']
-        return Response(
-            {"groups": [ {  "id": "912988378712053", 
-                            "owner": {  "id": "10154805434030300", 
-                                        "name": "Daniel Eidan"
-                                        }, 
-                            "name": "edX public test1", 
-                            "venue": { "street": ""
-                                        }, 
-                            "privacy": "OPEN", 
-                            "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y1/r/vF2XT-TEoHq.png", 
-                            "updated_time": "2014-12-03T20:38:32+0000", 
-                            "email": "912988378712053@groups.facebook.com"
-                        }, 
-                        {
-                          "id": "753283111432958", 
-                          "name": "Bnauts", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "OPEN", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-12-17T19:36:33+0000", 
-                          "email": "753283111432958@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }, 
-                        {
-                          "id": "734295443331725", 
-                          "name": "devA_groupA", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-12-11T22:53:03+0000", 
-                          "email": "734295443331725@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }, 
-                        {
-                          "id": "734297203331549", 
-                          "name": "devA_groupB", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-11T19:48:43+0000", 
-                          "email": "734297203331549@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }, 
-                        {
-                          "id": "734297936664809", 
-                          "name": "devA_groupc", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-11T19:50:42+0000", 
-                          "email": "734297936664809@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        },
-                        {
-                          "id": "734693669958569", 
-                          "name": "testmesh", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "OPEN", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-12T20:29:26+0000", 
-                          "email": "734693669958569@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }, 
-                        {
-                          "id": "734713993289870", 
-                          "name": "weirdtest", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-12T20:29:31+0000", 
-                          "email": "734713993289870@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        },
-                        {
-                          "id": "734805136614089", 
-                          "name": "test123", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-12T20:31:54+0000", 
-                          "email": "734805136614089@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        },
-                        {
-                          "id": "735235816571021", 
-                          "name": "dumbpotatosonly", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-13T17:09:42+0000", 
-                          "email": "735235816571021@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }, 
-                        {
-                          "id": "735277569900179", 
-                          "name": "supercooltestgroup?admin", 
-                          "venue": {
-                            "street": ""
-                          }, 
-                          "privacy": "CLOSED", 
-                          "icon": "https://fbstatic-a.akamaihd.net/rsrc.php/v2/y0/r/XCrOg4YmGg4.png", 
-                          "updated_time": "2014-11-13T18:59:00+0000", 
-                          "email": "735277569900179@groups.facebook.com", 
-                          "parent": {
-                            "name": "edX_bnotion_devA", 
-                            "namespace": "edxbnotionsns", 
-                            "id": "734266930001243"
-                          }
-                        }
-
-                        ]
-            }
-        )
-
-
-
-class GroupsCreate(generics.CreateAPIView):
-    """
-    **Use Case**
-
-        An API to create new course groups
-
-    **Example request**:
-
-        POST /api/mobile/v0.5/groups/create
-
-    **Response Values**
+    **Creation Response Values**
 
         {"group-id": group_id}
+    
+
+    **Deletion Example request**:
+        
+        DELETE /api/mobile/v0.5/create/<group_id>
+
+    **Deletion Response Values**
+
+        {"success" : "true"}
+
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
-    
+    serializer_class = serializers.GroupSerializer
+
+
     def create(self, request, *args, **kwargs):
-        name = request.POST['name']
-        description = request.POST['description']
-        privacy = request.POST['privacy']
-        admin_id = request.POST['admin-id']
-        oauth_token = request.POST['oauth-token']
-        return Response({"group-id": '12345'})
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        if serializer.is_valid():
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
+            
+            post_args = {}
+            for key in request.POST.keys(): 
+                post_args[key] = request.POST[key]
+            try:
+                app_groups_response = graph.request(url, post_args=post_args)
+            except Exception, e:
+                return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(app_groups_response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, *args, **kwargs):
+        if 'group_id' in kwargs:
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            post_args = {'method' : 'delete'}
+            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
+            result = graph.request(url, post_args=post_args)
+            return Response(result)
+        else:
+            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-class GroupsInvite(generics.CreateAPIView):
+class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     """
     **Use Case**
 
-        An API to invite members to a group
+        An API to Invite and Remove members to a group
 
-    **Example request**:
+    **Invite Example request**:
 
-        POST /groups/invite/<group-id>/members
+        POST /api/mobile/v0.5/member/<group_id>/
+
+        Parameters: members : int,int,int... 
 
 
-    **Response Values**
+    **Invite Response Values**
 
-        {"success": "true"}
+        {"member_id" : success/error_message}       A response with each member_id and whether or not
+                                                    the member was added successfully. If the member was 
+                                                    not added successfully the Facebook error message is provided. 
+        
+    **Remove Example request**:
+
+        DELETE /api/mobile/v0.5/member/<group_id>/<member_id>
+
+    **Remove Response Values**
+
+        {"success" : "true"}                                    
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
-    
+    serializer_class = serializers.GroupsMembersSerializer
+
     def create(self, request, *args, **kwargs):
-        member_ids = request.POST['member-ids']
-        oauth_token = request.POST['oauth-token']
-        return Response(
-            {"success": "true"}
-        )
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        if serializer.is_valid():
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            if 'group_id' in kwargs: 
+                url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members"
+            else: 
+                return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
 
+            if 'member_ids' in request.POST:
+                member_ids = request.POST['member_ids'].split(',')
+                response = {}
+                contains_error = False
+                for member_id in member_ids:
+                    post_args = {'member' : member_id}
+                    try:
+                        individual_response = graph.request(url, post_args=post_args)
+                        if 'success' in individual_response: 
+                            response[member_id] = 'success'
+                    except Exception, e:
+                        response[member_id] = e.result['error']['message']
+                        contains_error = True
+                status_code = status.HTTP_201_CREATED if contains_error else status.HTTP_200_OK
+                return Response(response, status=status_code)
 
-class GroupsMembers(generics.RetrieveAPIView): 
-    """
-    **Use Case**
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        An API to retrive all members of a group
-
-    **Example request**:
-
-        GET /groups/<group-id>/members
-
-
-    **Response Values**
-
-        {   "members":
-                [{
-                    "name": "test",
-                    "id": "12345",
-                },
-                ...
-                ]
-        }
-    """    
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request, *args, **kwargs):
-        # set_trace()
-        return Response({"members": 
-                            [{  "name": "Daniel Eidan",
-                                "id": "10154831816670300"},
-                            {   "name": "Marc Ashman", 
-                                "id": "10154833899435243"},
-                            {   "name": "Peter Organa", 
-                                "id": "10154805420820176"},
-                            {   "name": "Joey Freund", 
-                                "id": "1279985874"}, 
-                            {   "name": "Yin Zhuoqun", 
-                                "id": "1600206076"},    
-                            {   "name": "David Liu", 
-                                "id": "1658520223"},
-                            {   "name": "Andrew Joe", 
-                                "id": "120401174"}, 
-                            {   "name": "Gaelan D'costa", 
-                                "id": "122600141"}, 
-                            {   "name": "Hafiz Vellani", 
-                                "id": "122609084"}, 
-                            {   "name": "Adir Krafman", 
-                                "id": "500301193"}, 
-                            {   "name": "Naeem Lakhani", 
-                                "id": "502193756"}, 
-                            {   "name": "Alex Mann", 
-                                "id": "502576321"}, 
-                            {   "name": "Natasha Dalal", 
-                                "id": "506753913"}, 
-                            {   "name": "Adam Borzecki", 
-                                "id": "507174319"}, 
-                            {   "name": "Bryant Balatbat", 
-                                "id": "512414329"}, 
-                            {   "name": "Nahim Nasser", 
-                                "id": "516528519"}, 
-                            {   "name": "Farzana Nasser", 
-                                "id": "572710051"}, 
-                            {   "name": "Aaron Ritchie", 
-                                "id": "578710450"}, 
-                            {   "name": "Karthik Ramakrishnan", 
-                                "id": "584467742"}, 
-                            {   "name": "Sinai Gross", 
-                                "id": "591867536"}, 
-                            {   "name": "Ani Tumanyan", 
-                                "id": "617573112"}, 
-                            {   "name": "Paul Jeffrey Crowe", 
-                                "id": "635195067"}, 
-                            {   "name": "Eitan Cohen", 
-                                "id": "657887138"}, 
-                            {   "name": "Eli Atlas", 
-                                "id": "674674636"}, 
-                            {   "name": "Mark Reale", 
-                                "id": "676480219"}]
-                })
-
-
-
-
-
-
+    def delete(self, request, *args, **kwargs):
+        if 'member_id' in kwargs and 'group_id' in kwargs:
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
+            url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
+            result = graph.request(url, post_args=post_args)
+            return Response(result)
+        if 'member_id' not in kwargs: 
+            return Response({'error' : 'Missing member id'}, status=status.HTTP_400_BAD_REQUEST)
+        else: 
+            return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)

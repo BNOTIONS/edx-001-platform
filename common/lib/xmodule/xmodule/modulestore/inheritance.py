@@ -57,6 +57,15 @@ class InheritanceMixin(XBlockMixin):
         default=False,
         scope=Scope.settings,
     )
+    group_access = Dict(
+        help="A dictionary that maps which groups can be shown this block. The keys "
+             "are group configuration ids and the values are a list of group IDs. "
+             "If there is no key for a group configuration or if the list of group IDs "
+             "is empty then the block is considered visible to all. Note that this "
+             "field is ignored if the block is visible_to_staff_only.",
+        default={},
+        scope=Scope.settings,
+    )
     course_edit_method = String(
         display_name=_("Course Editor"),
         help=_("Enter the method by which this course is edited (\"XML\" or \"Studio\")."),
@@ -142,8 +151,8 @@ class InheritanceMixin(XBlockMixin):
     # This is should be scoped to content, but since it's defined in the policy
     # file, it is currently scoped to settings.
     user_partitions = UserPartitionList(
-        display_name=_("Experiment Group Configurations"),
-        help=_("Enter the configurations that govern how students are grouped for content experiments."),
+        display_name=_("Group Configurations"),
+        help=_("Enter the configurations that govern how students are grouped together."),
         default=[],
         scope=Scope.settings
     )
@@ -202,8 +211,8 @@ def inherit_metadata(descriptor, inherited_data):
 
 def own_metadata(module):
     """
-    Return a dictionary that contains only non-inherited field keys,
-    mapped to their serialized values
+    Return a JSON-friendly dictionary that contains only non-inherited field
+    keys, mapped to their serialized values
     """
     return module.get_explicitly_set_fields_by_scope(Scope.settings)
 
@@ -274,6 +283,8 @@ class InheritanceKeyValueStore(KeyValueStore):
 
     def default(self, key):
         """
-        Check to see if the default should be from inheritance rather than from the field's global default
+        Check to see if the default should be from inheritance. If not
+        inheriting, this will raise KeyError which will cause the caller to use
+        the field's global default.
         """
         return self.inherited_settings[key.field_name]

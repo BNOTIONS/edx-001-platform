@@ -14,6 +14,7 @@ from xmodule.x_module import PREVIEW_VIEWS, STUDENT_VIEW, AUTHOR_VIEW
 from xmodule.contentstore.django import contentstore
 from xmodule.error_module import ErrorDescriptor
 from xmodule.exceptions import NotFoundError, ProcessingError
+from xmodule.library_tools import LibraryToolsService
 from xmodule.modulestore.django import modulestore, ModuleI18nService
 from opaque_keys.edx.keys import UsageKey
 from xmodule.x_module import ModuleSystem
@@ -21,8 +22,9 @@ from xblock.runtime import KvsFieldData
 from xblock.django.request import webob_to_django_response, django_to_webob_request
 from xblock.exceptions import NoSuchHandlerError
 from xblock.fragment import Fragment
+from student.auth import has_studio_read_access, has_studio_write_access
 
-from lms.lib.xblock.field_data import LmsFieldData
+from lms.djangoapps.lms_xblock.field_data import LmsFieldData
 from cms.lib.xblock.field_data import CmsFieldData
 from cms.lib.xblock.runtime import local_resource_url
 
@@ -33,6 +35,7 @@ from .session_kv_store import SessionKeyValueStore
 from .helpers import render_from_lms
 
 from contentstore.views.access import get_user_role
+from cms.djangoapps.xblock_config.models import StudioConfig
 
 __all__ = ['preview_handler']
 
@@ -87,13 +90,25 @@ class PreviewModuleSystem(ModuleSystem):  # pylint: disable=abstract-method
 
     def handler_url(self, block, handler_name, suffix='', query='', thirdparty=False):
         return reverse('preview_handler', kwargs={
-            'usage_key_string': unicode(block.location),
+            'usage_key_string': unicode(block.scope_ids.usage_id),
             'handler': handler_name,
             'suffix': suffix,
         }) + '?' + query
 
     def local_resource_url(self, block, uri):
         return local_resource_url(block, uri)
+
+    def applicable_aside_types(self, block):
+        """
+        Remove acid_aside and honor the config record
+        """
+        if not StudioConfig.asides_enabled(block.scope_ids.block_type):
+            return []
+        return [
+            aside_type
+            for aside_type in super(PreviewModuleSystem, self).applicable_aside_types(block)
+            if aside_type != 'acid_aside'
+        ]
 
 
 class StudioUserService(object):
@@ -110,7 +125,29 @@ class StudioUserService(object):
         return self._request.user.id
 
 
-def _preview_module_system(request, descriptor):
+class StudioPermissionsService(object):
+    """
+    Service that can provide information about a user's permissions.
+
+    Deprecated. To be replaced by a more general authorization service.
+
+    Only used by LibraryContentDescriptor (and library_tools.py).
+    """
+
+    def __init__(self, request):
+        super(StudioPermissionsService, self).__init__()
+        self._request = request
+
+    def can_read(self, course_key):
+        """ Does the user have read access to the given course/library? """
+        return has_studio_read_access(self._request.user, course_key)
+
+    def can_write(self, course_key):
+        """ Does the user have read access to the given course/library? """
+        return has_studio_write_access(self._request.user, course_key)
+
+
+def _preview_module_system(request, descriptor, field_data):
     """
     Returns a ModuleSystem for the specified descriptor that is specialized for
     rendering module previews.
@@ -139,6 +176,7 @@ def _preview_module_system(request, descriptor):
     ]
 
     descriptor.runtime._services['user'] = StudioUserService(request)  # pylint: disable=protected-access
+    descriptor.runtime._services['studio_user_permissions'] = StudioPermissionsService(request)  # pylint: disable=protected-access
 
     return PreviewModuleSystem(
         static_url=settings.STATIC_URL,
@@ -151,7 +189,7 @@ def _preview_module_system(request, descriptor):
         replace_urls=partial(static_replace.replace_static_urls, data_directory=None, course_id=course_id),
         user=request.user,
         can_execute_unsafe_code=(lambda: can_execute_unsafe_code(course_id)),
-        get_python_lib_zip=(lambda :get_python_lib_zip(contentstore, course_id)),
+        get_python_lib_zip=(lambda: get_python_lib_zip(contentstore, course_id)),
         mixins=settings.XBLOCK_MIXINS,
         course_id=course_id,
         anonymous_student_id='student',
@@ -163,6 +201,8 @@ def _preview_module_system(request, descriptor):
         descriptor_runtime=descriptor.runtime,
         services={
             "i18n": ModuleI18nService(),
+            "field-data": field_data,
+            "library_tools": LibraryToolsService(modulestore()),
         },
     )
 
@@ -181,7 +221,7 @@ def _load_preview_module(request, descriptor):
     else:
         field_data = LmsFieldData(descriptor._field_data, student_data)  # pylint: disable=protected-access
     descriptor.bind_for_student(
-        _preview_module_system(request, descriptor),
+        _preview_module_system(request, descriptor, field_data),
         field_data
     )
     return descriptor
@@ -210,6 +250,7 @@ def _studio_wrap_xblock(xblock, view, frag, context, display_name_only=False):
             'content': frag.content,
             'is_root': is_root,
             'is_reorderable': is_reorderable,
+            'can_edit': context.get('can_edit', True),
         }
         html = render_to_string('studio_xblock_wrapper.html', template_context)
         frag = wrap_fragment(frag, html)
@@ -227,7 +268,7 @@ def get_preview_fragment(request, descriptor, context):
 
     try:
         fragment = module.render(preview_view, context)
-    except Exception as exc:                          # pylint: disable=W0703
+    except Exception as exc:                          # pylint: disable=broad-except
         log.warning("Unable to render %s for %r", preview_view, module, exc_info=True)
         fragment = Fragment(render_to_string('html_error.html', {'message': str(exc)}))
     return fragment
