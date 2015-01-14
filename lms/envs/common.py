@@ -126,7 +126,7 @@ FEATURES = {
     'SHIB_DISABLE_TOS': False,
 
     # Toggles OAuth2 authentication provider
-    'ENABLE_OAUTH2_PROVIDER': False,
+    'ENABLE_OAUTH2_PROVIDER': True,
 
     # Can be turned off if course lists need to be hidden. Effects views and templates.
     'COURSES_ARE_BROWSABLE': True,
@@ -284,7 +284,7 @@ FEATURES = {
 
     # Expose Mobile REST API. Note that if you use this, you must also set
     # ENABLE_OAUTH2_PROVIDER to True
-    'ENABLE_MOBILE_REST_API': False,
+    'ENABLE_MOBILE_REST_API': True,
 
     # Enable the new dashboard, account, and profile pages
     'ENABLE_NEW_DASHBOARD': False,
@@ -366,7 +366,7 @@ OPENID_PROVIDER_TRUSTED_ROOTS = ['cs50.net', '*.cs50.net']
 
 # OpenID Connect issuer ID. Normally the URL of the authentication endpoint.
 
-OAUTH_OIDC_ISSUER = 'https:/example.com/oauth2'
+OAUTH_OIDC_ISSUER = 'https://edx.bnotions.com:48000/oauth2'
 
 # OpenID Connect claim handlers
 
