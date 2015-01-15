@@ -15,6 +15,7 @@ class UserSharing(generics.ListCreateAPIView):
     """
     **Use Case**
 
+        An API to retrieve or update the users social sharing settings
 
     **GET Example request**:
 
