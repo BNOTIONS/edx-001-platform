@@ -40,33 +40,38 @@ class StudentProfileViewTest(ModuleStoreTestCase, TestCase):
         result = self.client.login(username=self.USERNAME, password=self.PASSWORD)
         self.assertTrue(result)
 
-    def test_set_preferences_to_true(self): 
-        url = reverse('user_sharing')
-        response = self.client.post(url, {'share_pref' : 'true'})
+    def test_set_preferences_to_true(self):
+        url = reverse('share_pref')
+        response = self.client.post(url, {'share_pref' : 'True'})
         self.assertTrue('share_pref' in response.data)
-        self.assertTrue('true' in response.data['share_pref'])
+        self.assertTrue('True' in response.data['share_pref'])
 
-    def test_set_preferences_to_false(self): 
-        url = reverse('user_sharing')
-        response = self.client.post(url, {'share_pref' : 'false'})
+    def test_set_preferences_to_false(self):
+        url = reverse('share_pref')
+        response = self.client.post(url, {'share_pref' : 'False'})
         self.assertTrue('share_pref' in response.data)
-        self.assertTrue('false' in response.data['share_pref'])
+        self.assertTrue('False' in response.data['share_pref'])
+    
+    def test_set_preferences_no_parameters(self):
+        # Note that if no value is given it will default to True
+        url = reverse('share_pref')
+        response = self.client.post(url, { })
+        self.assertTrue('share_pref' in response.data)
+        self.assertTrue('True' in response.data['share_pref'])
 
+    def test_set_preferences_invalid_parameters(self):
+        # Note that if no value is given it will default to True 
+        # also in the case of invalid parameters 
+        # TODO: check this! 
+        url = reverse('share_pref')
+        response = self.client.post(url, {'bad_param' : 'False'})
+        self.assertTrue('share_pref' in response.data)
+        self.assertTrue('True' in response.data['share_pref'])
 
-    # def _change_preferences(self, **preferences):
-    #     """Request a change to the user's preferences.
+    def test_get_preferences(self):
+        # Note that if no value is given it will default to True
+        url = reverse('share_pref')
+        response = self.client.post(url, { })
+        self.assertTrue('share_pref' in response.data)
+        self.assertTrue('True' in response.data['share_pref'])
 
-    #     Returns:
-    #         HttpResponse
-
-    #     """
-    #     data = {}
-    #     for key, value in preferences.iteritems():
-    #         if value is not None:
-    #             data[key] = value
-
-    #     return self.client.put(
-    #         path=reverse('preference_handler'),
-    #         data=urlencode(data),
-    #         content_type='application/x-www-form-urlencoded'
-    #     )

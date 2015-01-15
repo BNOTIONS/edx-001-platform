@@ -7,9 +7,8 @@ from .views import UserSharing
 urlpatterns = patterns(
     'mobile_api.user_sharing_pref.views',
     url(
-        r'^$',
+        r'^share_pref/$',
         UserSharing.as_view(),
-        name='user_sharing'
+        name='share_pref'
     ),
-
 )
