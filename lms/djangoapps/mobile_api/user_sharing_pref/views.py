@@ -16,13 +16,23 @@ class UserSharing(generics.ListCreateAPIView):
     **Use Case**
 
 
-    **Example request**:
+    **GET Example request**:
 
-        GET /api/mobile/v0.5/
+        GET /api/mobile/v0.5/settings/share_pref/ 
 
-    **Response Values**
+    **GET Response Values**
 
-        {'share_pref': 'true'}
+        {'share_pref': 'True'}
+
+    **POST Example request**:
+
+        POST /api/mobile/v0.5/settings/share_pref/
+
+        paramters: share_pref : True 
+
+    **GET Response Values**
+
+        {'share_pref': 'True'}
 
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
