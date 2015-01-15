@@ -21,9 +21,3 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertTrue('friends' in response.data)
         self.assertTrue('id' in response.data['friends'][0])
 
-    def test_friends_in_group(self):
-        url = reverse('friends-in-group', kwargs={"group_id": "12345"})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('friends' in response.data)
-        self.assertTrue('id' in response.data['friends'][0])
