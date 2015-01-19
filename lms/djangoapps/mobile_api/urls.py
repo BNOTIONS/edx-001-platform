@@ -15,4 +15,5 @@ urlpatterns = patterns(
     url(r'^groups/', include('mobile_api.groups.urls')),
     url(r'^courses/', include('mobile_api.courses.urls')),
     url(r'^friends/', include('mobile_api.friends.urls')),
+    url(r'^settings/', include('mobile_api.user_sharing_pref.urls')),
 )
