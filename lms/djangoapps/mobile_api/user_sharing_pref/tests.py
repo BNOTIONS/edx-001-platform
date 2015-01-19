@@ -2,23 +2,12 @@
 Tests for users sharing preferences
 """
 
-from urllib import urlencode
-import json
-
-from mock import patch
-import ddt
 from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from util.testing import UrlResetMixin
-from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from user_api.api import account as account_api
-from user_api.api import profile as profile_api
-from lang_pref import LANGUAGE_KEY, api as language_api
+from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
-
-from nose.tools import set_trace
 
 class StudentProfileViewTest(ModuleStoreTestCase, TestCase):
     """ Tests for the student profile views. """

@@ -5,11 +5,9 @@ Views for users sharing preferences
 from rest_framework import generics, permissions, status 
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
+from user_api.api.profile import preference_info, update_preferences
 import serializers
 
-from user_api.api.profile import preference_info, update_preferences
-
-from nose.tools import set_trace
 
 class UserSharing(generics.ListCreateAPIView):
     """
