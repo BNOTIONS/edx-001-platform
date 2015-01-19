@@ -29,7 +29,7 @@ class UserSharing(generics.ListCreateAPIView):
 
         paramters: share_pref : True 
 
-    **GET Response Values**
+    **POST Response Values**
 
         {'share_pref': 'True'}
 
