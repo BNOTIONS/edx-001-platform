@@ -21,8 +21,8 @@ from social.apps.django_app.default.models import UserSocialAuth
 import facebook
 
 # TODO: This should not be in the final commit
-_APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
-_APP_ID = "734266930001243"
+_APP_SECRET = "6c26348ef355f53a531890e980ddc731"
+_APP_ID = "735343629893573"
 
 #TODO: pass this in 
 # _USER_ACCESS_TOKEN = 'CAACEdEose0cBADF45nBgdDKVDGkcivBtSUuE1BCtL9DPH3uZARTucemNNpBjVeTz0B25eOMakCTSdKL53DeSyd0mYm1lNSfRhwGadN9Va1LG6B2VoaSdZATGiC8eDaoJsGsDucmwwesHERSMyVUpyjKlxK1smVvmcZA0GneKTzgn15DZCyqzZCrv2jg28cSNZBKYRUmgj6JTfW2GIh5KU8'
