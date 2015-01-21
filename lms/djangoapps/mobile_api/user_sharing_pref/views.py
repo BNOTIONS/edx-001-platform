@@ -5,7 +5,7 @@ Views for users sharing preferences
 from rest_framework import generics, permissions, status 
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
-from user_api.api.profile import preference_info, update_preferences
+from openedx.core.djangoapps.user_api.api.profile import preference_info, update_preferences
 import serializers
 
 
