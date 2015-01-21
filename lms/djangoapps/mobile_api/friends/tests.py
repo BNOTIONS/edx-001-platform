@@ -14,7 +14,6 @@ from social.apps.django_app.default.models import UserSocialAuth
 from nose.tools import set_trace
 from student.views import login_oauth_token
 
-from facebook_data_mocker import FacebookDataMocker
 import httpretty
 
 

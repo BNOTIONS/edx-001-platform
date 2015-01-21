@@ -15,8 +15,6 @@ from opaque_keys.edx.locator import CourseLocator
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
 
-from facebook_data_mocker import FacebookDataMocker
-
 
 
 # TODO: dependencies to be added to the vagrant 
