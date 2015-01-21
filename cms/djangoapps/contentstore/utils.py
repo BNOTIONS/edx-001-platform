@@ -30,7 +30,8 @@ log = logging.getLogger(__name__)
 # In order to instantiate an open ended tab automatically, need to have this data
 OPEN_ENDED_PANEL = {"name": _("Open Ended Panel"), "type": "open_ended"}
 NOTES_PANEL = {"name": _("My Notes"), "type": "notes"}
-EXTRA_TAB_PANELS = dict([(p['type'], p) for p in [OPEN_ENDED_PANEL, NOTES_PANEL]])
+EDXNOTES_PANEL = {"name": _("Notes"), "type": "edxnotes"}
+EXTRA_TAB_PANELS = dict([(p['type'], p) for p in [OPEN_ENDED_PANEL, NOTES_PANEL, EDXNOTES_PANEL]])
 
 
 def add_instructor(course_key, requesting_user, new_instructor):
@@ -176,6 +177,36 @@ def is_currently_visible_to_students(xblock):
 
     # No start date, so it's always visible
     return True
+
+
+def has_children_visible_to_specific_content_groups(xblock):
+    """
+    Returns True if this xblock has children that are limited to specific content groups.
+    Note that this method is not recursive (it does not check grandchildren).
+    """
+    if not xblock.has_children:
+        return False
+
+    for child in xblock.get_children():
+        if is_visible_to_specific_content_groups(child):
+            return True
+
+    return False
+
+
+def is_visible_to_specific_content_groups(xblock):
+    """
+    Returns True if this xblock has visibility limited to specific content groups.
+    """
+    if not xblock.group_access:
+        return False
+    for __, value in xblock.group_access.iteritems():
+        # value should be a list of group IDs. If it is an empty list or None, the xblock is visible
+        # to all groups in that particular partition. So if value is a truthy value, the xblock is
+        # restricted in some way.
+        if value:
+            return True
+    return False
 
 
 def find_release_date_source(xblock):

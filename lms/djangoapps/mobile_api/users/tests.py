@@ -5,9 +5,10 @@ Tests for users API
 import datetime
 from django.utils import timezone
 
-from xmodule.modulestore.tests.factories import ItemFactory
-from xmodule.modulestore.django import modulestore
+from xmodule.modulestore.tests.factories import ItemFactory, CourseFactory
 from student.models import CourseEnrollment
+from certificates.models import CertificateStatuses
+from certificates.tests.factories import GeneratedCertificateFactory
 
 from .. import errors
 from ..testutils import MobileAPITestCase, MobileAuthTestMixin, MobileAuthUserTestMixin, MobileEnrolledCourseAccessTestMixin
@@ -48,6 +49,7 @@ class TestUserEnrollmentApi(MobileAPITestCase, MobileAuthUserTestMixin, MobileEn
     Tests for /api/mobile/v0.5/users/<user_name>/course_enrollments/
     """
     REVERSE_INFO = {'name': 'courseenrollment-detail', 'params': ['username']}
+    ALLOW_ACCESS_TO_UNRELEASED_COURSE = True
 
     def verify_success(self, response):
         super(TestUserEnrollmentApi, self).verify_success(response)
@@ -64,6 +66,69 @@ class TestUserEnrollmentApi(MobileAPITestCase, MobileAuthUserTestMixin, MobileEn
         self.assertEqual(response.status_code, 200)
         courses = response.data
         self.assertEqual(len(courses), 0)
+
+    def test_sort_order(self):
+        self.login()
+
+        num_courses = 3
+        courses = []
+        for course_num in range(num_courses):
+            courses.append(CourseFactory.create(mobile_available=True))
+            self.enroll(courses[course_num].id)
+
+        # verify courses are returned in the order of enrollment, with most recently enrolled first.
+        response = self.api_response()
+        for course_num in range(num_courses):
+            self.assertEqual(
+                response.data[course_num]['course']['id'],  # pylint: disable=no-member
+                unicode(courses[num_courses - course_num - 1].id)
+            )
+
+    def test_course_url(self):
+        self.login_and_enroll()
+        response = self.api_response()
+        course_data = response.data[0]['course']
+        self.assertIsNotNone(course_data['course_url'])
+
+    def test_no_facebook_url(self):
+        self.login_and_enroll()
+
+        response = self.api_response()
+        course_data = response.data[0]['course']
+        self.assertIsNone(course_data['social_urls']['facebook'])
+
+    def test_facebook_url(self):
+        self.login_and_enroll()
+
+        self.course.facebook_url = "http://facebook.com/test_group_page"
+        self.store.update_item(self.course, self.user.id)
+
+        response = self.api_response()
+        course_data = response.data[0]['course']
+        self.assertEquals(course_data['social_urls']['facebook'], self.course.facebook_url)
+
+    def test_no_certificate(self):
+        self.login_and_enroll()
+
+        response = self.api_response()
+        certificate_data = response.data[0]['certificate']
+        self.assertDictEqual(certificate_data, {})
+
+    def test_certificate(self):
+        self.login_and_enroll()
+
+        certificate_url = "http://test_certificate_url"
+        GeneratedCertificateFactory.create(
+            user=self.user,
+            course_id=self.course.id,
+            status=CertificateStatuses.downloadable,
+            mode='verified',
+            download_url=certificate_url,
+        )
+
+        response = self.api_response()
+        certificate_data = response.data[0]['certificate']
+        self.assertEquals(certificate_data['url'], certificate_url)
 
 
 class CourseStatusAPITestCase(MobileAPITestCase):
@@ -214,7 +279,7 @@ class TestCourseEnrollmentSerializer(MobileAPITestCase):
 
         self.course.display_coursenumber = "overridden_number"
         self.course.display_organization = "overridden_org"
-        modulestore().update_item(self.course, self.user.id)
+        self.store.update_item(self.course, self.user.id)
 
         serialized = CourseEnrollmentSerializer(CourseEnrollment.enrollments_for_user(self.user)[0]).data  # pylint: disable=no-member
         self.assertEqual(serialized['course']['number'], self.course.display_coursenumber)

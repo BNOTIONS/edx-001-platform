@@ -57,15 +57,6 @@ class InheritanceMixin(XBlockMixin):
         default=False,
         scope=Scope.settings,
     )
-    group_access = Dict(
-        help="A dictionary that maps which groups can be shown this block. The keys "
-             "are group configuration ids and the values are a list of group IDs. "
-             "If there is no key for a group configuration or if the list of group IDs "
-             "is empty then the block is considered visible to all. Note that this "
-             "field is ignored if the block is visible_to_staff_only.",
-        default={},
-        scope=Scope.settings,
-    )
     course_edit_method = String(
         display_name=_("Course Editor"),
         help=_("Enter the method by which this course is edited (\"XML\" or \"Studio\")."),
@@ -171,6 +162,27 @@ class InheritanceMixin(XBlockMixin):
                "override this in each problem's settings. All existing problems are affected when this course-wide setting is changed."),
         scope=Scope.settings,
         default=default_reset_button
+    )
+    edxnotes = Boolean(
+        display_name=_("Enable Student Notes"),
+        help=_("Enter true or false. If true, students can use the Student Notes feature."),
+        default=False,
+        scope=Scope.settings
+    )
+    edxnotes_visibility = Boolean(
+        display_name="Student Notes Visibility",
+        help=_("Indicates whether Student Notes are visible in the course. "
+               "Students can also show or hide their notes in the courseware."),
+        default=True,
+        scope=Scope.user_info
+    )
+
+    in_entrance_exam = Boolean(
+        display_name=_("Tag this module as part of an Entrance Exam section"),
+        help=_("Enter true or false. If true, answer submissions for problem modules will be "
+               "considered in the Entrance Exam scoring/gating algorithm."),
+        scope=Scope.settings,
+        default=False
     )
 
 
