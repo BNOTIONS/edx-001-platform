@@ -21,11 +21,8 @@ from social.apps.django_app.default.models import UserSocialAuth
 import facebook
 
 # TODO: This should not be in the final commit
-_APP_SECRET = "6c26348ef355f53a531890e980ddc731"
-_APP_ID = "735343629893573"
-
-#TODO: pass this in 
-# _USER_ACCESS_TOKEN = 'CAACEdEose0cBADF45nBgdDKVDGkcivBtSUuE1BCtL9DPH3uZARTucemNNpBjVeTz0B25eOMakCTSdKL53DeSyd0mYm1lNSfRhwGadN9Va1LG6B2VoaSdZATGiC8eDaoJsGsDucmwwesHERSMyVUpyjKlxK1smVvmcZA0GneKTzgn15DZCyqzZCrv2jg28cSNZBKYRUmgj6JTfW2GIh5KU8'
+_APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
+_APP_ID = "734266930001243"
 
 _FACEBOOK_API_VERSION = "v2.2/"
 
@@ -95,7 +92,8 @@ class FriendsInCourse(generics.ListAPIView):
             fb_friends_in_course = []
             for friend in friends_that_are_edX_users:
                 query_set = CourseEnrollment.objects.filter(course_id = ss_course_key, 
-                                                            user_id =  friend['edX_id'] )
+                                                            user_id =  friend['edX_id'], 
+                                                            is_active = True )
                 if query_set.count() == 1:
                     fb_friends_in_course.append(friend)
 
