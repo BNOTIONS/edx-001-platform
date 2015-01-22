@@ -17,7 +17,7 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
 from courseware.access import is_mobile_available_for_user
 from mobile_api.users.serializers import CourseEnrollmentSerializer
-
+from sets import Set
 
 # TODO: dependencies to be added to the vagrant 
 import facebook
@@ -42,7 +42,7 @@ class CoursesWithFriends(generics.ListAPIView):
 
     **Response Values**
 
-        {"courses": [
+        [
             {   "created": "2014-12-09 16:58:31.926438",
             "mode": "honor",
             "is_active": "True",
@@ -64,7 +64,7 @@ class CoursesWithFriends(generics.ListAPIView):
                 }
             },
             ...
-        ]}
+        ]
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
@@ -98,9 +98,9 @@ class CoursesWithFriends(generics.ListAPIView):
                 query_set = CourseEnrollment.objects.filter(user_id = friend['edX_id'], 
                                                             is_active = True)
                 if query_set.count() > 0:
-                    # set_trace()
                     for i in range(len(query_set)):
-                        enrollments.append(query_set[i])
+                        if not self.is_member(enrollments, query_set[i]):
+                            enrollments.append(query_set[i])
 
             courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
             
@@ -115,4 +115,10 @@ class CoursesWithFriends(generics.ListAPIView):
         if 'oauth-token' in request.GET:
             return request.GET['oauth-token']
 
-
+    def is_member(self, enrollments, query_set_item):
+        ''' Return true if the query_set_item is in enrollments
+        '''
+        for enrollment in enrollments:
+            if query_set_item.course_id == enrollment.course_id:
+                return True
+        return False
