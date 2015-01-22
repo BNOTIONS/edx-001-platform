@@ -69,7 +69,6 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     @httpretty.activate
     def test_two_courses_with_friends(self):
-        
         self.user_create_and_signin(1)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
         self.set_facebook_interceptor({ 'data': 
@@ -90,6 +89,39 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                          response.data[0]['course']['id'])
         self.assertEqual(self.course_2.id._to_string().replace('+', '/'),
                          response.data[1]['course']['id'])
+
+    @httpretty.activate
+    def test__three_courses_but_only_two_unique(self):
+        self.user_create_and_signin(1)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_facebook_interceptor({ 'data': 
+                                        [{  'name' : self.USERNAME_1, 
+                                            'id' : self.FB_ID_1}, 
+                                        {  'name' : self.USERNAME_2, 
+                                            'id' : self.FB_ID_2}
+                                        ]})
+        self.enroll_in_course(self.user_1, self.course)
+        self.course_2 = CourseFactory.create(mobile_available=True)
+        self.enroll_in_course(self.user_1, self.course_2)
+
+        self.user_create_and_signin(2)
+        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
+        # Enroll another user in course_2
+        self.enroll_in_course(self.user_2, self.course_2) 
+        url = reverse('courses-with-friends')
+        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        # set_trace() 
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.course.id._to_string().replace('+', '/'),
+                         response.data[0]['course']['id'])
+        self.assertEqual(self.course_2.id._to_string().replace('+', '/'),
+                         response.data[1]['course']['id'])
+        # Assert that only two courses are returned 
+        self.assertEqual(len(response.data), 2) 
+
+
+
+
 
     # Helper Functions 
 
