@@ -61,11 +61,11 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-
+        # set_trace()
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('courses' in response.data)  # pylint: disable=E1103
+        # self.assertTrue('courses' in response.data)  # pylint: disable=E1103
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
-                         response.data['courses'][0]['course']['id'])
+                         response.data[0]['course']['id'])
 
     @httpretty.activate
     def test_two_courses_with_friends(self):
@@ -83,13 +83,13 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-        
+        # set_trace()
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('courses' in response.data)  # pylint: disable=E1103
+        # self.assertTrue('courses' in response.data)  # pylint: disable=E1103
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
-                         response.data['courses'][0]['course']['id'])
+                         response.data[0]['course']['id'])
         self.assertEqual(self.course_2.id._to_string().replace('+', '/'),
-                         response.data['courses'][1]['course']['id'])
+                         response.data[1]['course']['id'])
 
     # Helper Functions 
 

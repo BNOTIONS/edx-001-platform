@@ -108,7 +108,7 @@ class CoursesWithFriends(generics.ListAPIView):
 
             # set_trace()
             serialized_courses = CourseEnrollmentSerializer(courses)
-            return Response({'courses' : serialized_courses.data} )
+            return Response(serialized_courses.data)
         return Response({})
 
     def get_token(self, request): 
