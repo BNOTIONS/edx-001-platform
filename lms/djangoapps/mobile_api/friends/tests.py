@@ -40,7 +40,11 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
+<<<<<<< HEAD
     _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBABmFt9kSO34MkLI0AwuLemGbwXLgxoYbmTXuh1sKIuGoZAjeK1XdIHMBoURsll0iq1OG7Jpz0B1iHuk4OYvhSgJdFihaNqOkHM8HHlNXjTUODjUn3ol5s4lYDP5NpDR1wUHCocZCBUWuZABBW3BNR5oDwypTVjAU7OjXnTZCBagsGuv1CEKPTIE5EcvUanQmuJEE02Ta'
+=======
+    _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBAEGvZBJKPmCs5mGE57n8yeDcPI11oQfEgcZBxoO4d8KUwvVGeeJhE3RdFV7sw0PG7UAY104TmMXot6GgoOEFYWqx85RxdWnToO0s1ZAW2FZBJ7yIHNuSZCCl9xjFvvS9DGvuORxH0vxZAxSWLv832eZBZCzlFeTWFDlBcJToIMlycl9mdEO9hoqQS49K7bi4u2sOmJ3ChZAM3'
+>>>>>>> master
 
 
     def setUp(self):
