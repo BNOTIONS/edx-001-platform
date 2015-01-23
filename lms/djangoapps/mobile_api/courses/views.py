@@ -6,26 +6,17 @@ Views for courses info API
 from rest_framework import generics, permissions
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
+from courseware.access import is_mobile_available_for_user
 from student.models import CourseEnrollment
 from courseware import models
-from enrollment import api
-from third_party_auth import pipeline, provider
-from nose.tools import set_trace
-from openedx.core.djangoapps.user_api.models import User, UserProfile, UserPreference, UserOrgTag
-from opaque_keys.edx.locator import CourseLocator
-from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
-from courseware.access import is_mobile_available_for_user
 from mobile_api.users.serializers import CourseEnrollmentSerializer
-from sets import Set
-
-# TODO: dependencies to be added to the vagrant 
+from openedx.core.djangoapps.user_api.api.profile import preference_info
 import facebook
 
 # TODO: This should not be in the final commit
 _APP_SECRET = "6c26348ef355f53a531890e980ddc731"
 _APP_ID = "735343629893573"
-
 _FACEBOOK_API_VERSION = "v2.2/"
 
 
@@ -68,12 +59,11 @@ class CoursesWithFriends(generics.ListAPIView):
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
-    # serializer_class = CourseEnrollmentSerializer
+    # TODO: serializer? 
 
 
     def list(self, request, *args, **kwargs):
-        # set_trace()
-        # get all the users FB friends
+        # Get all the users FB friends
         oauth_token = self.get_token(request)
         if oauth_token:
             graph = facebook.GraphAPI(oauth_token)
@@ -81,7 +71,7 @@ class CoursesWithFriends(generics.ListAPIView):
             friends = graph.request(url)
             # TODO: deal with pagination
                     
-            # For each friend check if they are a linked edX user
+            # Get the linked edX user if it exists
             friends_that_are_edX_users = []
             for friend in friends['data']:
                 name = friend['name']
@@ -91,10 +81,17 @@ class CoursesWithFriends(generics.ListAPIView):
                     friend['edX_id'] = query_set[0].user_id
                     friends_that_are_edX_users.append(friend)
             
-            # For each edX friend check if they are a member of that course 
-            # and if so add them to the result set
-            enrollments = []
+            # TODO: filter based on TOC after merging with TOC branch
+            friends_that_are_edX_users_with_sharing = []
             for friend in friends_that_are_edX_users:
+                share_pref_setting = preference_info(friend['name'])
+                if 'share_pref' in share_pref_setting and share_pref_setting['share_pref'] == 'True':
+                    friends_that_are_edX_users_with_sharing.append(friend)
+
+            # For each friend get the courses they are a member of
+            # and add them to the result set if they are not in it.
+            enrollments = []
+            for friend in friends_that_are_edX_users_with_sharing:
                 query_set = CourseEnrollment.objects.filter(user_id = friend['edX_id'], 
                                                             is_active = True)
                 if query_set.count() > 0:
@@ -103,10 +100,7 @@ class CoursesWithFriends(generics.ListAPIView):
                             enrollments.append(query_set[i])
 
             courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
-            
-            # TODO: filter based on TOC after merging with TOC branch
 
-            # set_trace()
             serialized_courses = CourseEnrollmentSerializer(courses)
             return Response(serialized_courses.data)
         return Response({})

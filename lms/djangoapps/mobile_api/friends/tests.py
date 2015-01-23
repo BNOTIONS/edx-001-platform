@@ -8,12 +8,12 @@ from courseware.tests.factories import UserFactory
 from xmodule.modulestore.tests.factories import CourseFactory
 from rest_framework import status
 from django.test.client import Client
-import json
 from student.models import CourseEnrollment
 from social.apps.django_app.default.models import UserSocialAuth
 from nose.tools import set_trace
 from student.views import login_oauth_token
-
+from openedx.core.djangoapps.user_api.api.profile import preference_info, update_preferences
+import json
 import httpretty
 
 
@@ -40,7 +40,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
-    _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBABmFt9kSO34MkLI0AwuLemGbwXLgxoYbmTXuh1sKIuGoZAjeK1XdIHMBoURsll0iq1OG7Jpz0B1iHuk4OYvhSgJdFihaNqOkHM8HHlNXjTUODjUn3ol5s4lYDP5NpDR1wUHCocZCBUWuZABBW3BNR5oDwypTVjAU7OjXnTZCBagsGuv1CEKPTIE5EcvUanQmuJEE02Ta'
+    _FB_USER_ACCESS_TOKEN = 'CAACEdEose0cBAMJAbuv0PGBfYmQx6xLEWfr82q7GSgGGrMRklhvTTZAfE6J5kyE7dxmrmyUiw3FLEsEYP57aeWlGLb6Q7fKiwS6UIeEqeZA0Wm8zMZBfIOhdqXOIUm6wlVMN6UCDQrZB5jv75L0bWqF11OR4bMke9eETMJyCxpBa0O9B3OoimfZC8PuvRu6Q1KxHZCg8ETALGpinUiJowy'
 
     def setUp(self):
         super(TestFriends, self).setUp()
@@ -52,6 +52,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.user_create_and_signin(1)
         # Link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
         # Set the interceptor 
         self.set_facebook_interceptor({'data': [{   
                                             'name': self.USERNAME_1,
@@ -76,6 +77,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.user_create_and_signin(1)
         # Enroll user_1 in the course
         self.enroll_in_course(self.user_1, self.course)
+        self.set_sharing_preferences(self.user_1, True)
         # Link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
         # Set the interceptor 
@@ -95,14 +97,17 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.user_create_and_signin(1)
         # Enroll user_1 in the course
         self.enroll_in_course(self.user_1, self.course)
+        self.set_sharing_preferences(self.user_1, True)
         # User 2 set up
         self.user_create_and_signin(2)
         # Enroll user_2 in the course
         self.enroll_in_course(self.user_2, self.course)
+        self.set_sharing_preferences(self.user_2, True)
         # User 3 set up
         self.user_create_and_signin(3)
         # Enroll user_3 in the course
         self.enroll_in_course(self.user_3, self.course)
+        self.set_sharing_preferences(self.user_3, True)
 
         # Set the interceptor 
         self.set_facebook_interceptor({'data': [{   
@@ -124,16 +129,13 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
 
     @httpretty.activate
-    def test_one_friend_in_course(self):
-        # set_trace()
+    def test_no_friend_in_course_beacuse_share_settings_false(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        # Enroll user_1 in the course
         self.enroll_in_course(self.user_1, self.course)
-        # link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, False)
         
-        # Set the interceptor 
         self.set_facebook_interceptor({'data': [{   'name': self.USERNAME_1,
                                         'id':   self.FB_ID_1}, 
                                     {   'name': self.USERNAME_2,
@@ -142,8 +144,32 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
                                         'id': self.FB_ID_3}
                                     ]})
 
-        course_id = self.format_course_id()
-        url = reverse('friends-in-course', kwargs={"course_id": course_id})
+        url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
+        response = self.client.get(url, {   'format' : 'json', 
+                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        
+        # Assert that USERNAME_1 is returned
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('friends' in response.data)
+        self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
+
+    @httpretty.activate
+    def test_one_friend_in_course(self):
+        # User 1 set up
+        self.user_create_and_signin(1)
+        self.enroll_in_course(self.user_1, self.course)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
+        
+        self.set_facebook_interceptor({'data': [{   'name': self.USERNAME_1,
+                                        'id':   self.FB_ID_1}, 
+                                    {   'name': self.USERNAME_2,
+                                        'id':   self.FB_ID_2}, 
+                                    {   'name': self.USERNAME_3, 
+                                        'id': self.FB_ID_3}
+                                    ]})
+
+        url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
                                             'oauth-token' : self._FB_USER_ACCESS_TOKEN})
         
@@ -157,26 +183,22 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     def test_three_friends_in_course(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        # Enroll user_1 in the course
         self.enroll_in_course(self.user_1, self.course)
-        # link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
         
         # User 2 set up
         self.user_create_and_signin(2)
-        # Enroll user_1 in the course
         self.enroll_in_course(self.user_2, self.course)
-        # link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
+        self.set_sharing_preferences(self.user_2, True)
 
         # User 3 set up
         self.user_create_and_signin(3)
-        # Enroll user_1 in the course
         self.enroll_in_course(self.user_3, self.course)
-        # link user_1's edX account to FB
         self.link_edX_account_to_social_backend(self.user_3, self.BACKEND, self.FB_ID_3)
+        self.set_sharing_preferences(self.user_3, True)
 
-        # Set the interceptor 
         self.set_facebook_interceptor({'data': [{   'name': self.USERNAME_1,
                                         'id':   self.FB_ID_1}, 
                                     {   'name': self.USERNAME_2,
@@ -185,12 +207,10 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
                                         'id': self.FB_ID_3}
                                     ]})
 
-        course_id = self.format_course_id()
-        url = reverse('friends-in-course', kwargs={"course_id": course_id})
+        url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
                                             'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-        
-        
+                
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
         # Assert that USERNAME_1 is returned
@@ -203,6 +223,9 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.FB_ID_3)
         self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERNAME_3)
 
+
+
+    # Helper functions
 
     def set_facebook_interceptor(self, data): 
         httpretty.register_uri(httpretty.GET, 
@@ -242,6 +265,12 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
 
     def format_course_id(self): 
         return self.course.scope_ids.usage_id.course_key._to_string().replace('+', '/')
+
+    def set_sharing_preferences(self, user, boolean_value):
+        ''' Sets self.user's share settings to True
+        '''
+        update_preferences(user.username, share_pref=boolean_value)
+        self.assertEqual(preference_info(user.username)['share_pref'], unicode(boolean_value))
 
     def _change_enrollment(self, action, course_id=None, email_opt_in=None):
         """Change the student's enrollment status in a course.
