@@ -38,7 +38,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
-    # TODO: this needs to be a valid access token
+    # TODO: Needs to be a valid access token
     _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBABmFt9kSO34MkLI0AwuLemGbwXLgxoYbmTXuh1sKIuGoZAjeK1XdIHMBoURsll0iq1OG7Jpz0B1iHuk4OYvhSgJdFihaNqOkHM8HHlNXjTUODjUn3ol5s4lYDP5NpDR1wUHCocZCBUWuZABBW3BNR5oDwypTVjAU7OjXnTZCBagsGuv1CEKPTIE5EcvUanQmuJEE02Ta'
 
 
@@ -144,6 +144,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                                 "summary": {"total_count": 652}
                                                 }), 
                                 status=201)
+
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)

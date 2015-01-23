@@ -7,10 +7,6 @@ from rest_framework.test import APITestCase
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 
-# TODO: use this for debugging.
-from nose.tools import set_trace
-
-# TODO: keep tests consistent with the regestered Facebook app
 
 class TestGroups(ModuleStoreTestCase, APITestCase):
     """
@@ -21,7 +17,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         self.client.login(username=self.user.username, password='test')
 
     
-    # Group Creation and Deletion Tests
+    '''
+        Group Creation and Deletion Tests
+    '''
 
     def test_create_new_open_group(self):
         # Create new group
@@ -73,9 +71,10 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         # delete group 
         delete_group(self, response.data['id'])
 
-
-    # Member addition and Removal tests
-
+    '''
+        Member addition and Removal tests
+    '''
+    
     def test_invite_single_member_malformed_member_id_1(self):
         group_id = '756869167741019'
         member_id = '1234,,,,5678,,'
