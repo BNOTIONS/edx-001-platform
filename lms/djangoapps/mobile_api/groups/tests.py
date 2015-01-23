@@ -153,7 +153,10 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         remove_from_group(self, group_id, member_id)
         
 
-# Helper functions
+'''
+    Helper Functions 
+'''
+
 def delete_group(self, group_id):
     url = reverse('create-delete-group', kwargs={'group_id' : group_id}) 
     response = self.client.delete(url)
