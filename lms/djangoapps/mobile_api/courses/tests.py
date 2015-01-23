@@ -8,13 +8,11 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from courseware.tests.factories import UserFactory
 from xmodule.modulestore.tests.factories import CourseFactory
 from student.models import CourseEnrollment
+from student.views import login_oauth_token
+from social.apps.django_app.default.models import UserSocialAuth
 import httpretty
 import json
-from student.views import login_oauth_token #TODO: strange dependancy?
-from social.apps.django_app.default.models import UserSocialAuth
-from ..testutils import MobileAPITestCase, MobileAuthTestMixin, MobileAuthUserTestMixin, MobileEnrolledCourseAccessTestMixin
-
-from nose.tools import set_trace
+from openedx.core.djangoapps.user_api.api.profile import preference_info, update_preferences
 
 class TestGroups(ModuleStoreTestCase, APITestCase):
     """
@@ -40,9 +38,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
+    # TODO: this needs to be a valid access token
     _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBABmFt9kSO34MkLI0AwuLemGbwXLgxoYbmTXuh1sKIuGoZAjeK1XdIHMBoURsll0iq1OG7Jpz0B1iHuk4OYvhSgJdFihaNqOkHM8HHlNXjTUODjUn3ol5s4lYDP5NpDR1wUHCocZCBUWuZABBW3BNR5oDwypTVjAU7OjXnTZCBagsGuv1CEKPTIE5EcvUanQmuJEE02Ta'
 
-    REVERSE_INFO = {'name': 'courses-with-friends', 'params': ['username'], 'oauth-token': _FB_USER_ACCESS_TOKEN}
 
     def setUp(self):
         super(TestGroups, self).setUp()
@@ -53,17 +51,15 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     def test_one_courses_with_friends(self):
         self.user_create_and_signin(1)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
         self.set_facebook_interceptor({ 'data': 
                                         [{  'name' : self.USERNAME_1, 
                                             'id' : self.FB_ID_1}
                                         ]})
         self.enroll_in_course(self.user_1, self.course)
-        
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-        # set_trace()
         self.assertEqual(response.status_code, 200)
-        # self.assertTrue('courses' in response.data)  # pylint: disable=E1103
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
 
@@ -71,20 +67,17 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     def test_two_courses_with_friends(self):
         self.user_create_and_signin(1)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.user_1, self.course)
+        self.course_2 = CourseFactory.create(mobile_available=True)
+        self.enroll_in_course(self.user_1, self.course_2)
         self.set_facebook_interceptor({ 'data': 
                                         [{  'name' : self.USERNAME_1, 
                                             'id' : self.FB_ID_1}
                                         ]})
-        self.enroll_in_course(self.user_1, self.course)
-
-        self.course_2 = CourseFactory.create(mobile_available=True)
-        self.enroll_in_course(self.user_1, self.course_2)
-        
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-        # set_trace()
         self.assertEqual(response.status_code, 200)
-        # self.assertTrue('courses' in response.data)  # pylint: disable=E1103
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
         self.assertEqual(self.course_2.id._to_string().replace('+', '/'),
@@ -94,23 +87,23 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     def test__three_courses_but_only_two_unique(self):
         self.user_create_and_signin(1)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_facebook_interceptor({ 'data': 
+        self.set_sharing_preferences(self.user_1, True)
+        self.course_2 = CourseFactory.create(mobile_available=True)
+        self.enroll_in_course(self.user_1, self.course_2)
+        self.enroll_in_course(self.user_1, self.course)
+        self.user_create_and_signin(2)
+        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
+        self.set_sharing_preferences(self.user_2, True)
+        # Enroll another user in course_2
+        self.enroll_in_course(self.user_2, self.course_2) 
+        self.set_facebook_interceptor({ 'data':
                                         [{  'name' : self.USERNAME_1, 
                                             'id' : self.FB_ID_1}, 
                                         {  'name' : self.USERNAME_2, 
                                             'id' : self.FB_ID_2}
                                         ]})
-        self.enroll_in_course(self.user_1, self.course)
-        self.course_2 = CourseFactory.create(mobile_available=True)
-        self.enroll_in_course(self.user_1, self.course_2)
-
-        self.user_create_and_signin(2)
-        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
-        # Enroll another user in course_2
-        self.enroll_in_course(self.user_2, self.course_2) 
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
-        # set_trace() 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
@@ -119,11 +112,34 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         # Assert that only two courses are returned 
         self.assertEqual(len(response.data), 2) 
 
-
+    @httpretty.activate
+    def test_no_courses_with_friends_beacause_sharring_pref_off(self):
+        self.user_create_and_signin(1)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, False)
+        self.set_facebook_interceptor({ 'data': 
+                                        [{  'name' : self.USERNAME_1, 
+                                            'id' : self.FB_ID_1}
+                                        ]})
+        self.enroll_in_course(self.user_1, self.course)
+        url = reverse('courses-with-friends')
+        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
 
 
 
     # Helper Functions 
+
+    def set_sharing_preferences(self, user, boolean_value):
+        ''' Sets self.user's share settings to True
+        '''
+        # from nose.tools import set_trace
+        # set_trace()
+        update_preferences(user.username, share_pref=boolean_value)
+        self.assertEqual(preference_info(user.username)['share_pref'], unicode(boolean_value))
+        
+        
 
     def set_facebook_interceptor(self, data): 
         httpretty.register_uri(httpretty.GET, 
@@ -158,7 +174,6 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     def link_edX_account_to_social_backend(self, user, backend, social_uid):
         self.url = reverse(login_oauth_token, kwargs={"backend": backend})
-        # self.social_uid = "10155110991745300"
         UserSocialAuth.objects.create(user=user, provider=backend, uid=social_uid)
 
     def _change_enrollment(self, action, course_id=None, email_opt_in=None):
