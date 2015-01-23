@@ -72,12 +72,9 @@ class FriendsInCourse(generics.ListAPIView):
             # For each friend check if they are a linked edX user
             friends_that_are_edX_users = []
             for friend in data:
-                # name = friend['name']
                 fb_id = friend['id']
                 query_set = UserSocialAuth.objects.filter(uid=unicode(fb_id))
                 if query_set.count() == 1: 
-                    # from nose.tools import set_trace
-                    # set_trace()
                     friend['edX_id'] = query_set[0].user_id
                     friend['edX_username'] = query_set[0].user.username
                     friends_that_are_edX_users.append(friend)
