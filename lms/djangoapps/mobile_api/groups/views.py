@@ -6,8 +6,6 @@ from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 import serializers
-
-# TODO: dependencies to be added to the vagrant 
 import facebook     
 
 # TODO: This should not be in the final commit

@@ -15,10 +15,8 @@ from opaque_keys.edx.locator import CourseLocator
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
 from openedx.core.djangoapps.user_api.api.profile import preference_info
-
-
-
-# TODO: dependencies to be added to the vagrant 
+import urllib2
+import json
 import facebook
 
 # TODO: This should not be in the final commit
@@ -57,29 +55,34 @@ class FriendsInCourse(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        # set_trace()
         # get all the users FB friends
         oauth_token = self.get_token(request)
         if oauth_token:
             graph = facebook.GraphAPI(oauth_token)
             url = _FACEBOOK_API_VERSION + "me/friends"
             friends = graph.request(url)
-            # TODO: deal with pagination
+        
+            # Pagination
+            data = friends['data']
+            while 'paging' in friends and 'next' in friends['paging']: 
+                response = urllib2.urlopen(friends['paging']['next'])
+                friends = json.loads(response.read())
+                data = data + friends['data']
                     
             # For each friend check if they are a linked edX user
             friends_that_are_edX_users = []
-            for friend in friends['data']:
-                name = friend['name']
+            for friend in data:
                 fb_id = friend['id']
                 query_set = UserSocialAuth.objects.filter(uid=unicode(fb_id))
                 if query_set.count() == 1: 
                     friend['edX_id'] = query_set[0].user_id
+                    friend['edX_username'] = query_set[0].user.username
                     friends_that_are_edX_users.append(friend)
 
-            # TODO: filter based on TOC after merging with TOC branch
+            # Filter based on the users share preferences
             friends_that_are_edX_users_with_sharing = []
             for friend in friends_that_are_edX_users:
-                share_pref_setting = preference_info(friend['name'])
+                share_pref_setting = preference_info(friend['edX_username'])
                 if 'share_pref' in share_pref_setting and share_pref_setting['share_pref'] == 'True':
                     friends_that_are_edX_users_with_sharing.append(friend)
 

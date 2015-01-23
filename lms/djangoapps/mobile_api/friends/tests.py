@@ -91,7 +91,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
 
-
+    @httpretty.activate
     def test_no_friends_in_course_because_no_friends_on_facebook_linked_to_edX(self):
         # User 1 set up
         self.user_create_and_signin(1)
@@ -160,7 +160,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.enroll_in_course(self.user_1, self.course)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
         self.set_sharing_preferences(self.user_1, True)
-        
+
         self.set_facebook_interceptor({'data': [{   'name': self.USERNAME_1,
                                         'id':   self.FB_ID_1}, 
                                     {   'name': self.USERNAME_2,
@@ -223,9 +223,79 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.FB_ID_3)
         self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERNAME_3)
 
+    @httpretty.activate
+    def test_three_friends_in_course_in_paged_response(self):
+        # User 1 set up
+        self.user_create_and_signin(1)
+        self.enroll_in_course(self.user_1, self.course)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
+        
+        # User 2 set up
+        self.user_create_and_signin(2)
+        self.enroll_in_course(self.user_2, self.course)
+        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
+        self.set_sharing_preferences(self.user_2, True)
+
+        # User 3 set up
+        self.user_create_and_signin(3)
+        self.enroll_in_course(self.user_3, self.course)
+        self.link_edX_account_to_social_backend(self.user_3, self.BACKEND, self.FB_ID_3)
+        self.set_sharing_preferences(self.user_3, True)
+
+        self.set_facebook_interceptor({ 'data': 
+                                        [{  'name' : self.USERNAME_1, 
+                                            'id' : self.FB_ID_1}],
+                                        "paging": {
+                                             "next": "https://graph.facebook.com/v2.2/me/friends/next_1"
+                                            },    
+                                        "summary": {
+                                            "total_count": 652
+                                            }
+                                        })
+        # Set the interceptor for the first paged content 
+        httpretty.register_uri( httpretty.GET, 
+                                "https://graph.facebook.com/v2.2/me/friends/next_1",
+                                body=json.dumps({"data": [ {'name' : self.USERNAME_2, 
+                                                            'id' : self.FB_ID_2}], 
+                                                "paging": { 
+                                                    "next": "https://graph.facebook.com/v2.2/me/friends/next_2"
+                                                    }, 
+                                                "summary": {
+                                                    "total_count": 652
+                                                    }
+                                                }), 
+                                status=201)
+        # Set the interceptor for the last paged content
+        httpretty.register_uri( httpretty.GET, 
+                                "https://graph.facebook.com/v2.2/me/friends/next_2",
+                                body=json.dumps({"data": [ {'name' : self.USERNAME_3, 
+                                                            'id' : self.FB_ID_3}], 
+                                                "paging": { "previous": "https://graph.facebook.com/v2.2/10154805434030300/friends?limit=25&offset=25"}, 
+                                                "summary": {"total_count": 652}
+                                                }), 
+                                status=201)
+
+        url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
+        response = self.client.get(url, {   'format' : 'json', 
+                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('friends' in response.data)
+        # Assert that USERNAME_1 is returned
+        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.FB_ID_1)
+        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERNAME_1)
+        # Assert that USERNAME_2 is returned
+        self.assertTrue('id' in response.data['friends'][1] and response.data['friends'][1]['id'] == self.FB_ID_2)
+        self.assertTrue('name' in response.data['friends'][1] and response.data['friends'][1]['name'] == self.USERNAME_2)
+        # Assert that USERNAME_3 is returned
+        self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.FB_ID_3)
+        self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERNAME_3)
 
 
-    # Helper functions
+    '''
+        Helper Functions 
+    '''
 
     def set_facebook_interceptor(self, data): 
         httpretty.register_uri(httpretty.GET, 

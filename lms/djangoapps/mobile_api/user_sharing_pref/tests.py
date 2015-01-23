@@ -4,7 +4,6 @@ Tests for users sharing preferences
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-
 from user_api.api import account as account_api
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
@@ -51,14 +50,13 @@ class StudentProfileViewTest(ModuleStoreTestCase, TestCase):
     def test_set_preferences_invalid_parameters(self):
         # Note that if no value is given it will default to True 
         # also in the case of invalid parameters 
-        # TODO: check this! 
         url = reverse('share_pref')
         response = self.client.post(url, {'bad_param' : 'False'})
         self.assertTrue('share_pref' in response.data)
         self.assertTrue('True' in response.data['share_pref'])
 
     def test_get_preferences(self):
-        # Note that if no value is given it will default to True
+        # If no value is given it will default to True
         url = reverse('share_pref')
         response = self.client.post(url, { })
         self.assertTrue('share_pref' in response.data)

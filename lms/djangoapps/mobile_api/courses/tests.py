@@ -38,7 +38,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
 
-    # TODO: this needs to be a valid access token
+    # TODO: Needs to be a valid access token
     _FB_USER_ACCESS_TOKEN = 'CAAKbz9eIdVsBABmFt9kSO34MkLI0AwuLemGbwXLgxoYbmTXuh1sKIuGoZAjeK1XdIHMBoURsll0iq1OG7Jpz0B1iHuk4OYvhSgJdFihaNqOkHM8HHlNXjTUODjUn3ol5s4lYDP5NpDR1wUHCocZCBUWuZABBW3BNR5oDwypTVjAU7OjXnTZCBagsGuv1CEKPTIE5EcvUanQmuJEE02Ta'
 
 
@@ -113,6 +113,47 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         self.assertEqual(len(response.data), 2) 
 
     @httpretty.activate
+    def test_two_courses_with_two_friends_on_different_paged_results(self):
+        self.user_create_and_signin(1)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.user_1, self.course)
+
+        self.user_create_and_signin(2)
+        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
+        self.set_sharing_preferences(self.user_2, True)
+        self.course_2 = CourseFactory.create(mobile_available=True)
+        self.enroll_in_course(self.user_2, self.course_2)
+
+        self.set_facebook_interceptor({ 'data': 
+                                        [{  'name' : self.USERNAME_1, 
+                                            'id' : self.FB_ID_1}],
+                                        "paging": {
+                                             "next": "https://graph.facebook.com/v2.2/me/friends/next"
+                                        },    
+                                        "summary": {
+                                                "total_count": 652
+                                          }
+                                    })
+        # Set the interceptor for the paged 
+        httpretty.register_uri( httpretty.GET, 
+                                "https://graph.facebook.com/v2.2/me/friends/next",
+                                body=json.dumps({"data": [ {'name' : self.USERNAME_2, 
+                                                            'id' : self.FB_ID_2}], 
+                                                "paging": { "previous": "https://graph.facebook.com/v2.2/10154805434030300/friends?limit=25&offset=25"}, 
+                                                "summary": {"total_count": 652}
+                                                }), 
+                                status=201)
+
+        url = reverse('courses-with-friends')
+        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.course.id._to_string().replace('+', '/'),
+                         response.data[0]['course']['id'])
+        self.assertEqual(self.course_2.id._to_string().replace('+', '/'),
+                         response.data[1]['course']['id'])
+
+    @httpretty.activate
     def test_no_courses_with_friends_beacause_sharring_pref_off(self):
         self.user_create_and_signin(1)
         self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
@@ -129,7 +170,9 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
 
 
-    # Helper Functions 
+    '''
+        Helper Functions 
+    '''
 
     def set_sharing_preferences(self, user, boolean_value):
         ''' Sets self.user's share settings to True
