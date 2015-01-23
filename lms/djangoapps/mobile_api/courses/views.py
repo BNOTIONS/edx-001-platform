@@ -81,17 +81,17 @@ class CoursesWithFriends(generics.ListAPIView):
             # Get the linked edX user if it exists
             friends_that_are_edX_users = []
             for friend in data:
-                name = friend['name']
                 fb_id = friend['id']
                 query_set = UserSocialAuth.objects.filter(uid=unicode(fb_id))
                 if query_set.count() == 1: 
                     friend['edX_id'] = query_set[0].user_id
+                    friend['edX_username'] = query_set[0].user.username
                     friends_that_are_edX_users.append(friend)
             
             # Filter based on TOC after merging with TOC branch
             friends_that_are_edX_users_with_sharing = []
             for friend in friends_that_are_edX_users:
-                share_pref_setting = preference_info(friend['name'])
+                share_pref_setting = preference_info(friend['edX_username'])
                 if 'share_pref' in share_pref_setting and share_pref_setting['share_pref'] == 'True':
                     friends_that_are_edX_users_with_sharing.append(friend)
 
