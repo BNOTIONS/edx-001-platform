@@ -14,6 +14,7 @@ from openedx.core.djangoapps.user_api.models import User, UserProfile, UserPrefe
 from opaque_keys.edx.locator import CourseLocator
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
+from openedx.core.djangoapps.user_api.api.profile import preference_info
 
 
 
@@ -75,6 +76,13 @@ class FriendsInCourse(generics.ListAPIView):
                     friend['edX_id'] = query_set[0].user_id
                     friends_that_are_edX_users.append(friend)
 
+            # TODO: filter based on TOC after merging with TOC branch
+            friends_that_are_edX_users_with_sharing = []
+            for friend in friends_that_are_edX_users:
+                share_pref_setting = preference_info(friend['name'])
+                if 'share_pref' in share_pref_setting and share_pref_setting['share_pref'] == 'True':
+                    friends_that_are_edX_users_with_sharing.append(friend)
+
 
             if 'course_id' in kwargs:
                 course_path = kwargs['course_id'].split('/') 
@@ -90,15 +98,13 @@ class FriendsInCourse(generics.ListAPIView):
             # For each edX friend check if they are a member of that course 
             # and if so add them to the result set
             fb_friends_in_course = []
-            for friend in friends_that_are_edX_users:
+            for friend in friends_that_are_edX_users_with_sharing:
                 query_set = CourseEnrollment.objects.filter(course_id = ss_course_key, 
                                                             user_id =  friend['edX_id'], 
                                                             is_active = True )
                 if query_set.count() == 1:
                     fb_friends_in_course.append(friend)
 
-
-            # TODO: filter based on TOC after merging with TOC branch
 
             fb_friends_in_course = {'friends' : fb_friends_in_course}
             return Response(fb_friends_in_course)

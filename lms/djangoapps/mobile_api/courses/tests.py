@@ -134,8 +134,6 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
     def set_sharing_preferences(self, user, boolean_value):
         ''' Sets self.user's share settings to True
         '''
-        # from nose.tools import set_trace
-        # set_trace()
         update_preferences(user.username, share_pref=boolean_value)
         self.assertEqual(preference_info(user.username)['share_pref'], unicode(boolean_value))
         
