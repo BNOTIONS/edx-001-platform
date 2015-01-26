@@ -9,7 +9,7 @@ from django.core.validators import RegexValidator
 
 class GroupSerializer(serializers.Serializer):
 	"""
-	Serializes facebook groups
+	Serializes facebook groups request
 	"""
 	name = serializers.CharField(max_length=150)
 	description = serializers.CharField(max_length=200, required=False)
@@ -17,7 +17,7 @@ class GroupSerializer(serializers.Serializer):
 
 class GroupsMembersSerializer(serializers.Serializer): 
 	"""
-	Serializes facebook invitations 
+	Serializes facebook invitations request
 	"""
 	member_ids = serializers.CharField(	required=True,
 										validators=[RegexValidator(

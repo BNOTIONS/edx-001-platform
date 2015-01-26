@@ -58,7 +58,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                         ]})
         self.enroll_in_course(self.user_1, self.course)
         url = reverse('courses-with-friends')
-        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
@@ -76,7 +76,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                             'id' : self.FB_ID_1}
                                         ]})
         url = reverse('courses-with-friends')
-        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
@@ -103,7 +103,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                             'id' : self.FB_ID_2}
                                         ]})
         url = reverse('courses-with-friends')
-        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
@@ -146,7 +146,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                 status=201)
 
         url = reverse('courses-with-friends')
-        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.course.id._to_string().replace('+', '/'),
                          response.data[0]['course']['id'])
@@ -164,10 +164,23 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
                                         ]})
         self.enroll_in_course(self.user_1, self.course)
         url = reverse('courses-with-friends')
-        response = self.client.get(url, {'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
+    @httpretty.activate
+    def test_no_courses_with_friends_beacause_no_auth_token(self):
+        self.user_create_and_signin(1)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, False)
+        self.set_facebook_interceptor({ 'data': 
+                                        [{  'name' : self.USERNAME_1, 
+                                            'id' : self.FB_ID_1}
+                                        ]})
+        self.enroll_in_course(self.user_1, self.course)
+        url = reverse('courses-with-friends')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
 
 
     '''
