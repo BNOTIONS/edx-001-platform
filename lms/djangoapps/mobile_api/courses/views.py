@@ -66,8 +66,6 @@ class CoursesWithFriends(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.GET, files=request.FILES)
-        
-        # Get all the users FB friends
         if serializer.is_valid():
             # Get friends from Facebook
             graph = facebook.GraphAPI(serializer.object['oauth_token'])
@@ -81,16 +79,15 @@ class CoursesWithFriends(generics.ListAPIView):
                     friend['edX_id'] = query_set[0].user_id
                     friend['edX_username'] = query_set[0].user.username
                     friends_that_are_edX_users.append(friend)
-            # Filter based on TOC after merging with TOC branch
+            # Filter by sharing preferences
             friends_that_are_edX_users_with_sharing = [friend for friend in friends_that_are_edX_users if self.sharing_pref_true(friend)]
             # Get unique courses
             enrollments = self.get_unique_courses(friends_that_are_edX_users_with_sharing)
             # Get course objects 
             courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
             return Response(CourseEnrollmentSerializer(courses).data)
-
-        # TODO: add test for no auth
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get_unique_courses(self, friends_that_are_edX_users_with_sharing):
         '''
@@ -104,7 +101,6 @@ class CoursesWithFriends(generics.ListAPIView):
                     if not self.is_member(enrollments, query_set[i]):
                         enrollments.append(query_set[i])
         return enrollments
-
 
     def get_pagination(self, friends): 
         '''

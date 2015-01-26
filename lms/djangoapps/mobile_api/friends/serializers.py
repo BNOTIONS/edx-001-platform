@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 
-class CoursesWithFriendsSerializer(serializers.Serializer):
+class FriendsInCourseSerializer(serializers.Serializer):
 	"""
 		Serializes facebook groups request
 	"""
