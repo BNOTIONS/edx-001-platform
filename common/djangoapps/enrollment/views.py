@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from enrollment import api
 from enrollment.errors import CourseNotFoundError, CourseEnrollmentError, CourseModeNotFoundError
 from util.authentication import SessionAuthenticationAllowInactiveUser
+from util.disable_rate_limit import can_disable_rate_limit
 
 
 class EnrollmentUserThrottle(UserRateThrottle):
@@ -20,6 +21,7 @@ class EnrollmentUserThrottle(UserRateThrottle):
     rate = '50/second'
 
 
+@can_disable_rate_limit
 class EnrollmentView(APIView):
     """
         **Use Cases**
@@ -82,6 +84,7 @@ class EnrollmentView(APIView):
             A JSON serialized representation of the course enrollment.
 
         """
+        user = user if user else request.user.username
         if request.user.username != user:
             # Return a 404 instead of a 403 (Unauthorized). If one user is looking up
             # other users, do not let them deduce the existence of an enrollment.
@@ -100,6 +103,7 @@ class EnrollmentView(APIView):
             )
 
 
+@can_disable_rate_limit
 class EnrollmentCourseDetailView(APIView):
     """
         **Use Cases**
@@ -168,6 +172,7 @@ class EnrollmentCourseDetailView(APIView):
             )
 
 
+@can_disable_rate_limit
 class EnrollmentListView(APIView):
     """
         **Use Cases**

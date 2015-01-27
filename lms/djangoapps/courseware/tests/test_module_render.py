@@ -46,6 +46,10 @@ from xmodule.x_module import XModuleDescriptor, XModule, STUDENT_VIEW
 TEST_DATA_DIR = settings.COMMON_TEST_DATA_ROOT
 
 
+@XBlock.needs("field-data")
+@XBlock.needs("i18n")
+@XBlock.needs("fs")
+@XBlock.needs("user")
 class PureXBlock(XBlock):
     """
     Pure XBlock to use in tests.
@@ -409,7 +413,7 @@ class TestTOC(ModuleStoreTestCase):
         factory = RequestFactory()
         self.request = factory.get(chapter_url)
         self.request.user = UserFactory()
-        self.modulestore = self.store._get_modulestore_for_courseid(self.course_key)
+        self.modulestore = self.store._get_modulestore_for_courselike(self.course_key)  # pylint: disable=protected-access, attribute-defined-outside-init
         with self.modulestore.bulk_operations(self.course_key):
             with check_mongo_calls(num_finds, num_sends):
                 self.toy_course = self.store.get_course(self.toy_loc, depth=2)
@@ -1177,3 +1181,40 @@ class TestEventPublishing(ModuleStoreTestCase, LoginEnrollmentTestCase):
         mock_track_function.assert_called_once_with(request)
 
         mock_track_function.return_value.assert_called_once_with(event_type, event)
+
+
+@ddt.ddt
+class LMSXBlockServiceBindingTest(ModuleStoreTestCase):
+    """
+    Tests that the LMS Module System (XBlock Runtime) provides an expected set of services.
+    """
+    def setUp(self):
+        """
+        Set up the user and other fields that will be used to instantiate the runtime.
+        """
+        super(LMSXBlockServiceBindingTest, self).setUp()
+        self.user = UserFactory()
+        self.field_data_cache = Mock()
+        self.course = CourseFactory.create()
+        self.track_function = Mock()
+        self.xqueue_callback_url_prefix = Mock()
+        self.request_token = Mock()
+
+    @XBlock.register_temp_plugin(PureXBlock, identifier='pure')
+    @ddt.data("user", "i18n", "fs", "field-data")
+    def test_expected_services_exist(self, expected_service):
+        """
+        Tests that the 'user', 'i18n', and 'fs' services are provided by the LMS runtime.
+        """
+        descriptor = ItemFactory(category="pure", parent=self.course)
+        runtime, _ = render.get_module_system_for_user(
+            self.user,
+            self.field_data_cache,
+            descriptor,
+            self.course.id,
+            self.track_function,
+            self.xqueue_callback_url_prefix,
+            self.request_token
+        )
+        service = runtime.service(descriptor, expected_service)
+        self.assertIsNotNone(service)

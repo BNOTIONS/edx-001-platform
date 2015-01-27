@@ -24,6 +24,11 @@ Longer TODO:
 # want to import all variables from base settings files
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import, invalid-name
 
+# Pylint gets confused by path.py instances, which report themselves as class
+# objects. As a result, pylint applies the wrong regex in validating names,
+# and throws spurious errors. Therefore, we disable invalid-name checking.
+# pylint: disable=invalid-name
+
 import sys
 import os
 import imp
@@ -1194,9 +1199,14 @@ PIPELINE_CSS = {
             'js/vendor/CodeMirror/codemirror.css',
             'css/vendor/jquery.treeview.css',
             'css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css',
-            'css/vendor/edxnotes/annotator.min.css',
         ],
         'output_filename': 'css/lms-style-course-vendor.css',
+    },
+    'style-student-notes': {
+        'source_filenames': [
+            'css/vendor/edxnotes/annotator.min.css',
+        ],
+        'output_filename': 'css/lms-style-student-notes.css',
     },
     'style-course': {
         'source_filenames': [
@@ -1979,6 +1989,9 @@ COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_exists'
 
 #date format the api will be formatting the datetime values
 API_DATE_FORMAT = '%Y-%m-%d'
+
+# Enrollment API Cache Timeout
+ENROLLMENT_COURSE_DETAILS_CACHE_TIMEOUT = 60
 
 # for Student Notes we would like to avoid too frequent token refreshes (default is 30 seconds)
 if FEATURES['ENABLE_EDXNOTES']:

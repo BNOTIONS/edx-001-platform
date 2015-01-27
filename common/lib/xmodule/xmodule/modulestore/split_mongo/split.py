@@ -607,7 +607,7 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
     def __init__(self, contentstore, doc_store_config, fs_root, render_template,
                  default_class=None,
                  error_tracker=null_error_tracker,
-                 i18n_service=None, fs_service=None,
+                 i18n_service=None, fs_service=None, user_service=None,
                  services=None, **kwargs):
         """
         :param doc_store_config: must have a host, db, and collection entries. Other common entries: port, tz_aware.
@@ -637,6 +637,9 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
 
         if fs_service is not None:
             self.services["fs"] = fs_service
+
+        if user_service is not None:
+            self.services["user"] = user_service
 
     def close_connections(self):
         """
@@ -940,6 +943,21 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
 
         course_index = self.get_course_index(course_id, ignore_case)
         return CourseLocator(course_index['org'], course_index['course'], course_index['run'], course_id.branch) if course_index else None
+
+    def has_library(self, library_id, ignore_case=False, **kwargs):
+        '''
+        Does this library exist in this modulestore. This method does not verify that the branch &/or
+        version in the library_id exists.
+
+        Returns the library_id of the course if it was found, else None.
+        '''
+        if not isinstance(library_id, LibraryLocator):
+            return None
+
+        index = self.get_course_index(library_id, ignore_case)
+        if index:
+            return LibraryLocator(index['org'], index['course'], library_id.branch)
+        return None
 
     def has_item(self, usage_key):
         """
