@@ -3,7 +3,7 @@ Views for courses info API
 """
 
 
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
 from courseware.access import is_mobile_available_for_user
@@ -11,14 +11,11 @@ from student.models import CourseEnrollment
 from social.apps.django_app.default.models import UserSocialAuth
 from mobile_api.users.serializers import CourseEnrollmentSerializer
 from openedx.core.djangoapps.user_api.api.profile import preference_info
+from ..settings import FB_SETTINGS
+import serializers
 import facebook
 import json
 import urllib2
-
-# TODO: This should not be in the final commit
-_APP_SECRET = "6c26348ef355f53a531890e980ddc731"
-_APP_ID = "735343629893573"
-_FACEBOOK_API_VERSION = "v2.2/"
 
 
 class CoursesWithFriends(generics.ListAPIView):
@@ -34,8 +31,7 @@ class CoursesWithFriends(generics.ListAPIView):
 
     **Response Values**
 
-        [
-            {   "created": "2014-12-09 16:58:31.926438",
+        [{   "created": "2014-12-09 16:58:31.926438",
             "mode": "honor",
             "is_active": "True",
             "course": {
@@ -58,65 +54,60 @@ class CoursesWithFriends(generics.ListAPIView):
             ...
         ]
     """
+
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
-    # TODO: serializer?
+    serializer_class = serializers.CoursesWithFriendsSerializer
 
 
     def list(self, request, *args, **kwargs):
-        # Get all the users FB friends
-        oauth_token = self.get_token(request)
-        if oauth_token:
-            graph = facebook.GraphAPI(oauth_token)
-            url = _FACEBOOK_API_VERSION + "me/friends"
-            friends = graph.request(url)
-            
-            # Pagination
-            data = friends['data']
-            while 'paging' in friends and 'next' in friends['paging']: 
-                response = urllib2.urlopen(friends['paging']['next'])
-                friends = json.loads(response.read())
-                data = data + friends['data']
-
+        serializer = self.get_serializer(data=request.GET, files=request.FILES)
+        if serializer.is_valid():
+            # Get friends from Facebook
+            graph = facebook.GraphAPI(serializer.object['oauth_token'])
+            friends = graph.request(FB_SETTINGS['_FACEBOOK_API_VERSION'] + "me/friends")
+            data = self.get_pagination(friends)
             # Get the linked edX user if it exists
             friends_that_are_edX_users = []
             for friend in data:
-                fb_id = friend['id']
-                query_set = UserSocialAuth.objects.filter(uid=unicode(fb_id))
+                query_set = UserSocialAuth.objects.filter(uid=unicode(friend['id']))
                 if query_set.count() == 1: 
                     friend['edX_id'] = query_set[0].user_id
                     friend['edX_username'] = query_set[0].user.username
                     friends_that_are_edX_users.append(friend)
-            
-            # Filter based on TOC after merging with TOC branch
-            friends_that_are_edX_users_with_sharing = []
-            for friend in friends_that_are_edX_users:
-                share_pref_setting = preference_info(friend['edX_username'])
-                if 'share_pref' in share_pref_setting and share_pref_setting['share_pref'] == 'True':
-                    friends_that_are_edX_users_with_sharing.append(friend)
-
-            # For each friend get the courses they are a member of
-            # and add them to the result set if they are not in it.
-            enrollments = []
-            for friend in friends_that_are_edX_users_with_sharing:
-                query_set = CourseEnrollment.objects.filter(user_id = friend['edX_id'], 
-                                                            is_active = True)
-                if query_set.count() > 0:
-                    for i in range(len(query_set)):
-                        if not self.is_member(enrollments, query_set[i]):
-                            enrollments.append(query_set[i])
-
+            # Filter by sharing preferences
+            friends_that_are_edX_users_with_sharing = [friend for friend in friends_that_are_edX_users if self.sharing_pref_true(friend)]
+            # Get unique courses
+            enrollments = self.get_unique_courses(friends_that_are_edX_users_with_sharing)
+            # Get course objects 
             courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
+            return Response(CourseEnrollmentSerializer(courses, context={'request' : request}).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            serialized_courses = CourseEnrollmentSerializer(courses)
-            return Response(serialized_courses.data)
 
-        # TODO: Error for no oath token
-        return Response({})
+    def get_unique_courses(self, friends_that_are_edX_users_with_sharing):
+        '''
+            Return a list of unique courses friends_that_are_edX_users_with_sharing are in
+        '''
+        enrollments = []
+        for friend in friends_that_are_edX_users_with_sharing:
+            query_set = CourseEnrollment.objects.filter(user_id = friend['edX_id'], is_active = True)
+            if query_set.count() > 0:
+                for i in range(len(query_set)):
+                    if not self.is_member(enrollments, query_set[i]):
+                        enrollments.append(query_set[i])
+        return enrollments
 
-    def get_token(self, request): 
-        if 'oauth-token' in request.GET:
-            return request.GET['oauth-token']
+    def get_pagination(self, friends): 
+        '''
+            Get paginated data from response
+        '''
+        data = friends['data']
+        while 'paging' in friends and 'next' in friends['paging']: 
+            response = urllib2.urlopen(friends['paging']['next'])
+            friends = json.loads(response.read())
+            data = data + friends['data']
+        return data
 
     def is_member(self, enrollments, query_set_item):
         ''' 
@@ -126,3 +117,7 @@ class CoursesWithFriends(generics.ListAPIView):
             if query_set_item.course_id == enrollment.course_id:
                 return True
         return False
+
+    def sharing_pref_true(self, friend):
+        share_pref_setting = preference_info(friend['edX_username'])
+        return ('share_pref' in share_pref_setting) and (share_pref_setting['share_pref'] == 'True')

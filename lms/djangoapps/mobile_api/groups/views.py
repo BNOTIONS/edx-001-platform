@@ -5,14 +5,10 @@ Views for groups info API
 from rest_framework import generics, permissions, status, mixins
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
+from ..settings import FB_SETTINGS
 import serializers
-import facebook     
+import facebook
 
-# TODO: This should not be in the final commit
-_APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
-_APP_ID = "734266930001243"
-
-_FACEBOOK_API_VERSION = "/v2.2/"
 
 
 class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
@@ -51,26 +47,24 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
-            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
-            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups"
-            
             post_args = {}
             for key in request.POST.keys(): 
                 post_args[key] = request.POST[key]
             try:
-                app_groups_response = graph.request(url, post_args=post_args)
+                graph = facebook.GraphAPI(facebook.get_app_access_token(FB_SETTINGS['_FACEBOOK_APP_ID'], FB_SETTINGS['_FACEBOOK_APP_SECRET']))
+                app_groups_response = graph.request(FB_SETTINGS['_FACEBOOK_API_VERSION'] + FB_SETTINGS['_FACEBOOK_APP_ID'] + "/groups", post_args=post_args)
             except Exception, e:
                 return Response({'error' : e.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
+
             return Response(app_groups_response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     def delete(self, request, *args, **kwargs):
         if 'group_id' in kwargs:
-            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
             post_args = {'method' : 'delete'}
-            url = _FACEBOOK_API_VERSION + _APP_ID + "/groups/" + kwargs['group_id']
-            result = graph.request(url, post_args=post_args)
+            graph = facebook.GraphAPI(facebook.get_app_access_token(FB_SETTINGS['_FACEBOOK_APP_ID'], FB_SETTINGS['_FACEBOOK_APP_SECRET']))
+            result = graph.request(FB_SETTINGS['_FACEBOOK_API_VERSION'] + FB_SETTINGS['_FACEBOOK_APP_ID'] + "/groups/" + kwargs['group_id'], post_args=post_args)
             return Response(result)
         else:
             return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
@@ -111,35 +105,31 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
-            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            graph = facebook.GraphAPI(facebook.get_app_access_token(FB_SETTINGS['_FACEBOOK_APP_ID'], FB_SETTINGS['_FACEBOOK_APP_SECRET']))
             if 'group_id' in kwargs: 
-                url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members"
-            else: 
-                return Response({'error' : 'Missing group id'}, status=status.HTTP_400_BAD_REQUEST)
+                url = FB_SETTINGS['_FACEBOOK_API_VERSION'] + kwargs['group_id'] + "/members"
+            member_ids = serializer.object['member_ids'].split(',')                        
+            response = {}
+            contains_error = False
+            for member_id in member_ids:
+                try:
+                    if 'success' in graph.request(url, post_args={'member' : member_id}): 
+                        response[member_id] = 'success'
+                except Exception, e:
+                    from nose.tools import set_trace
+                    set_trace()
+                    response[member_id] = e.result['error']['message']
+                    contains_error = True
 
-            if 'member_ids' in request.POST:
-                member_ids = request.POST['member_ids'].split(',')
-                response = {}
-                contains_error = False
-                for member_id in member_ids:
-                    post_args = {'member' : member_id}
-                    try:
-                        individual_response = graph.request(url, post_args=post_args)
-                        if 'success' in individual_response: 
-                            response[member_id] = 'success'
-                    except Exception, e:
-                        response[member_id] = e.result['error']['message']
-                        contains_error = True
-                status_code = status.HTTP_201_CREATED if contains_error else status.HTTP_200_OK
-                return Response(response, status=status_code)
-
+            status_code = status.HTTP_201_CREATED if contains_error else status.HTTP_200_OK
+            return Response(response, status=status_code)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
         if 'member_id' in kwargs and 'group_id' in kwargs:
-            graph = facebook.GraphAPI(facebook.get_app_access_token(_APP_ID, _APP_SECRET))
+            graph = facebook.GraphAPI(facebook.get_app_access_token(FB_SETTINGS['_FACEBOOK_APP_ID'], FB_SETTINGS['_FACEBOOK_APP_SECRET']))
             post_args = {'method' : 'delete', 'member' : kwargs['member_id']}
-            url = _FACEBOOK_API_VERSION + kwargs['group_id'] + "/members" 
+            url = FB_SETTINGS['_FACEBOOK_API_VERSION'] + kwargs['group_id'] + "/members" 
             result = graph.request(url, post_args=post_args)
             return Response(result)
         if 'member_id' not in kwargs: 

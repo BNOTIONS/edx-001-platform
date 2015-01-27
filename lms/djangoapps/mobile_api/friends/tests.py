@@ -65,7 +65,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         
         # Assert that no friends are returned
         self.assertEqual(response.status_code, 200)
@@ -85,7 +85,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         
         # Assert that no friends are returned
         self.assertEqual(response.status_code, 200)
@@ -122,7 +122,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         
         # Assert that no friends are returned
         self.assertEqual(response.status_code, 200)
@@ -146,12 +146,34 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         
         # Assert that USERNAME_1 is returned
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
         self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
+
+    @httpretty.activate
+    def test_no_friend_in_course_beacuse_no_oauth_token(self):
+        # User 1 set up
+        self.user_create_and_signin(1)
+        self.enroll_in_course(self.user_1, self.course)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, False)
+        
+        self.set_facebook_interceptor({'data': [{   'name': self.USERNAME_1,
+                                        'id':   self.FB_ID_1}, 
+                                    {   'name': self.USERNAME_2,
+                                        'id':   self.FB_ID_2}, 
+                                    {   'name': self.USERNAME_3, 
+                                        'id': self.FB_ID_3}
+                                    ]})
+
+        url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
+        response = self.client.get(url, { 'format' : 'json'})
+        
+        # Assert that USERNAME_1 is returned
+        self.assertEqual(response.status_code, 400)
 
     @httpretty.activate
     def test_one_friend_in_course(self):
@@ -171,7 +193,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
         
         # Assert that USERNAME_1 is returned
         self.assertEqual(response.status_code, 200)
@@ -209,7 +231,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
                 
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
@@ -278,7 +300,7 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth-token' : self._FB_USER_ACCESS_TOKEN})
+                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
                 
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
