@@ -11,15 +11,11 @@ from student.models import CourseEnrollment
 from social.apps.django_app.default.models import UserSocialAuth
 from mobile_api.users.serializers import CourseEnrollmentSerializer
 from openedx.core.djangoapps.user_api.api.profile import preference_info
+from ..settings import FB_SETTINGS
 import serializers
 import facebook
 import json
 import urllib2
-
-# TODO: This should not be in the final commit
-_APP_SECRET = "6c26348ef355f53a531890e980ddc731"
-_APP_ID = "735343629893573"
-_FACEBOOK_API_VERSION = "v2.2/"
 
 
 class CoursesWithFriends(generics.ListAPIView):
@@ -69,7 +65,7 @@ class CoursesWithFriends(generics.ListAPIView):
         if serializer.is_valid():
             # Get friends from Facebook
             graph = facebook.GraphAPI(serializer.object['oauth_token'])
-            friends = graph.request(_FACEBOOK_API_VERSION + "me/friends")
+            friends = graph.request(FB_SETTINGS['_FACEBOOK_API_VERSION'] + "me/friends")
             data = self.get_pagination(friends)
             # Get the linked edX user if it exists
             friends_that_are_edX_users = []

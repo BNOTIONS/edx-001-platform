@@ -5,25 +5,15 @@ Views for friends info API
 from rest_framework import generics, permissions, status
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
-from openedx.core.djangoapps.user_api.models import User, UserProfile, UserPreference, UserOrgTag
 from openedx.core.djangoapps.user_api.api.profile import preference_info
-from opaque_keys.edx.locator import CourseLocator
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
-from third_party_auth import pipeline, provider
 from student.models import CourseEnrollment
-from courseware import models
-from enrollment import api
+from ..settings import FB_SETTINGS
 import serializers
 import urllib2
 import json
 import facebook
-
-# TODO: This should not be in the final commit
-_APP_SECRET = "8a982cfdc0922c9fe57bd63edab6b62f"
-_APP_ID = "734266930001243"
-
-_FACEBOOK_API_VERSION = "v2.2/"
 
 
 class FriendsInCourse(generics.ListAPIView):
@@ -60,7 +50,7 @@ class FriendsInCourse(generics.ListAPIView):
         if serializer.is_valid():
             # Get all the users FB friends
             graph = facebook.GraphAPI(serializer.object['oauth_token'])
-            url = _FACEBOOK_API_VERSION + "me/friends"
+            url = FB_SETTINGS['_FACEBOOK_API_VERSION'] + "me/friends"
             friends = graph.request(url)
             data = self.get_pagination(friends)
             # For each friend check if they are a linked edX user
