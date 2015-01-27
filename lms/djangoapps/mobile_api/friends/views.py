@@ -9,11 +9,14 @@ from openedx.core.djangoapps.user_api.api.profile import preference_info
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from social.apps.django_app.default.models import UserSocialAuth
 from student.models import CourseEnrollment
-from ..settings import FB_SETTINGS
 import serializers
 import urllib2
 import json
 import facebook
+
+# TODO: change this to final config
+from ..settings import FB_SETTINGS
+_FACEBOOK_API_VERSION = FB_SETTINGS['_FACEBOOK_API_VERSION']
 
 
 class FriendsInCourse(generics.ListAPIView):
@@ -50,7 +53,7 @@ class FriendsInCourse(generics.ListAPIView):
         if serializer.is_valid():
             # Get all the users FB friends
             graph = facebook.GraphAPI(serializer.object['oauth_token'])
-            url = FB_SETTINGS['_FACEBOOK_API_VERSION'] + "me/friends"
+            url = _FACEBOOK_API_VERSION + "me/friends"
             friends = graph.request(url)
             data = self.get_pagination(friends)
             # For each friend check if they are a linked edX user
