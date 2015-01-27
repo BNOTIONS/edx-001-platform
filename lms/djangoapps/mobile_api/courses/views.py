@@ -81,7 +81,7 @@ class CoursesWithFriends(generics.ListAPIView):
             enrollments = self.get_unique_courses(friends_that_are_edX_users_with_sharing)
             # Get course objects 
             courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
-            return Response(CourseEnrollmentSerializer(courses).data)
+            return Response(CourseEnrollmentSerializer(courses, context={'request' : request}).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
