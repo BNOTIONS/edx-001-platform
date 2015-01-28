@@ -68,7 +68,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     def delete(self, request, *args, **kwargs):
         if 'group_id' in kwargs:
             post_args = {'method' : 'delete'}
-            graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID], _FACEBOOK_APP_SECRET))
+            graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
             result = graph.request(_FACEBOOK_API_VERSION + _FACEBOOK_APP_ID + "/groups/" + kwargs['group_id'], post_args=post_args)
             return Response(result)
         else:
@@ -121,8 +121,6 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
                     if 'success' in graph.request(url, post_args={'member' : member_id}): 
                         response[member_id] = 'success'
                 except Exception, e:
-                    from nose.tools import set_trace
-                    set_trace()
                     response[member_id] = e.result['error']['message']
                     contains_error = True
 
