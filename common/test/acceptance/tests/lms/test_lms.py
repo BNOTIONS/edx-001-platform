@@ -242,7 +242,6 @@ class RegisterFromCombinedPageTest(UniqueCourseTest):
         self.assertEqual(self.register_page.current_form, "login")
 
 
-@skip('ECOM-956: Failing intermittently due to 500 errors when trying to hit the mode creation endpoint.')
 @attr('shard_1')
 class PayAndVerifyTest(UniqueCourseTest):
     """Test that we can proceed through the payment and verification flow."""
@@ -253,6 +252,7 @@ class PayAndVerifyTest(UniqueCourseTest):
         create a user and log them in.
         """
         super(PayAndVerifyTest, self).setUp()
+
         self.track_selection_page = TrackSelectionPage(self.browser, self.course_id, separate_verified=True)
         self.payment_and_verification_flow = PaymentAndVerificationFlow(self.browser, self.course_id)
         self.immediate_verification_page = PaymentAndVerificationFlow(self.browser, self.course_id, entry_point='verify-now')
@@ -819,7 +819,7 @@ class PreRequisiteCourseTest(UniqueCourseTest):
         """
         set pre-requisite course
         """
-        select_option_by_value(self.settings_page.pre_requisite_course, self.pre_requisite_course_id)
+        select_option_by_value(self.settings_page.pre_requisite_course_options, self.pre_requisite_course_id)
         self.settings_page.save_changes()
 
 
@@ -954,7 +954,7 @@ class EntranceExamTest(UniqueCourseTest):
         self.settings_page.visit()
         self.settings_page.wait_for_page()
         self.assertTrue(self.settings_page.is_browser_on_page())
-        self.settings_page.entrance_exam_field[0].click()
+        self.settings_page.entrance_exam_field.click()
         self.settings_page.save_changes()
 
         # Logout and login as a student.
