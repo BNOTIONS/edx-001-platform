@@ -5,10 +5,10 @@ from django.conf.urls import patterns, url
 from .views import UserSharing
 
 urlpatterns = patterns(
-    'mobile_api.user_sharing_pref.views',
+    'mobile_api.preferences.views',
     url(
-        r'^share_pref/$',
+        r'^preferences/$',
         UserSharing.as_view(),
-        name='share_pref'
+        name='preferences'
     ),
 )

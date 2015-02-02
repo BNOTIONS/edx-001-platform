@@ -182,6 +182,15 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
 
+    def test_no_courses_with_friends_beacause_bad_auth_token(self):
+        self.user_create_and_signin(1)
+        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.set_sharing_preferences(self.user_1, False)
+        self.enroll_in_course(self.user_1, self.course)
+        url = reverse('courses-with-friends')
+        response = self.client.get(url, {'oauth_token': self._FB_USER_ACCESS_TOKEN + "this_is_a_bad_token"})
+        self.assertEqual(response.status_code, 400)
+
 
     '''
         Helper Functions 

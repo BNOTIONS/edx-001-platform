@@ -131,7 +131,7 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
         # Invite three members, two who are not in the group and one that is a member already.
         member_ids = '366785273488903,939400156088941,10154831816670300'
         response = invite_to_group(self, group_id, member_ids)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         for member_id in '366785273488903,939400156088941'.split(','):
             self.assertTrue('success' in response.data[member_id])
         self.assertTrue('(#4001) User is not eligible to be added to group' in response.data['10154831816670300'])

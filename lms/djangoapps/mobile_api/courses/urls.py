@@ -6,7 +6,7 @@ from django.conf.urls import patterns, url
 from .views import CoursesWithFriends
 
 urlpatterns = patterns(
-    'mobile_api.share_courses.views',
+    'mobile_api.courses.views',
     url(
         r'^friends$',
         CoursesWithFriends.as_view(),

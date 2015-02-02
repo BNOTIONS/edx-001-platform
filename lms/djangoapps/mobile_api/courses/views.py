@@ -6,21 +6,23 @@ Views for courses info API
 from rest_framework import generics, permissions, status
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
 from rest_framework.response import Response
+
 from courseware.access import is_mobile_available_for_user
 from student.models import CourseEnrollment
 from social.apps.django_app.default.models import UserSocialAuth
 from mobile_api.users.serializers import CourseEnrollmentSerializer
 from openedx.core.djangoapps.user_api.api.profile import preference_info
+from ..utils import mobile_view
+from ..friends.views import get_friends_from_facebook, get_linked_edx_accounts
 import serializers
 import facebook
-import json
-import urllib2
 
 # TODO: change this to final config
 from ..settings import FB_SETTINGS
 _FACEBOOK_API_VERSION = FB_SETTINGS['_FACEBOOK_API_VERSION']
 
 
+@mobile_view()
 class CoursesWithFriends(generics.ListAPIView):
     """
     **Use Case**
@@ -34,32 +36,8 @@ class CoursesWithFriends(generics.ListAPIView):
 
     **Response Values**
 
-        [{   "created": "2014-12-09 16:58:31.926438",
-            "mode": "honor",
-            "is_active": "True",
-            "course": {
-                "course_about": "http://testserver/api/mobile/v0.5/course_info/org.4/course_4/Run_4/about",
-                "course_updates": "http://testserver/api/mobile/v0.5/course_info/org.4/course_4/Run_4/updates",
-                "number": "course_4",
-                "org": "org.4",
-                "video_outline": "http://testserver/api/mobile/v0.5/video_outlines/courses/org.4/course_4/Run_4",
-                "id": "org.4/course_4/Run_4",
-                "latest_updates": {
-                    "video": "None"
-                },
-                "end": "None",
-                "name": "Run 4",
-                "course_handouts": "http://testserver/api/mobile/v0.5/course_info/org.4/course_4/Run_4/handouts",
-                "start": "2030-01-01 00:00:00",
-                "course_image": "/c4x/org.4/course_4/asset/images_course_image.jpg"
-                }
-            },
-            ...
-        ]
+        See UserCourseEnrollmentsList in lms/djangoapps/mobile_api/users for the structure of the response values.
     """
-
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = serializers.CoursesWithFriendsSerializer
 
 
@@ -67,24 +45,19 @@ class CoursesWithFriends(generics.ListAPIView):
         serializer = self.get_serializer(data=request.GET, files=request.FILES)
         if serializer.is_valid():
             # Get friends from Facebook
-            graph = facebook.GraphAPI(serializer.object['oauth_token'])
-            friends = graph.request(_FACEBOOK_API_VERSION + "me/friends")
-            data = self.get_pagination(friends)
-            # Get the linked edX user if it exists
-            friends_that_are_edX_users = []
-            for friend in data:
-                query_set = UserSocialAuth.objects.filter(uid=unicode(friend['id']))
-                if query_set.count() == 1: 
-                    friend['edX_id'] = query_set[0].user_id
-                    friend['edX_username'] = query_set[0].user.username
-                    friends_that_are_edX_users.append(friend)
+            data = get_friends_from_facebook(serializer)
+            if type(data) != list and data.status_code == 400:
+                return data
+            friends_that_are_linkend_edx_users = get_linked_edx_accounts(data)
             # Filter by sharing preferences
-            friends_that_are_edX_users_with_sharing = [friend for friend in friends_that_are_edX_users if self.sharing_pref_true(friend)]
+            friends_that_are_edx_users_with_sharing = [friend for friend in friends_that_are_linkend_edx_users
+                                if self.sharing_pref_true(friend)]
             # Get unique courses
-            enrollments = self.get_unique_courses(friends_that_are_edX_users_with_sharing)
+            enrollments = self.get_unique_courses(friends_that_are_edx_users_with_sharing)
             # Get course objects 
-            courses = [enrollment for enrollment in enrollments if enrollment.course and is_mobile_available_for_user(self.request.user, enrollment.course)]
-            return Response(CourseEnrollmentSerializer(courses, context={'request' : request}).data)
+            courses = [enrollment for enrollment in enrollments if enrollment.course
+                                and is_mobile_available_for_user(self.request.user, enrollment.course)]
+            return Response(CourseEnrollmentSerializer(courses, context={'request': request}).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -94,23 +67,12 @@ class CoursesWithFriends(generics.ListAPIView):
         '''
         enrollments = []
         for friend in friends_that_are_edX_users_with_sharing:
-            query_set = CourseEnrollment.objects.filter(user_id = friend['edX_id'], is_active = True)
+            query_set = CourseEnrollment.objects.filter(user_id=friend['edX_id'], is_active=True).exclude(course_id__in=[enrollment.course_id for enrollment in enrollments])
             if query_set.count() > 0:
                 for i in range(len(query_set)):
-                    if not self.is_member(enrollments, query_set[i]):
-                        enrollments.append(query_set[i])
+                    enrollments.append(query_set[i])
         return enrollments
 
-    def get_pagination(self, friends): 
-        '''
-            Get paginated data from response
-        '''
-        data = friends['data']
-        while 'paging' in friends and 'next' in friends['paging']: 
-            response = urllib2.urlopen(friends['paging']['next'])
-            friends = json.loads(response.read())
-            data = data + friends['data']
-        return data
 
     def is_member(self, enrollments, query_set_item):
         ''' 
@@ -120,6 +82,7 @@ class CoursesWithFriends(generics.ListAPIView):
             if query_set_item.course_id == enrollment.course_id:
                 return True
         return False
+
 
     def sharing_pref_true(self, friend):
         share_pref_setting = preference_info(friend['edX_username'])

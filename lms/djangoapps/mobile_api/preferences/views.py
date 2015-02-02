@@ -2,13 +2,15 @@
 Views for users sharing preferences
 """
 
-from rest_framework import generics, permissions, status 
-from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
+from rest_framework import generics, status
 from rest_framework.response import Response
+
 from openedx.core.djangoapps.user_api.api.profile import preference_info, update_preferences
-import serializers
+from ..utils import mobile_view
+from lms.djangoapps.mobile_api.preferences import serializers
 
 
+@mobile_view()
 class UserSharing(generics.ListCreateAPIView):
     """
     **Use Case**
@@ -17,40 +19,35 @@ class UserSharing(generics.ListCreateAPIView):
 
     **GET Example request**:
 
-        GET /api/mobile/v0.5/settings/share_pref/ 
+        GET /api/mobile/v0.5/settings/preferences/
 
     **GET Response Values**
 
-        {'share_pref': 'True'}
+        {'share_with_facebook_friends': 'True'}
 
     **POST Example request**:
 
-        POST /api/mobile/v0.5/settings/share_pref/
+        POST /api/mobile/v0.5/settings/preferences/
 
-        paramters: share_pref : True 
+        paramters: share_with_facebook_friends : True
 
     **POST Response Values**
 
-        {'share_pref': 'True'}
+        {'share_with_facebook_friends': 'True'}
 
     """
-    authentication_classes = (OAuth2Authentication, SessionAuthentication)
-    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = serializers.UserSharingSerializar
-
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
-            value = serializer.object['share_pref']
+            value = serializer.object['share_with_facebook_friends']
             try:
-                update_preferences(request.user.username, share_pref=value)
-            except Exception, e:
-                return Response(status=status.HTTP_400_BAD_REQUEST, data=e.data)    
+                update_preferences(request.user.username, share_with_facebook_friends=value)
+            except facebook.GraphAPIError, ex:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data=ex.data)
             return Response(preference_info(request.user.username))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
         return Response(preference_info(request.user.username))
-
-
