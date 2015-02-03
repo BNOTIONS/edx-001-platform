@@ -66,15 +66,6 @@ class CoursesWithFriends(generics.ListAPIView):
                     enrollments.append(query_set[i])
         return enrollments
 
-    def is_member(self, enrollments, query_set_item):
-        ''' 
-            Return true if the query_set_item is in enrollments
-        '''
-        for enrollment in enrollments:
-            if query_set_item.course_id == enrollment.course_id:
-                return True
-        return False
-
     def sharing_pref_true(self, friend):
         share_pref_setting = preference_info(friend['edX_username'])
         return ('share_pref' in share_pref_setting) and (share_pref_setting['share_pref'] == 'True')
