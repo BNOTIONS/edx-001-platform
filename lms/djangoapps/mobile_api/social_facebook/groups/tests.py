@@ -23,10 +23,10 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     def test_create_new_open_group(self):
         # Create new group
-        url = reverse('create-delete-group', kwargs={'group_id' : ''})
-        response = self.client.post(url, {  'name' : 'TheBestGroup',
-                                            'description' : 'The group for the best people',
-                                            'privacy' : 'open'})
+        url = reverse('create-delete-group', kwargs={'group_id': ''})
+        response = self.client.post(url, {'name': 'TheBestGroup',
+                                            'description': 'The group for the best people',
+                                            'privacy': 'open'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('id' in response.data)  # pylint: disable=E1103
         # Delete the groupd just created
@@ -34,37 +34,37 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 
     def test_create_new_closed_group(self):
         # Create new group
-        url = reverse('create-delete-group', kwargs={'group_id' : ''})
-        response = self.client.post(url, {  'name' : 'TheBestGroup',
-                                            'description' : 'The group for the best people',
-                                            'privacy' : 'closed'})
+        url = reverse('create-delete-group', kwargs={'group_id': ''})
+        response = self.client.post(url, {'name': 'TheBestGroup',
+                                            'description': 'The group for the best people',
+                                            'privacy': 'closed'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('id' in response.data)  # pylint: disable=E1103
         # Delete the groupd just created
         delete_group(self, response.data['id'])
 
     def test_create_new_group_no_name(self):
-        url = reverse('create-delete-group', kwargs={'group_id' : ''})
+        url = reverse('create-delete-group', kwargs={'group_id': ''})
         response = self.client.post(url, {})
         self.assertEqual(response.status_code, 400)
 
     def test_create_new_group_with_invalid_name(self):
-        url = reverse('create-delete-group', kwargs={'group_id' : ''})
-        response = self.client.post(url, {  'invalid_name' : 'TheBestGroup'})
+        url = reverse('create-delete-group', kwargs={'group_id': ''})
+        response = self.client.post(url, {'invalid_name': 'TheBestGroup'})
         self.assertEqual(response.status_code, 400)
 
     def test_create_new_group_with_invalid_privacy(self):
-        url = reverse('create-delete-group', kwargs={'group_id' : ''})
-        response = self.client.post(url, {  'name' : 'TheBestGroup', 
-                                            'privacy' : 'half_open_half_closed'})
+        url = reverse('create-delete-group', kwargs={'group_id': ''})
+        response = self.client.post(url, {'name': 'TheBestGroup', 
+                                            'privacy': 'half_open_half_closed'})
         self.assertEqual(response.status_code, 400)
 
     def test_delete_group(self): 
         # Create new group
         url = reverse('create-delete-group', kwargs={'group_id' : ''})
-        response = self.client.post(url, {  'name' : 'TheBestGroup',
-                                            'description' : 'The group for the best people',
-                                            'privacy' : 'open'})
+        response = self.client.post(url, {'name': 'TheBestGroup',
+                                            'description': 'The group for the best people',
+                                            'privacy': 'open'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('id' in response.data)  # pylint: disable=E1103
         
@@ -157,15 +157,15 @@ class TestGroups(ModuleStoreTestCase, APITestCase):
 '''
 
 def delete_group(self, group_id):
-    url = reverse('create-delete-group', kwargs={'group_id' : group_id}) 
+    url = reverse('create-delete-group', kwargs={'group_id': group_id}) 
     response = self.client.delete(url)
     self.assertEqual(response.status_code, 200)
 
 def invite_to_group(self, group_id, member_ids):
-        url = reverse('add-remove-member', kwargs={'group_id' : group_id, 'member_id' : ''}) 
-        return self.client.post(url, {  'member_ids' : member_ids })
+        url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': ''}) 
+        return self.client.post(url, {'member_ids': member_ids })
 
 def remove_from_group(self, group_id, member_id): 
-    url = reverse('add-remove-member', kwargs={ 'group_id' : group_id, 'member_id' : member_id}) 
+    url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': member_id}) 
     response = self.client.delete(url)
     self.assertEqual(response.status_code, 200)

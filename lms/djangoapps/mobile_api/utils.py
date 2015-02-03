@@ -6,7 +6,6 @@ Common utility methods and decorators for Mobile APIs.
 import functools
 import json
 import urllib2
-
 from opaque_keys.edx.keys import CourseKey
 from courseware.courses import get_course_with_access
 from rest_framework import permissions
@@ -60,15 +59,3 @@ def mobile_view(is_user=False):
             func_or_class.permission_classes += (IsUser,)
         return func_or_class
     return _decorator
-
-
-def get_pagination(friends):
-        '''
-            Get paginated data from FaceBook response
-        '''
-        data = friends['data']
-        while 'paging' in friends and 'next' in friends['paging']:
-            response = urllib2.urlopen(friends['paging']['next'])
-            friends = json.loads(response.read())
-            data = data + friends['data']
-        return data

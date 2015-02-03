@@ -2,20 +2,16 @@
 Views for groups info API
 """
 
-from rest_framework import generics, permissions, status, mixins
-from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
+from rest_framework import generics, status, mixins
 from rest_framework.response import Response
-from ..utils import mobile_view
-from ..settings import FB_SETTINGS
-import serializers
+from ...utils import mobile_view
+from lms.djangoapps.mobile_api.social_facebook.groups import serializers
 import facebook
 
-# TODO: change this to final config
-from ..settings import FB_SETTINGS
-_FACEBOOK_APP_ID = FB_SETTINGS['_FACEBOOK_APP_ID']
-_FACEBOOK_APP_SECRET = FB_SETTINGS['_FACEBOOK_APP_SECRET']
-_FACEBOOK_API_VERSION = FB_SETTINGS['_FACEBOOK_API_VERSION']
-
+from django.conf import settings
+_FACEBOOK_API_VERSION = settings.FACEBOOK_API_VERSION
+_FACEBOOK_APP_ID = settings.FACEBOOK_APP_ID
+_FACEBOOK_APP_SECRET = settings.FACEBOOK_APP_SECRET
 
 @mobile_view()
 class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):

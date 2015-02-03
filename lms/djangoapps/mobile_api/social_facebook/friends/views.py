@@ -2,21 +2,17 @@
 Views for friends info API
 """
 
-from rest_framework import generics, permissions, status
-from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
+from rest_framework import generics, status
 from rest_framework.response import Response
 from openedx.core.djangoapps.user_api.api.profile import preference_info
-from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from opaque_keys.edx.keys import CourseKey
-from social.apps.django_app.default.models import UserSocialAuth
 from student.models import CourseEnrollment
-from ..utils import mobile_view, get_pagination
-import serializers
-import facebook
+from ...utils import mobile_view
+from ..utils import get_friends_from_facebook, get_linked_edx_accounts
+from lms.djangoapps.mobile_api.social_facebook.friends import serializers
+from django.conf import settings
 
-# TODO: change this to final config
-from ..settings import FB_SETTINGS
-_FACEBOOK_API_VERSION = FB_SETTINGS['_FACEBOOK_API_VERSION']
+_FACEBOOK_API_VERSION = settings.FACEBOOK_API_VERSION
 
 
 @mobile_view()
@@ -47,7 +43,6 @@ class FriendsInCourse(generics.ListAPIView):
     """
     serializer_class = serializers.FriendsInCourseSerializer
 
-
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.GET, files=request.FILES)
         if serializer.is_valid():
@@ -64,36 +59,11 @@ class FriendsInCourse(generics.ListAPIView):
             return Response({'friends': fb_friends_in_course})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def is_member(self, course_key, friend):
-            return CourseEnrollment.objects.filter(course_id = course_key, 
-                                                        user_id =  friend['edX_id'], 
-                                                        is_active = True ).count() == 1
+            return CourseEnrollment.objects.filter(course_id=course_key,
+                                                        user_id=friend['edX_id'], 
+                                                        is_active=True).count() == 1
 
     def sharing_pref_true(self, friend):
         share_pref_setting = preference_info(friend['edX_username'])
         return ('share_pref' in share_pref_setting) and (share_pref_setting['share_pref'] == 'True')
-
-
-def get_friends_from_facebook(serializer):
-    '''
-        Return the result of a facebook /me/friends call usein ght  oauth_token
-        contained within the serializer object
-    '''
-    try:
-        graph = facebook.GraphAPI(serializer.object['oauth_token'])
-        friends = graph.request(_FACEBOOK_API_VERSION + "/me/friends")
-        return get_pagination(friends)
-    except facebook.GraphAPIError, ex:
-        return Response({'error': ex.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
-
-
-def get_linked_edx_accounts(data):
-    friends_that_are_edX_users = []
-    for friend in data:
-        query_set = UserSocialAuth.objects.filter(uid=unicode(friend['id']))
-        if query_set.count() == 1:
-            friend['edX_id'] = query_set[0].user_id
-            friend['edX_username'] = query_set[0].user.username
-            friends_that_are_edX_users.append(friend)
-    return friends_that_are_edX_users

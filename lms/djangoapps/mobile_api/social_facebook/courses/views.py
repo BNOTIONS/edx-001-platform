@@ -3,23 +3,18 @@ Views for courses info API
 """
 
 
-from rest_framework import generics, permissions, status
-from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
+from rest_framework import generics, status
 from rest_framework.response import Response
-
 from courseware.access import is_mobile_available_for_user
 from student.models import CourseEnrollment
-from social.apps.django_app.default.models import UserSocialAuth
 from mobile_api.users.serializers import CourseEnrollmentSerializer
 from openedx.core.djangoapps.user_api.api.profile import preference_info
-from ..utils import mobile_view
-from ..friends.views import get_friends_from_facebook, get_linked_edx_accounts
-import serializers
-import facebook
+from ...utils import mobile_view
+from ..utils import get_friends_from_facebook, get_linked_edx_accounts
+from lms.djangoapps.mobile_api.social_facebook.courses import serializers
+from django.conf import settings
 
-# TODO: change this to final config
-from ..settings import FB_SETTINGS
-_FACEBOOK_API_VERSION = FB_SETTINGS['_FACEBOOK_API_VERSION']
+_FACEBOOK_API_VERSION = settings.FACEBOOK_API_VERSION
 
 
 @mobile_view()
@@ -27,7 +22,7 @@ class CoursesWithFriends(generics.ListAPIView):
     """
     **Use Case**
 
-        API endpoint for retriving all the courses that a users friends are in. 
+        API endpoint for retriving all the courses that a users friends are in.
         Note that only friends that allow their courses to be shared will be included.
 
     **Example request**
@@ -39,7 +34,6 @@ class CoursesWithFriends(generics.ListAPIView):
         See UserCourseEnrollmentsList in lms/djangoapps/mobile_api/users for the structure of the response values.
     """
     serializer_class = serializers.CoursesWithFriendsSerializer
-
 
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.GET, files=request.FILES)
@@ -60,7 +54,6 @@ class CoursesWithFriends(generics.ListAPIView):
             return Response(CourseEnrollmentSerializer(courses, context={'request': request}).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def get_unique_courses(self, friends_that_are_edX_users_with_sharing):
         '''
             Return a list of unique courses friends_that_are_edX_users_with_sharing are in
@@ -73,7 +66,6 @@ class CoursesWithFriends(generics.ListAPIView):
                     enrollments.append(query_set[i])
         return enrollments
 
-
     def is_member(self, enrollments, query_set_item):
         ''' 
             Return true if the query_set_item is in enrollments
@@ -82,7 +74,6 @@ class CoursesWithFriends(generics.ListAPIView):
             if query_set_item.course_id == enrollment.course_id:
                 return True
         return False
-
 
     def sharing_pref_true(self, friend):
         share_pref_setting = preference_info(friend['edX_username'])

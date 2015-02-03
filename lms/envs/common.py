@@ -2020,3 +2020,8 @@ PDF_RECEIPT_COBRAND_LOGO_HEIGHT_MM = 12
 SEARCH_ENGINE = "search.tests.mock_search_engine.MockSearchEngine"
 # Use the LMS specific result processor
 SEARCH_RESULT_PROCESSOR = "lms.lib.courseware_search.lms_result_processor.LmsSearchResultProcessor"
+
+# Facebook app 
+FACEBOOK_APP_SECRET = "6c26348ef355f53a531890e980ddc731"
+FACEBOOK_APP_ID =  "735343629893573"
+FACEBOOK_API_VERSION = "v2.2"
