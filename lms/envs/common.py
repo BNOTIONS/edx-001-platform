@@ -311,9 +311,6 @@ FEATURES = {
     # Enable display of enrollment counts in instructor and legacy analytics dashboard
     'DISPLAY_ANALYTICS_ENROLLMENTS': True,
 
-    # Separate the verification flow from the payment flow
-    'SEPARATE_VERIFICATION_FROM_PAYMENT': False,
-
     # Show the mobile app links in the footer
     'ENABLE_FOOTER_MOBILE_APP_LINKS': False,
 
@@ -2017,7 +2014,7 @@ PDF_RECEIPT_COBRAND_LOGO_PATH = PROJECT_ROOT + '/static/images/default-theme/log
 PDF_RECEIPT_COBRAND_LOGO_HEIGHT_MM = 12
 
 # Use None for the default search engine
-SEARCH_ENGINE = "search.tests.mock_search_engine.MockSearchEngine"
+SEARCH_ENGINE = None
 # Use the LMS specific result processor
 SEARCH_RESULT_PROCESSOR = "lms.lib.courseware_search.lms_result_processor.LmsSearchResultProcessor"
 

@@ -1,15 +1,13 @@
 """
 Common utility methods and decorators for Mobile APIs.
 """
-
-
-import functools
-import json
-import urllib2
 from opaque_keys.edx.keys import CourseKey
 from courseware.courses import get_course_with_access
 from rest_framework import permissions
 from rest_framework.authentication import OAuth2Authentication, SessionAuthentication
+import functools
+import json
+import urllib2
 
 
 def mobile_course_access(depth=0, verify_enrolled=True):

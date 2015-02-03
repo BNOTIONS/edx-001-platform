@@ -30,7 +30,6 @@ from xmodule.modulestore.tests.django_utils import (
 from xmodule.modulestore.tests.factories import CourseFactory
 from student.roles import CourseSalesAdminRole
 from util.date_utils import get_default_time_display
-from util.testing import UrlResetMixin
 
 from shoppingcart.views import _can_download_report, _get_date_from_str
 from shoppingcart.models import (
@@ -550,6 +549,33 @@ class ShoppingCartViewsTests(ModuleStoreTestCase):
         resp = self.client.post(reverse('shoppingcart.views.use_code'), {'code': self.reg_code})
         self.assertEqual(resp.status_code, 400)
         self.assertIn("Oops! The code '{0}' you entered is either invalid or expired".format(self.reg_code), resp.content)
+
+    def test_upgrade_from_valid_reg_code(self):
+        """Use a valid registration code to upgrade from honor to verified mode. """
+        # Ensure the course has a verified mode
+        course_key = self.course_key.to_deprecated_string()
+        self._add_course_mode(mode_slug='verified')
+        self.add_reg_code(course_key, mode_slug='verified')
+
+        # Enroll as honor in the course with the current user.
+        CourseEnrollment.enroll(self.user, self.course_key)
+        self.login_user()
+        current_enrollment, __ = CourseEnrollment.enrollment_mode_for_user(self.user, self.course_key)
+        self.assertEquals('honor', current_enrollment)
+
+        redeem_url = reverse('register_code_redemption', args=[self.reg_code])
+        response = self.client.get(redeem_url)
+        self.assertEquals(response.status_code, 200)
+        # check button text
+        self.assertTrue('Activate Course Enrollment' in response.content)
+
+        #now activate the user by enrolling him/her to the course
+        response = self.client.post(redeem_url)
+        self.assertEquals(response.status_code, 200)
+
+        # Once upgraded, should be "verified"
+        current_enrollment, __ = CourseEnrollment.enrollment_mode_for_user(self.user, self.course_key)
+        self.assertEquals('verified', current_enrollment)
 
     @patch('shoppingcart.views.log.debug')
     def test_non_existing_coupon_redemption_on_removing_item(self, debug_log):
@@ -1227,19 +1253,15 @@ class ShoppingCartViewsTests(ModuleStoreTestCase):
         self._assert_404(reverse('shoppingcart.views.billing_details', args=[]))
 
 
-# TODO (ECOM-188): Once we complete the A/B test of separate
-# verified/payment flows, we can replace these tests
-# with something more general.
 @override_settings(MODULESTORE=MODULESTORE_CONFIG)
-class ReceiptRedirectTest(UrlResetMixin, ModuleStoreTestCase):
+class ReceiptRedirectTest(ModuleStoreTestCase):
     """Test special-case redirect from the receipt page. """
 
     COST = 40
     PASSWORD = 'password'
 
-    @patch.dict(settings.FEATURES, {'SEPARATE_VERIFICATION_FROM_PAYMENT': True})
     def setUp(self):
-        super(ReceiptRedirectTest, self).setUp('verify_student.urls')
+        super(ReceiptRedirectTest, self).setUp()
         self.user = UserFactory.create()
         self.user.set_password(self.PASSWORD)
         self.user.save()
@@ -1259,7 +1281,6 @@ class ReceiptRedirectTest(UrlResetMixin, ModuleStoreTestCase):
             password=self.PASSWORD
         )
 
-    @patch.dict(settings.FEATURES, {'SEPARATE_VERIFICATION_FROM_PAYMENT': True})
     def test_show_receipt_redirect_to_verify_student(self):
         # Create other carts first
         # This ensures that the order ID and order item IDs do not match
@@ -1277,12 +1298,6 @@ class ReceiptRedirectTest(UrlResetMixin, ModuleStoreTestCase):
         )
         self.cart.purchase()
 
-        # Set the session flag indicating that the user is in the
-        # experimental group
-        session = self.client.session
-        session['separate-verified'] = True
-        session.save()
-
         # Visit the receipt page
         url = reverse('shoppingcart.views.show_receipt', args=[self.cart.id])
         resp = self.client.get(url)
@@ -1298,28 +1313,6 @@ class ReceiptRedirectTest(UrlResetMixin, ModuleStoreTestCase):
         )
 
         self.assertRedirects(resp, redirect_url)
-
-    @patch.dict(settings.FEATURES, {'SEPARATE_VERIFICATION_FROM_PAYMENT': True})
-    def test_no_redirect_if_not_in_experimental_group(self):
-        # Purchase a verified certificate
-        CertificateItem.add_to_order(
-            self.cart,
-            self.course_key,
-            self.COST,
-            'verified'
-        )
-        self.cart.purchase()
-
-        # We do NOT set the session flag indicating that the user is in
-        # the experimental group.
-
-        # Visit the receipt page
-        url = reverse('shoppingcart.views.show_receipt', args=[self.cart.id])
-        resp = self.client.get(url)
-
-        # Since the user is not in the experimental group, expect
-        # that we see the usual receipt page (no redirect)
-        self.assertEqual(resp.status_code, 200)
 
 
 @override_settings(MODULESTORE=MODULESTORE_CONFIG)

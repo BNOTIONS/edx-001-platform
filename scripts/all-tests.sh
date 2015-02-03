@@ -175,12 +175,17 @@ END
                 ;;
 
             "3")
-                paver test_bokchoy --extra_args="-a shard_1=False,shard_2=False"
+                paver test_bokchoy --extra_args="-a 'shard_3'"
+                paver bokchoy_coverage
+                ;;
+
+            "4")
+                paver test_bokchoy --extra_args="-a shard_1=False,shard_2=False,shard_3=False"
                 paver bokchoy_coverage
                 ;;
 
             # Default case because if we later define another bok-choy shard on Jenkins
-            # (e.g. Shard 4) in the multi-config project and expand this file
+            # (e.g. Shard 5) in the multi-config project and expand this file
             # with an additional case condition, old branches without that commit
             # would not execute any tests on the worker assigned to that shard
             # and thus their build would fail.
@@ -190,7 +195,7 @@ END
                 # action doesn't fail the build.
                 # May be unnecessary if we changed the "Skip if there are no test files"
                 # option to True in the jenkins job definitions.
-                mkdir -p reports
+                mkdir -p reports/bok_choy
                 cat > reports/bok_choy/xunit.xml <<END
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="nosetests" tests="1" errors="0" failures="0" skip="0">
