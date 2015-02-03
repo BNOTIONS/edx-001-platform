@@ -1,7 +1,0 @@
-'''
-    Settings for Mobile Api
-'''
-
-FB_SETTINGS = {'_FACEBOOK_APP_SECRET': "6c26348ef355f53a531890e980ddc731",
-    '_FACEBOOK_APP_ID': "735343629893573",
-    '_FACEBOOK_API_VERSION': "v2.2"}
