@@ -7,7 +7,7 @@ from django.conf import settings
 from .views import FriendsInCourse
 
 urlpatterns = patterns(
-    'mobile_api.friends.views',
+    'mobile_api.social_facebook.friends.views',
     url(
         r'^course/{}$'.format(settings.COURSE_ID_PATTERN),
         FriendsInCourse.as_view(),

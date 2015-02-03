@@ -6,7 +6,7 @@ from .views import Groups, GroupsMembers
 
 
 urlpatterns = patterns(
-    'mobile_api.groups.views',
+    'mobile_api.social_facebook.groups.views',
     url(
         r'^(?P<group_id>[\d]*)$',
         Groups.as_view(),
