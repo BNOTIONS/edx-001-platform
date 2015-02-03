@@ -27,7 +27,7 @@ class CoursesWithFriends(generics.ListAPIView):
 
     **Example request**
 
-        GET /api/mobile/v0.5/courses/friends
+        GET /api/mobile/v0.5/social/facebook/courses/friends
 
     **Response Values**
 

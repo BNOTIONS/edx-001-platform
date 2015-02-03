@@ -22,7 +22,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Creation Example request**:
 
-        POST /api/mobile/v0.5/groups/<group_id>
+        POST /api/mobile/v0.5/social/facebook/groups/<group_id>
 
         Parameters: name : string,
                     description : string, 
@@ -35,7 +35,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Deletion Example request**:
 
-        DELETE /api/mobile/v0.5/groups/<group_id>
+        DELETE /api/mobile/v0.5/social/facebook/groups/<group_id>
 
     **Deletion Response Values**
 
@@ -76,7 +76,7 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Invite Example request**:
 
-        POST /api/mobile/v0.5/<group_id>/member/<member_id>
+        POST /api/mobile/v0.5/social/facebook/groups/<group_id>/member/<member_id>
 
         Parameters: members : int,int,int... 
 
@@ -89,7 +89,7 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
         
     **Remove Example request**:
 
-        DELETE /api/mobile/v0.5/<group_id>/member/<member_id>
+        DELETE /api/mobile/v0.5/social/facebook/groups/<group_id>/member/<member_id>
 
     **Remove Response Values**
 
