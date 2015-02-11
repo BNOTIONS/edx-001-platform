@@ -54,9 +54,23 @@ class StudentProfileViewTest(ModuleStoreTestCase, TestCase):
         self.assertTrue('share_with_facebook_friends' in response.data)
         self.assertTrue('True' in response.data['share_with_facebook_friends'])
 
-    def test_get_preferences(self):
+    def test_get_preferences_with_setting_them(self):
         # If no value is given it will default to True
         url = reverse('preferences')
-        response = self.client.post(url, {})
+        boolean = 'False'
+        # Set the preference
+        response = self.client.post(url, {'share_with_facebook_friends': boolean})
         self.assertTrue('share_with_facebook_friends' in response.data)
-        self.assertTrue('True' in response.data['share_with_facebook_friends'])
+        self.assertTrue(boolean in response.data['share_with_facebook_friends'])
+        # Get the preference
+        response = self.client.get(url)
+        self.assertTrue('share_with_facebook_friends' in response.data)
+        self.assertTrue(boolean in response.data['share_with_facebook_friends'])
+
+    def test_get_preferences_with_setting_them(self):
+        # If no value is given it will default to True
+        url = reverse('preferences')
+        # Get the preference
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {})

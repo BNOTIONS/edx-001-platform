@@ -187,7 +187,8 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
                                     {'name': self.USERNAME_2,
                                         'id':   self.FB_ID_2}, 
                                     {'name': self.USERNAME_3, 
-                                        'id': self.FB_ID_3}
+          
+
                                     ]})
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
@@ -355,14 +356,16 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # self.social_uid = "10155110991745300"
         UserSocialAuth.objects.create(user=user, provider=backend, uid=social_uid)
 
-    def format_course_id(self): 
+    def format_course_id(self):
+        from nose.tools import set_trace
+        set_trace()
         return self.course.scope_ids.usage_id.course_key._to_string().replace('+', '/')
 
     def set_sharing_preferences(self, user, boolean_value):
         ''' Sets self.user's share settings to True
         '''
-        update_preferences(user.username, share_pref=boolean_value)
-        self.assertEqual(preference_info(user.username)['share_pref'], unicode(boolean_value))
+        update_preferences(user.username, share_with_facebook_friends=boolean_value)
+        self.assertEqual(preference_info(user.username)['share_with_facebook_friends'], unicode(boolean_value))
 
     def _change_enrollment(self, action, course_id=None, email_opt_in=None):
         """Change the student's enrollment status in a course.

@@ -6,6 +6,7 @@ import urllib2
 import facebook
 from django.conf import settings
 from social.apps.django_app.default.models import UserSocialAuth
+from openedx.core.djangoapps.user_api.api.profile import preference_info
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -26,8 +27,10 @@ def get_pagination(friends):
 
 def get_friends_from_facebook(serializer):
     '''
-        Return the result of a facebook /me/friends call usein ght  oauth_token
-        contained within the serializer object
+        Return the a list with the result of a facebook /me/friends call
+        using the oauth_token contained within the serializer object.
+        If facebook retruns an error return a response object containing
+        the error message.
     '''
     try:
         graph = facebook.GraphAPI(serializer.object['oauth_token'])
@@ -46,3 +49,9 @@ def get_linked_edx_accounts(data):
             friend['edX_username'] = query_set[0].user.username
             friends_that_are_edX_users.append(friend)
     return friends_that_are_edX_users
+
+
+def share_with_facebook_friends_true(friend):
+    share_with_facebook_friends_setting = preference_info(friend['edX_username'])
+    return ('share_with_facebook_friends' in share_with_facebook_friends_setting) \
+        and (share_with_facebook_friends_setting['share_with_facebook_friends'] == 'True')

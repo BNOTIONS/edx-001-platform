@@ -37,8 +37,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1a\n"
 "Report-Msgid-Bugs-To: openedx-translation@googlegroups.com\n"
-"POT-Creation-Date: 2015-02-02 14:06+0000\n"
-"PO-Revision-Date: 2015-02-02 14:06:45.212702\n"
+"POT-Creation-Date: 2015-02-11 01:27+0000\n"
+"PO-Revision-Date: 2015-02-11 01:27:05.137370\n"
 "Last-Translator: \n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -173,6 +173,62 @@ msgstr "Çömmünïtý TÀ Ⱡ#"
 #: lms/templates/courseware/course_navigation.html
 msgid "Student"
 msgstr "Stüdént #"
+
+#: common/djangoapps/embargo/forms.py
+msgid "COURSE NOT FOUND.  Please check that the course ID is valid."
+msgstr ""
+"ÇÖÛRSÉ NÖT FÖÛND.  Pléäsé çhéçk thät thé çöürsé ÌD ïs välïd. Ⱡ'σяєм ιρѕυм "
+"∂σłσ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "The course key for the restricted course."
+msgstr "Thé çöürsé kéý för thé réstrïçtéd çöürsé. Ⱡ'σяєм ιρѕυ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "The message to show when a user is blocked from enrollment."
+msgstr ""
+"Thé méssägé tö shöw whén ä üsér ïs ßlöçkéd fröm énröllmént. Ⱡ'σяєм ιρѕυм "
+"∂σłσ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "The message to show when a user is blocked from accessing a course."
+msgstr ""
+"Thé méssägé tö shöw whén ä üsér ïs ßlöçkéd fröm äççéssïng ä çöürsé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "Two character ISO country code."
+msgstr "Twö çhäräçtér ÌSÖ çöüntrý çödé. Ⱡ'σяєм ι#"
+
+#: common/djangoapps/embargo/models.py
+msgid ""
+"Whether to include or exclude the given course. If whitelist countries are "
+"specified, then ONLY users from whitelisted countries will be able to access"
+" the course.  If blacklist countries are specified, then users from "
+"blacklisted countries will NOT be able to access the course."
+msgstr ""
+"Whéthér tö ïnçlüdé ör éxçlüdé thé gïvén çöürsé. Ìf whïtélïst çöüntrïés äré "
+"spéçïfïéd, thén ÖNLÝ üsérs fröm whïtélïstéd çöüntrïés wïll ßé äßlé tö äççéss"
+" thé çöürsé.  Ìf ßläçklïst çöüntrïés äré spéçïfïéd, thén üsérs fröm "
+"ßläçklïstéd çöüntrïés wïll NÖT ßé äßlé tö äççéss thé çöürsé. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υη#"
+
+#: common/djangoapps/embargo/models.py
+msgid "The course to which this rule applies."
+msgstr "Thé çöürsé tö whïçh thïs rülé äpplïés. Ⱡ'σяєм ιρѕ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "The country to which this rule applies."
+msgstr "Thé çöüntrý tö whïçh thïs rülé äpplïés. Ⱡ'σяєм ιρѕ#"
+
+#: common/djangoapps/embargo/models.py
+msgid "Whitelist {country} for {course}"
+msgstr "Whïtélïst {country} för {course} Ⱡ'σя#"
+
+#: common/djangoapps/embargo/models.py
+msgid "Blacklist {country} for {course}"
+msgstr "Bläçklïst {country} för {course} Ⱡ'σя#"
 
 #: common/djangoapps/student/middleware.py
 msgid ""
@@ -2103,6 +2159,20 @@ msgid ""
 msgstr ""
 "Éntér thé ünïqüé ïdéntïfïér för ýöür çöürsé's vïdéö fïlés prövïdéd ßý édX. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: common/lib/xmodule/xmodule/course_module.py
+msgid ""
+"Enter the URL for the official course Facebook group. If you provide a URL, "
+"the edX mobile app includes a button that students can tap to access the "
+"group."
+msgstr ""
+"Éntér thé ÛRL för thé öffïçïäl çöürsé Fäçéßöök gröüp. Ìf ýöü prövïdé ä ÛRL, "
+"thé édX mößïlé äpp ïnçlüdés ä ßüttön thät stüdénts çän täp tö äççéss thé "
+"gröüp. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢#"
+
+#: common/lib/xmodule/xmodule/course_module.py
+msgid "Facebook URL"
+msgstr "Fäçéßöök ÛRL Ⱡ#"
 
 #: common/lib/xmodule/xmodule/course_module.py
 msgid "Course Not Graded"
@@ -4451,6 +4521,712 @@ msgstr "Séärçh Ⱡ'σяєм ιρѕ#"
 #: lms/templates/static_templates/copyright.html
 msgid "Copyright"
 msgstr "Çöpýrïght #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Null character in input stream, replaced with U+FFFD."
+msgstr ""
+"Nüll çhäräçtér ïn ïnpüt stréäm, répläçéd wïth Û+FFFD. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Invalid codepoint in stream."
+msgstr "Ìnvälïd çödépöïnt ïn stréäm. Ⱡ'σяєм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Solidus (/) incorrectly placed in tag."
+msgstr "Sölïdüs (/) ïnçörréçtlý pläçéd ïn täg. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Incorrect CR newline entity, replaced with LF."
+msgstr "Ìnçörréçt ÇR néwlïné éntïtý, répläçéd wïth LF. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Entity used with illegal number (windows-1252 reference)."
+msgstr ""
+"Éntïtý üséd wïth ïllégäl nümßér (wïndöws-1252 référénçé). Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"Numeric entity couldn't be converted to character (codepoint "
+"U+%(charAsInt)08x)."
+msgstr ""
+"Nümérïç éntïtý çöüldn't ßé çönvértéd tö çhäräçtér (çödépöïnt "
+"Û+%(charAsInt)08x). Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Numeric entity represents an illegal codepoint: U+%(charAsInt)08x."
+msgstr ""
+"Nümérïç éntïtý réprésénts än ïllégäl çödépöïnt: Û+%(charAsInt)08x. Ⱡ'σяєм "
+"ιρѕυм ∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Numeric entity didn't end with ';'."
+msgstr "Nümérïç éntïtý dïdn't énd wïth ';'. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Numeric entity expected. Got end of file instead."
+msgstr "Nümérïç éntïtý éxpéçtéd. Göt énd öf fïlé ïnstéäd. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Numeric entity expected but none found."
+msgstr "Nümérïç éntïtý éxpéçtéd ßüt nöné föünd. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Named entity didn't end with ';'."
+msgstr "Näméd éntïtý dïdn't énd wïth ';'. Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Named entity expected. Got none."
+msgstr "Näméd éntïtý éxpéçtéd. Göt nöné. Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "End tag contains unexpected attributes."
+msgstr "Énd täg çöntäïns ünéxpéçtéd ättrïßütés. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "End tag contains unexpected self-closing flag."
+msgstr "Énd täg çöntäïns ünéxpéçtéd sélf-çlösïng fläg. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected tag name. Got '>' instead."
+msgstr "Éxpéçtéd täg nämé. Göt '>' ïnstéäd. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"Expected tag name. Got '?' instead. (HTML doesn't support processing "
+"instructions.)"
+msgstr ""
+"Éxpéçtéd täg nämé. Göt '?' ïnstéäd. (HTML döésn't süppört pröçéssïng "
+"ïnstrüçtïöns.) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected tag name. Got something else instead"
+msgstr "Éxpéçtéd täg nämé. Göt söméthïng élsé ïnstéäd Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected closing tag. Got '>' instead. Ignoring '</>'."
+msgstr ""
+"Éxpéçtéd çlösïng täg. Göt '>' ïnstéäd. Ìgnörïng '</>'. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected closing tag. Unexpected end of file."
+msgstr "Éxpéçtéd çlösïng täg. Ûnéxpéçtéd énd öf fïlé. Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected closing tag. Unexpected character '%(data)s' found."
+msgstr ""
+"Éxpéçtéd çlösïng täg. Ûnéxpéçtéd çhäräçtér '%(data)s' föünd. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in the tag name."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn thé täg nämé. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected attribute name instead."
+msgstr ""
+"Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd ättrïßüté nämé ïnstéäd. Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in attribute name."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn ättrïßüté nämé. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Invalid character in attribute name"
+msgstr "Ìnvälïd çhäräçtér ïn ättrïßüté nämé Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Dropped duplicate attribute on tag."
+msgstr "Dröppéd düplïçäté ättrïßüté ön täg. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected = or end of tag."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd = ör énd öf täg. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected attribute value."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd ättrïßüté välüé. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected attribute value. Got '>' instead."
+msgstr "Éxpéçtéd ättrïßüté välüé. Göt '>' ïnstéäd. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected = in unquoted attribute"
+msgstr "Ûnéxpéçtéd = ïn ünqüötéd ättrïßüté Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character in unquoted attribute"
+msgstr "Ûnéxpéçtéd çhäräçtér ïn ünqüötéd ättrïßüté Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character after attribute name."
+msgstr "Ûnéxpéçtéd çhäräçtér äftér ättrïßüté nämé. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character after attribute value."
+msgstr "Ûnéxpéçtéd çhäräçtér äftér ättrïßüté välüé. Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in attribute value (\")."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn ättrïßüté välüé (\"). Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in attribute value (')."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn ättrïßüté välüé ('). Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in attribute value."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn ättrïßüté välüé. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in tag. Expected >"
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn täg. Éxpéçtéd > Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character after / in tag. Expected >"
+msgstr "Ûnéxpéçtéd çhäräçtér äftér / ïn täg. Éxpéçtéd > Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected '--' or 'DOCTYPE'. Not found."
+msgstr "Éxpéçtéd '--' ör 'DÖÇTÝPÉ'. Nöt föünd. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected ! after -- in comment"
+msgstr "Ûnéxpéçtéd ! äftér -- ïn çömmént Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected space after -- in comment"
+msgstr "Ûnéxpéçtéd späçé äftér -- ïn çömmént Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Incorrect comment."
+msgstr "Ìnçörréçt çömmént. Ⱡ'σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in comment."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn çömmént. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in comment (-)"
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn çömmént (-) Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected '-' after '--' found in comment."
+msgstr "Ûnéxpéçtéd '-' äftér '--' föünd ïn çömmént. Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in comment (--)."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn çömmént (--). Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character in comment found."
+msgstr "Ûnéxpéçtéd çhäräçtér ïn çömmént föünd. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "No space after literal string 'DOCTYPE'."
+msgstr "Nö späçé äftér lïtéräl strïng 'DÖÇTÝPÉ'. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected > character. Expected DOCTYPE name."
+msgstr "Ûnéxpéçtéd > çhäräçtér. Éxpéçtéd DÖÇTÝPÉ nämé. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected DOCTYPE name."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd DÖÇTÝPÉ nämé. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in DOCTYPE name."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn DÖÇTÝPÉ nämé. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file in DOCTYPE."
+msgstr "Ûnéxpéçtéd énd öf fïlé ïn DÖÇTÝPÉ. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Expected space or '>'. Got '%(data)s'"
+msgstr "Éxpéçtéd späçé ör '>'. Göt '%(data)s' Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of DOCTYPE."
+msgstr "Ûnéxpéçtéd énd öf DÖÇTÝPÉ. Ⱡ'σяєм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected character in DOCTYPE."
+msgstr "Ûnéxpéçtéd çhäräçtér ïn DÖÇTÝPÉ. Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "XXX innerHTML EOF"
+msgstr "XXX ïnnérHTML ÉÖF Ⱡ'σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected DOCTYPE. Ignored."
+msgstr "Ûnéxpéçtéd DÖÇTÝPÉ. Ìgnöréd. Ⱡ'σяєм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "html needs to be the first start tag."
+msgstr "html nééds tö ßé thé fïrst stärt täg. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected End of file. Expected DOCTYPE."
+msgstr "Ûnéxpéçtéd Énd öf fïlé. Éxpéçtéd DÖÇTÝPÉ. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Erroneous DOCTYPE."
+msgstr "Érrönéöüs DÖÇTÝPÉ. Ⱡ'σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected non-space characters. Expected DOCTYPE."
+msgstr "Ûnéxpéçtéd nön-späçé çhäräçtérs. Éxpéçtéd DÖÇTÝPÉ. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s). Expected DOCTYPE."
+msgstr "Ûnéxpéçtéd stärt täg (%(name)s). Éxpéçtéd DÖÇTÝPÉ. Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s). Expected DOCTYPE."
+msgstr "Ûnéxpéçtéd énd täg (%(name)s). Éxpéçtéd DÖÇTÝPÉ. Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) after the (implied) root element."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) äftér thé (ïmplïéd) rööt élémént. Ⱡ'σяєм ιρѕυм"
+" ∂σłσ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected end tag (%(name)s)."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd énd täg (%(name)s). Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag head in existing head. Ignored."
+msgstr "Ûnéxpéçtéd stärt täg héäd ïn éxïstïng héäd. Ìgnöréd. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s). Ignored."
+msgstr "Ûnéxpéçtéd énd täg (%(name)s). Ìgnöréd. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s) that can be in head. Moved."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(name)s) thät çän ßé ïn héäd. Mövéd. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s)."
+msgstr "Ûnéxpéçtéd stärt täg (%(name)s). Ⱡ'σяєм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Missing end tag (%(name)s)."
+msgstr "Mïssïng énd täg (%(name)s). Ⱡ'σяє#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Missing end tags (%(name)s)."
+msgstr "Mïssïng énd tägs (%(name)s). Ⱡ'σяє#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(startName)s) implies end tag (%(endName)s)."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(startName)s) ïmplïés énd täg (%(endName)s). Ⱡ'σяєм "
+"ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(originalName)s). Treated as %(newName)s."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(originalName)s). Tréätéd äs %(newName)s. Ⱡ'σяєм "
+"ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag %(name)s. Don't use it!"
+msgstr "Ûnéxpéçtéd stärt täg %(name)s. Dön't üsé ït! Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag %(name)s. Ignored."
+msgstr "Ûnéxpéçtéd stärt täg %(name)s. Ìgnöréd. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(gotName)s). Missing end tag (%(expectedName)s)."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(gotName)s). Mïssïng énd täg (%(expectedName)s). Ⱡ'σяєм"
+" ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "End tag (%(name)s) seen too early. Expected other end tag."
+msgstr ""
+"Énd täg (%(name)s) séén töö éärlý. Éxpéçtéd öthér énd täg. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(gotName)s). Expected end tag (%(expectedName)s)."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(gotName)s). Éxpéçtéd énd täg (%(expectedName)s). "
+"Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "End tag (%(name)s) seen too early. Ignored."
+msgstr "Énd täg (%(name)s) séén töö éärlý. Ìgnöréd. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"End tag (%(name)s) violates step 1, paragraph 1 of the adoption agency "
+"algorithm."
+msgstr ""
+"Énd täg (%(name)s) vïölätés stép 1, pärägräph 1 öf thé ädöptïön ägénçý "
+"älgörïthm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"End tag (%(name)s) violates step 1, paragraph 2 of the adoption agency "
+"algorithm."
+msgstr ""
+"Énd täg (%(name)s) vïölätés stép 1, pärägräph 2 öf thé ädöptïön ägénçý "
+"älgörïthm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"End tag (%(name)s) violates step 1, paragraph 3 of the adoption agency "
+"algorithm."
+msgstr ""
+"Énd täg (%(name)s) vïölätés stép 1, pärägräph 3 öf thé ädöptïön ägénçý "
+"älgörïthm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"End tag (%(name)s) violates step 4, paragraph 4 of the adoption agency "
+"algorithm."
+msgstr ""
+"Énd täg (%(name)s) vïölätés stép 4, pärägräph 4 öf thé ädöptïön ägénçý "
+"älgörïthm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(originalName)s). Treated as %(newName)s."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(originalName)s). Tréätéd äs %(newName)s. Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "This element (%(name)s) has no end tag."
+msgstr "Thïs élémént (%(name)s) häs nö énd täg. Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected implied end tag (%(name)s) in the table phase."
+msgstr ""
+"Ûnéxpéçtéd ïmplïéd énd täg (%(name)s) ïn thé täßlé phäsé. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected implied end tag (%(name)s) in the table body phase."
+msgstr ""
+"Ûnéxpéçtéd ïmplïéd énd täg (%(name)s) ïn thé täßlé ßödý phäsé. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected non-space characters in table context caused voodoo mode."
+msgstr ""
+"Ûnéxpéçtéd nön-späçé çhäräçtérs ïn täßlé çöntéxt çäüséd vöödöö mödé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected input with type hidden in table context."
+msgstr "Ûnéxpéçtéd ïnpüt wïth týpé hïddén ïn täßlé çöntéxt. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected form in table context."
+msgstr "Ûnéxpéçtéd förm ïn täßlé çöntéxt. Ⱡ'σяєм ι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s) in table context caused voodoo mode."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(name)s) ïn täßlé çöntéxt çäüséd vöödöö mödé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) in table context caused voodoo mode."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) ïn täßlé çöntéxt çäüséd vöödöö mödé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected table cell start tag (%(name)s) in the table body phase."
+msgstr ""
+"Ûnéxpéçtéd täßlé çéll stärt täg (%(name)s) ïn thé täßlé ßödý phäsé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Got table cell end tag (%(name)s) while required end tags are missing."
+msgstr ""
+"Göt täßlé çéll énd täg (%(name)s) whïlé réqüïréd énd tägs äré mïssïng. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) in the table body phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) ïn thé täßlé ßödý phäsé. Ìgnöréd. Ⱡ'σяєм ιρѕυм"
+" ∂σłσ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected implied end tag (%(name)s) in the table row phase."
+msgstr ""
+"Ûnéxpéçtéd ïmplïéd énd täg (%(name)s) ïn thé täßlé röw phäsé. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) in the table row phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) ïn thé täßlé röw phäsé. Ìgnöréd. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"Unexpected select start tag in the select phase treated as select end tag."
+msgstr ""
+"Ûnéxpéçtéd séléçt stärt täg ïn thé séléçt phäsé tréätéd äs séléçt énd täg. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected input start tag in the select phase."
+msgstr "Ûnéxpéçtéd ïnpüt stärt täg ïn thé séléçt phäsé. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag token (%(name)s in the select phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd stärt täg tökén (%(name)s ïn thé séléçt phäsé. Ìgnöréd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) in the select phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) ïn thé séléçt phäsé. Ìgnöréd. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"Unexpected table element start tag (%(name)s) in the select in table phase."
+msgstr ""
+"Ûnéxpéçtéd täßlé élémént stärt täg (%(name)s) ïn thé séléçt ïn täßlé phäsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid ""
+"Unexpected table element end tag (%(name)s) in the select in table phase."
+msgstr ""
+"Ûnéxpéçtéd täßlé élémént énd täg (%(name)s) ïn thé séléçt ïn täßlé phäsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected non-space characters in the after body phase."
+msgstr ""
+"Ûnéxpéçtéd nön-späçé çhäräçtérs ïn thé äftér ßödý phäsé. Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag token (%(name)s) in the after body phase."
+msgstr ""
+"Ûnéxpéçtéd stärt täg tökén (%(name)s) ïn thé äftér ßödý phäsé. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag token (%(name)s) in the after body phase."
+msgstr ""
+"Ûnéxpéçtéd énd täg tökén (%(name)s) ïn thé äftér ßödý phäsé. Ⱡ'σяєм ιρѕυм "
+"∂σł#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected characters in the frameset phase. Characters ignored."
+msgstr ""
+"Ûnéxpéçtéd çhäräçtérs ïn thé främését phäsé. Çhäräçtérs ïgnöréd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag token (%(name)s) in the frameset phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd stärt täg tökén (%(name)s) ïn thé främését phäsé. Ìgnöréd. Ⱡ'σяєм"
+" ιρѕυм ∂σłσя #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag token (frameset) in the frameset phase (innerHTML)."
+msgstr ""
+"Ûnéxpéçtéd énd täg tökén (främését) ïn thé främését phäsé (ïnnérHTML). "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag token (%(name)s) in the frameset phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd énd täg tökén (%(name)s) ïn thé främését phäsé. Ìgnöréd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected non-space characters in the after frameset phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd nön-späçé çhäräçtérs ïn thé äftér främését phäsé. Ìgnöréd. Ⱡ'σяєм"
+" ιρѕυм ∂σłσя ѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s) in the after frameset phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(name)s) ïn thé äftér främését phäsé. Ìgnöréd. Ⱡ'σяєм"
+" ιρѕυм ∂σłσя #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) in the after frameset phase. Ignored."
+msgstr ""
+"Ûnéxpéçtéd énd täg (%(name)s) ïn thé äftér främését phäsé. Ìgnöréd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag after body(innerHtml)"
+msgstr "Ûnéxpéçtéd énd täg äftér ßödý(ïnnérHtml) Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected non-space characters. Expected end of file."
+msgstr ""
+"Ûnéxpéçtéd nön-späçé çhäräçtérs. Éxpéçtéd énd öf fïlé. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected start tag (%(name)s). Expected end of file."
+msgstr ""
+"Ûnéxpéçtéd stärt täg (%(name)s). Éxpéçtéd énd öf fïlé. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s). Expected end of file."
+msgstr "Ûnéxpéçtéd énd täg (%(name)s). Éxpéçtéd énd öf fïlé. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected table content."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd täßlé çöntént. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected select content."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd séléçt çöntént. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected frameset content."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd främését çöntént. Ⱡ'σяєм ιρѕυм ∂#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected script content."
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd sçrïpt çöntént. Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end of file. Expected foreign content"
+msgstr "Ûnéxpéçtéd énd öf fïlé. Éxpéçtéd föréïgn çöntént Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Trailing solidus not allowed on element %(name)s"
+msgstr "Träïlïng sölïdüs nöt ällöwéd ön élémént %(name)s Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Element %(name)s not allowed in a non-html context"
+msgstr "Élémént %(name)s nöt ällöwéd ïn ä nön-html çöntéxt Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Unexpected end tag (%(name)s) before html."
+msgstr "Ûnéxpéçtéd énd täg (%(name)s) ßéföré html. Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/constants.py
+msgid "Undefined error (this sucks and should be fixed)"
+msgstr "Ûndéfïnéd érrör (thïs süçks änd shöüld ßé fïxéd) Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "StartTag not in PCDATA content model flag: %(tag)s"
+msgstr "StärtTäg nöt ïn PÇDÀTÀ çöntént mödél fläg: %(tag)s Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Tag name is not a string: %(tag)r"
+msgstr "Täg nämé ïs nöt ä strïng: %(tag)r Ⱡ'σяєм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Empty tag name"
+msgstr "Émptý täg nämé Ⱡ'#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Void element reported as StartTag token: %(tag)s"
+msgstr "Vöïd élémént répörtéd äs StärtTäg tökén: %(tag)s Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Non-void element reported as EmptyTag token: %(tag)s"
+msgstr "Nön-vöïd élémént répörtéd äs ÉmptýTäg tökén: %(tag)s Ⱡ'σяєм ιρѕυм #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Attribute name is not a string: %(name)r"
+msgstr "Àttrïßüté nämé ïs nöt ä strïng: %(name)r Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Empty attribute name"
+msgstr "Émptý ättrïßüté nämé Ⱡ'σя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Attribute value is not a string: %(value)r"
+msgstr "Àttrïßüté välüé ïs nöt ä strïng: %(value)r Ⱡ'σяєм ιρ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Void element reported as EndTag token: %(tag)s"
+msgstr "Vöïd élémént répörtéd äs ÉndTäg tökén: %(tag)s Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "EndTag (%(end)s) does not match StartTag (%(start)s)"
+msgstr "ÉndTäg (%(end)s) döés nöt mätçh StärtTäg (%(start)s) Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Comment not in PCDATA content model flag"
+msgstr "Çömmént nöt ïn PÇDÀTÀ çöntént mödél fläg Ⱡ'σяєм ιρѕυ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "%(type)s token with empty data"
+msgstr "%(type)s tökén wïth émptý dätä Ⱡ'σяєм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Non-space character(s) found in SpaceCharacters token: %(token)r"
+msgstr ""
+"Nön-späçé çhäräçtér(s) föünd ïn SpäçéÇhäräçtérs tökén: %(token)r Ⱡ'σяєм "
+"ιρѕυм ∂σłσ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Doctype not in PCDATA content model flag: %(name)s"
+msgstr "Döçtýpé nöt ïn PÇDÀTÀ çöntént mödél fläg: %(name)s Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/filters/lint.py
+msgid "Unknown token type: %(type)s"
+msgstr "Ûnknöwn tökén týpé: %(type)s Ⱡ'σяє#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+msgid "System identifer contains both single and double quote characters"
+msgstr ""
+"Sýstém ïdéntïfér çöntäïns ßöth sïnglé änd döüßlé qüöté çhäräçtérs Ⱡ'σяєм "
+"ιρѕυм ∂σłσя #"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+msgid "Unexpected </ in CDATA"
+msgstr "Ûnéxpéçtéd </ ïn ÇDÀTÀ Ⱡ'σяє#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+msgid "Unexpected child element of a CDATA element"
+msgstr "Ûnéxpéçtéd çhïld élémént öf ä ÇDÀTÀ élémént Ⱡ'σяєм ιρѕυм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+msgid "Comment contains --"
+msgstr "Çömmént çöntäïns -- Ⱡ'σя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/serializer/htmlserializer.py
+msgid "Entity %s not recognized"
+msgstr "Éntïtý %s nöt réçögnïzéd Ⱡ'σяє#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/_base.py
+msgid "Void element has children"
+msgstr "Vöïd élémént häs çhïldrén Ⱡ'σяєм#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/_base.py
+msgid "Unknown node type: "
+msgstr "Ûnknöwn nödé týpé:  Ⱡ'σя#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/lxmletree.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/lxmletree.py
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/lxmletree.py
+msgid "Text nodes are text or tail, found %s"
+msgstr "Téxt nödés äré téxt ör täïl, föünd %s Ⱡ'σяєм ιρѕ#"
+
+#: facebookenv/lib/python2.7/site-packages/pip/_vendor/html5lib/treewalkers/lxmletree.py
+msgid "Text nodes have no children"
+msgstr "Téxt nödés hävé nö çhïldrén Ⱡ'σяєм#"
 
 #: lms/djangoapps/class_dashboard/dashboard_data.py
 #: lms/djangoapps/class_dashboard/dashboard_data.py

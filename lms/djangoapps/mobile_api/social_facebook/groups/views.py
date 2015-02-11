@@ -22,7 +22,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Creation Example request**:
 
-        POST /api/mobile/v0.5/social/facebook/groups/<group_id>
+        POST /api/mobile/v0.5/social/facebook/groups/
 
         Parameters: name : string,
                     description : string, 
@@ -30,7 +30,7 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Creation Response Values**
 
-        {"group-id": group_id}
+        {"id": group_id}
 
 
     **Deletion Example request**:
@@ -48,14 +48,16 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
-            post_args = request.POST.dict()
             try:
+                # from nose.tools import set_trace
+                # set_trace()
+           
+                post_args = request.POST.dict()
                 graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
                 app_groups_response = graph.request(_FACEBOOK_API_VERSION + '/' + _FACEBOOK_APP_ID + "/groups", post_args=post_args)
+                return Response(app_groups_response)
             except facebook.GraphAPIError, ex:
                 return Response({'error': ex.result['error']['message']}, status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(app_groups_response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
@@ -76,7 +78,7 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     **Invite Example request**:
 
-        POST /api/mobile/v0.5/social/facebook/groups/<group_id>/member/<member_id>
+        POST /api/mobile/v0.5/social/facebook/groups/<group_id>/member/
 
         Parameters: members : int,int,int... 
 

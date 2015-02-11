@@ -8,7 +8,7 @@ from openedx.core.djangoapps.user_api.api.profile import preference_info
 from opaque_keys.edx.keys import CourseKey
 from student.models import CourseEnrollment
 from ...utils import mobile_view
-from ..utils import get_friends_from_facebook, get_linked_edx_accounts
+from ..utils import get_friends_from_facebook, get_linked_edx_accounts, share_with_facebook_friends_true
 from lms.djangoapps.mobile_api.social_facebook.friends import serializers
 from django.conf import settings
 
@@ -35,7 +35,6 @@ class FriendsInCourse(generics.ListAPIView):
                 [{
                     "name": "test",
                     "id": "12345",
-                    "edX_id": "678910"
                 },
                 ...
                 ]
@@ -47,23 +46,29 @@ class FriendsInCourse(generics.ListAPIView):
         serializer = self.get_serializer(data=request.GET, files=request.FILES)
         if serializer.is_valid():
             # Get all the users FB friends
-            data = get_friends_from_facebook(serializer)
-            if type(data) != list and data.status_code == 400:
-                return data
-            # For each friend check if they are a linked edX user
-            friends_that_are_linkend_edX_users = get_linked_edx_accounts(data)
-            # Filter by sharing preferences
-            friends_that_are_edX_users_with_sharing = [friend for friend in friends_that_are_linkend_edX_users if self.sharing_pref_true(friend)]
-            course_key = CourseKey.from_string(kwargs['course_id'])
-            fb_friends_in_course = [friend for friend in friends_that_are_edX_users_with_sharing if self.is_member(course_key, friend)]
-            return Response({'friends': fb_friends_in_course})
+            result = get_friends_from_facebook(serializer)
+            if type(result) == list:
+                # For each friend check if they are a linked edX user
+                friends_that_are_linkend_edX_users = get_linked_edx_accounts(result)
+                # Filter by sharing preferences
+                friends_that_are_edX_users_with_sharing = [friend for friend in friends_that_are_linkend_edX_users if share_with_facebook_friends_true(friend)]
+                course_key = CourseKey.from_string(kwargs['course_id'])
+                fb_friends_in_course = [friend for friend in friends_that_are_edX_users_with_sharing if self.is_member(course_key, friend)]
+                fb_friends_in_course = map(remove_edX_id_and_username, fb_friends_in_course)
+                return Response({'friends': fb_friends_in_course})
+            else:
+                return result
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def is_member(self, course_key, friend):
             return CourseEnrollment.objects.filter(course_id=course_key,
-                                                        user_id=friend['edX_id'], 
+                                                        user_id=friend['edX_id'],
                                                         is_active=True).count() == 1
 
-    def sharing_pref_true(self, friend):
-        share_pref_setting = preference_info(friend['edX_username'])
-        return ('share_pref' in share_pref_setting) and (share_pref_setting['share_pref'] == 'True')
+def remove_edX_id_and_username(friend):
+    try:
+        del friend['edX_id']
+        del friend['edX_username']
+    except KeyError:
+        pass
+    return friend

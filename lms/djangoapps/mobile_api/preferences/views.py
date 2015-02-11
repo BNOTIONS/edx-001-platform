@@ -46,8 +46,14 @@ class UserSharing(generics.ListCreateAPIView):
                 update_preferences(request.user.username, share_with_facebook_friends=value)
             except facebook.GraphAPIError, ex:
                 return Response(status=status.HTTP_400_BAD_REQUEST, data=ex.data)
-            return Response(preference_info(request.user.username))
+            preferences = preference_info(request.user.username)
+            response = {'share_with_facebook_friends': preferences['share_with_facebook_friends']} \
+                if ('share_with_facebook_friends' in preferences) else {}
+            return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
-        return Response(preference_info(request.user.username))
+        preferences = preference_info(request.user.username)
+        response = {'share_with_facebook_friends': preferences['share_with_facebook_friends']} \
+            if ('share_with_facebook_friends' in preferences) else {}
+        return Response(response)
