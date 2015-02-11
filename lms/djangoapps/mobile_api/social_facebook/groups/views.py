@@ -62,6 +62,8 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     def delete(self, request, *args, **kwargs):
         try:
+            # from nose.tools import set_trace
+            # set_trace()
             graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
             post_args = {'method': 'delete'}
             return Response(graph.request(_FACEBOOK_API_VERSION + '/' + _FACEBOOK_APP_ID + "/groups/" + kwargs['group_id'], post_args=post_args))
@@ -103,6 +105,8 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
+            # from nose.tools import set_trace
+            # set_trace()
             graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
             url = _FACEBOOK_API_VERSION + '/' + kwargs['group_id'] + "/members"
             member_ids = serializer.object['member_ids'].split(',')                        
@@ -118,6 +122,8 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     def delete(self, request, *args, **kwargs):
         try:
+            # from nose.tools import set_trace
+            # set_trace()
             graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
             post_args = {'method': 'delete', 'member': kwargs['member_id']}
             return Response(graph.request(_FACEBOOK_API_VERSION + '/' + kwargs['group_id'] + "/members", post_args=post_args))
