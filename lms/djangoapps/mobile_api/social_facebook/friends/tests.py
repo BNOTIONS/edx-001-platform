@@ -10,34 +10,37 @@ from student.models import CourseEnrollment
 from social.apps.django_app.default.models import UserSocialAuth
 from student.views import login_oauth_token
 from openedx.core.djangoapps.user_api.api.profile import preference_info, update_preferences
+from ..test_utils import SocialFacebookTestCase
 import json
 import httpretty
 
 
-class TestFriends(ModuleStoreTestCase, APITestCase):
+class TestFriends(SocialFacebookTestCase):
     """
     Tests for /api/mobile/v0.5/friends/...
     """
-    USERNAME_1 = "Daniel Eidan"
-    EMAIL_1 = "daniel@ebnotions.com"
-    PASSWORD_1 = "edx"
-    FB_ID_1 = "10155110991745300"
+    USERS = {1: {'USERNAME': "Daniel Eidan",
+            'EMAIL': "daniel@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10155110991745300"}, 
+        2: {'USERNAME': "Marc Ashman",
+            'EMAIL': "marc@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10154833899435243"},
+        3: {'USERNAME': "Peter Organa",
+            'EMAIL': "peter@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10154805420820176"}
+        }
 
-    USERNAME_2 = "Marc Ashman"
-    EMAIL_2 = "marc@ebnotions.com"
-    PASSWORD_2 = "edx"
-    FB_ID_2 = "10154833899435243"
-
-    USERNAME_3 = "Peter Organa"
-    EMAIL_3 = "peter@ebnotions.com"
-    PASSWORD_3 = "edx"
-    FB_ID_3 = "10154805420820176"
 
     BACKEND = "facebook"
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
+    
+    _FB_USER_ACCESS_TOKEN = 'ThisIsAFakeFacebookToken'
 
-    _FB_USER_ACCESS_TOKEN = 'CAACEdEose0cBAMJAbuv0PGBfYmQx6xLEWfr82q7GSgGGrMRklhvTTZAfE6J5kyE7dxmrmyUiw3FLEsEYP57aeWlGLb6Q7fKiwS6UIeEqeZA0Wm8zMZBfIOhdqXOIUm6wlVMN6UCDQrZB5jv75L0bWqF11OR4bMke9eETMJyCxpBa0O9B3OoimfZC8PuvRu6Q1KxHZCg8ETALGpinUiJowy'
+    users = {}
 
     def setUp(self):
         super(TestFriends, self).setUp()
@@ -48,22 +51,21 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # User 1 set up
         self.user_create_and_signin(1)
         # Link user_1's edX account to FB
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, True)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], True)
         # Set the interceptor
-        self.set_facebook_interceptor({'data': [
-                                        {'name': self.USERNAME_1,
-                                            'id': self.FB_ID_1}, 
-                                        {'name': self.USERNAME_2,
-                                            'id': self.FB_ID_2}, 
-                                        {'name': self.USERNAME_3, 
-                                            'id': self.FB_ID_3}
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']}, 
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
                                             ]})
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
         response = self.client.get(url, {'format': 'json', 
                                             'oauth_token': self._FB_USER_ACCESS_TOKEN})
-        
         # Assert that no friends are returned
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
@@ -73,17 +75,16 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # User 1 set up
         self.user_create_and_signin(1)
         # Enroll user_1 in the course
-        self.enroll_in_course(self.user_1, self.course)
-        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.users[1], self.course)
+        self.set_sharing_preferences(self.users[1], True)
         # Link user_1's edX account to FB
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
         # Set the interceptor 
-        self.set_facebook_interceptor({'data': []})
+        self.set_facebook_interceptor_for_friends({'data': []})
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
         response = self.client.get(url, {'format': 'json', 
                                             'oauth_token': self._FB_USER_ACCESS_TOKEN})
-        
         # Assert that no friends are returned
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data and len(response.data['friends']) == 0)
@@ -93,28 +94,28 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # User 1 set up
         self.user_create_and_signin(1)
         # Enroll user_1 in the course
-        self.enroll_in_course(self.user_1, self.course)
-        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.users[1], self.course)
+        self.set_sharing_preferences(self.users[1], True)
         # User 2 set up
         self.user_create_and_signin(2)
         # Enroll user_2 in the course
-        self.enroll_in_course(self.user_2, self.course)
-        self.set_sharing_preferences(self.user_2, True)
+        self.enroll_in_course(self.users[2], self.course)
+        self.set_sharing_preferences(self.users[2], True)
         # User 3 set up
         self.user_create_and_signin(3)
         # Enroll user_3 in the course
-        self.enroll_in_course(self.user_3, self.course)
-        self.set_sharing_preferences(self.user_3, True)
+        self.enroll_in_course(self.users[3], self.course)
+        self.set_sharing_preferences(self.users[3], True)
 
         # Set the interceptor 
-        self.set_facebook_interceptor({'data': [
-                                        {'name': self.USERNAME_1,
-                                            'id':   self.FB_ID_1}, 
-                                        {'name': self.USERNAME_2,
-                                            'id':   self.FB_ID_2}, 
-                                        {'name': self.USERNAME_3, 
-                                            'id': self.FB_ID_3}
-                                            ]})
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']},
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
+                                        ]})
         
         course_id = self.format_course_id()
         url = reverse('friends-in-course', kwargs={"course_id": course_id})
@@ -129,17 +130,18 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     def test_no_friend_in_course_beacuse_share_settings_false(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        self.enroll_in_course(self.user_1, self.course)
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, False)
+        self.enroll_in_course(self.users[1], self.course)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], False)
         
-        self.set_facebook_interceptor({'data': [{'name': self.USERNAME_1,
-                                        'id':   self.FB_ID_1}, 
-                                    {'name': self.USERNAME_2,
-                                        'id':   self.FB_ID_2}, 
-                                    {'name': self.USERNAME_3, 
-                                        'id': self.FB_ID_3}
-                                    ]})
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']},
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
+                                        ]})
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {'format': 'json', 
@@ -154,22 +156,21 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     def test_no_friend_in_course_beacuse_no_oauth_token(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        self.enroll_in_course(self.user_1, self.course)
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, False)
+        self.enroll_in_course(self.users[1], self.course)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], False)
         
-        self.set_facebook_interceptor({'data': [
-                                    {'name': self.USERNAME_1,
-                                        'id':   self.FB_ID_1}, 
-                                    {'name': self.USERNAME_2,
-                                        'id':   self.FB_ID_2}, 
-                                    {'name': self.USERNAME_3, 
-                                        'id': self.FB_ID_3}
-                                    ]})
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']},
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
+                                        ]})
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {'format': 'json'})
-        
         # Assert that USERNAME_1 is returned
         self.assertEqual(response.status_code, 400)
 
@@ -177,19 +178,18 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
     def test_one_friend_in_course(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        self.enroll_in_course(self.user_1, self.course)
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.users[1], self.course)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], True)
 
-        self.set_facebook_interceptor({'data': [
-                                    {'name': self.USERNAME_1,
-                                        'id':   self.FB_ID_1}, 
-                                    {'name': self.USERNAME_2,
-                                        'id':   self.FB_ID_2}, 
-                                    {'name': self.USERNAME_3, 
-          
-
-                                    ]})
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']},
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
+                                        ]})
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
         response = self.client.get(url, {'format': 'json', 
@@ -198,77 +198,77 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # Assert that USERNAME_1 is returned
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
-        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.FB_ID_1)
-        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERNAME_1)
+        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.USERS[1]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERS[1]['USERNAME'])
 
     @httpretty.activate
     def test_three_friends_in_course(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        self.enroll_in_course(self.user_1, self.course)
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.users[1], self.course)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], True)
         
         # User 2 set up
         self.user_create_and_signin(2)
-        self.enroll_in_course(self.user_2, self.course)
-        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
-        self.set_sharing_preferences(self.user_2, True)
+        self.enroll_in_course(self.users[2], self.course)
+        self.link_edX_account_to_social_backend(self.users[2], self.BACKEND, self.USERS[2]['FB_ID'])
+        self.set_sharing_preferences(self.users[2], True)
 
         # User 3 set up
         self.user_create_and_signin(3)
-        self.enroll_in_course(self.user_3, self.course)
-        self.link_edX_account_to_social_backend(self.user_3, self.BACKEND, self.FB_ID_3)
-        self.set_sharing_preferences(self.user_3, True)
+        self.enroll_in_course(self.users[3], self.course)
+        self.link_edX_account_to_social_backend(self.users[3], self.BACKEND, self.USERS[3]['FB_ID'])
+        self.set_sharing_preferences(self.users[3], True)
 
-        self.set_facebook_interceptor({'data': [
-                                    {'name': self.USERNAME_1,
-                                        'id':   self.FB_ID_1}, 
-                                    {'name': self.USERNAME_2,
-                                        'id':   self.FB_ID_2}, 
-                                    {'name': self.USERNAME_3, 
-                                        'id': self.FB_ID_3}
-                                    ]})
+        self.set_facebook_interceptor_for_friends({'data': [
+                                        {'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']},
+                                        {'name': self.USERS[2]['USERNAME'],
+                                        'id': self.USERS[2]['FB_ID']},
+                                        {'name': self.USERS[3]['USERNAME'],
+                                        'id': self.USERS[3]['FB_ID']},
+                                        ]})
 
         url = reverse('friends-in-course', kwargs={"course_id": self.format_course_id()})
-        response = self.client.get(url, {   'format' : 'json', 
-                                            'oauth_token' : self._FB_USER_ACCESS_TOKEN})
+        response = self.client.get(url, {'format': 'json', 
+                                            'oauth_token': self._FB_USER_ACCESS_TOKEN})
                 
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
         # Assert that USERNAME_1 is returned
-        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.FB_ID_1)
-        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERNAME_1)
+        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.USERS[1]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERS[1]['USERNAME'])
         # Assert that USERNAME_2 is returned
-        self.assertTrue('id' in response.data['friends'][1] and response.data['friends'][1]['id'] == self.FB_ID_2)
-        self.assertTrue('name' in response.data['friends'][1] and response.data['friends'][1]['name'] == self.USERNAME_2)
+        self.assertTrue('id' in response.data['friends'][1] and response.data['friends'][1]['id'] == self.USERS[2]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][1] and response.data['friends'][1]['name'] == self.USERS[2]['USERNAME'])
         # Assert that USERNAME_3 is returned
-        self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.FB_ID_3)
-        self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERNAME_3)
+        self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.USERS[3]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERS[3]['USERNAME'])
 
     @httpretty.activate
     def test_three_friends_in_course_in_paged_response(self):
         # User 1 set up
         self.user_create_and_signin(1)
-        self.enroll_in_course(self.user_1, self.course)
-        self.link_edX_account_to_social_backend(self.user_1, self.BACKEND, self.FB_ID_1)
-        self.set_sharing_preferences(self.user_1, True)
+        self.enroll_in_course(self.users[1], self.course)
+        self.link_edX_account_to_social_backend(self.users[1], self.BACKEND, self.USERS[1]['FB_ID'])
+        self.set_sharing_preferences(self.users[1], True)
         
         # User 2 set up
         self.user_create_and_signin(2)
-        self.enroll_in_course(self.user_2, self.course)
-        self.link_edX_account_to_social_backend(self.user_2, self.BACKEND, self.FB_ID_2)
-        self.set_sharing_preferences(self.user_2, True)
+        self.enroll_in_course(self.users[2], self.course)
+        self.link_edX_account_to_social_backend(self.users[2], self.BACKEND, self.USERS[2]['FB_ID'])
+        self.set_sharing_preferences(self.users[2], True)
 
         # User 3 set up
         self.user_create_and_signin(3)
-        self.enroll_in_course(self.user_3, self.course)
-        self.link_edX_account_to_social_backend(self.user_3, self.BACKEND, self.FB_ID_3)
-        self.set_sharing_preferences(self.user_3, True)
+        self.enroll_in_course(self.users[3], self.course)
+        self.link_edX_account_to_social_backend(self.users[3], self.BACKEND, self.USERS[3]['FB_ID'])
+        self.set_sharing_preferences(self.users[3], True)
 
-        self.set_facebook_interceptor({'data': 
-                                        [{'name': self.USERNAME_1, 
-                                            'id': self.FB_ID_1}],
+        self.set_facebook_interceptor_for_friends({'data': 
+                                        [{'name': self.USERS[1]['USERNAME'],
+                                        'id': self.USERS[1]['FB_ID']}],
                                         "paging": {
                                              "next": "https://graph.facebook.com/v2.2/me/friends/next_1"
                                             },    
@@ -279,8 +279,8 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # Set the interceptor for the first paged content 
         httpretty.register_uri( httpretty.GET, 
                                 "https://graph.facebook.com/v2.2/me/friends/next_1",
-                                body=json.dumps({"data": [ {'name': self.USERNAME_2, 
-                                                            'id': self.FB_ID_2}], 
+                                body=json.dumps({"data": [{'name': self.USERS[2]['USERNAME'],
+                                                            'id': self.USERS[2]['FB_ID']}], 
                                                 "paging": { 
                                                     "next": "https://graph.facebook.com/v2.2/me/friends/next_2"
                                                     }, 
@@ -292,8 +292,8 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         # Set the interceptor for the last paged content
         httpretty.register_uri( httpretty.GET, 
                                 "https://graph.facebook.com/v2.2/me/friends/next_2",
-                                body=json.dumps({"data": [ {'name' : self.USERNAME_3, 
-                                                            'id' : self.FB_ID_3}], 
+                                body=json.dumps({"data": [{'name': self.USERS[3]['USERNAME'],
+                                                            'id': self.USERS[3]['FB_ID']}], 
                                                 "paging": {"previous": "https://graph.facebook.com/v2.2/10154805434030300/friends?limit=25&offset=25"}, 
                                                 "summary": {"total_count": 652}
                                                 }), 
@@ -306,92 +306,11 @@ class TestFriends(ModuleStoreTestCase, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('friends' in response.data)
         # Assert that USERNAME_1 is returned
-        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.FB_ID_1)
-        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERNAME_1)
+        self.assertTrue('id' in response.data['friends'][0] and response.data['friends'][0]['id'] == self.USERS[1]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][0] and response.data['friends'][0]['name'] == self.USERS[1]['USERNAME'])
         # Assert that USERNAME_2 is returned
-        self.assertTrue('id' in response.data['friends'][1] and response.data['friends'][1]['id'] == self.FB_ID_2)
-        self.assertTrue('name' in response.data['friends'][1] and response.data['friends'][1]['name'] == self.USERNAME_2)
+        self.assertTrue('id' in response.data['friends'][1] and response.data['friends'][1]['id'] == self.USERS[2]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][1] and response.data['friends'][1]['name'] == self.USERS[2]['USERNAME'])
         # Assert that USERNAME_3 is returned
-        self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.FB_ID_3)
-        self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERNAME_3)
-
-
-    '''
-        Helper Functions 
-    '''
-
-    def set_facebook_interceptor(self, data): 
-        httpretty.register_uri(httpretty.GET, 
-                        "https://graph.facebook.com/v2.2/me/friends",
-                        body=json.dumps(data),
-                        status=201)
-
-    def user_create_and_signin(self, user_number): 
-        if user_number == 1:
-            self.user_1 = UserFactory.create(   username=self.USERNAME_1, 
-                                                email=self.EMAIL_1, 
-                                                password=self.PASSWORD_1)
-            self.client.login(username=self.USERNAME_1, password=self.PASSWORD_1)
-        elif user_number == 2:
-            self.user_2 = UserFactory.create(   username=self.USERNAME_2, 
-                                                email=self.EMAIL_2, 
-                                                password=self.PASSWORD_2)
-            self.client.login(username=self.USERNAME_2, password=self.PASSWORD_2)
-        elif user_number == 3:
-            self.user_3 = UserFactory.create(   username=self.USERNAME_3, 
-                                                email=self.EMAIL_3, 
-                                                password=self.PASSWORD_3)
-            self.client.login(username=self.USERNAME_3, password=self.PASSWORD_3)
-
-    def enroll_in_course(self, user, course): 
-        resp = self._change_enrollment('enroll')
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(CourseEnrollment.is_enrolled(user, course.id))
-        course_mode, is_active = CourseEnrollment.enrollment_mode_for_user(user, course.id)
-        self.assertTrue(is_active)
-        self.assertEqual(course_mode, 'honor')
-
-    def link_edX_account_to_social_backend(self, user, backend, social_uid):
-        self.url = reverse(login_oauth_token, kwargs={"backend": backend})
-        # self.social_uid = "10155110991745300"
-        UserSocialAuth.objects.create(user=user, provider=backend, uid=social_uid)
-
-    def format_course_id(self):
-        from nose.tools import set_trace
-        set_trace()
-        return self.course.scope_ids.usage_id.course_key._to_string().replace('+', '/')
-
-    def set_sharing_preferences(self, user, boolean_value):
-        ''' Sets self.user's share settings to True
-        '''
-        update_preferences(user.username, share_with_facebook_friends=boolean_value)
-        self.assertEqual(preference_info(user.username)['share_with_facebook_friends'], unicode(boolean_value))
-
-    def _change_enrollment(self, action, course_id=None, email_opt_in=None):
-        """Change the student's enrollment status in a course.
-
-        Args:
-            action (string): The action to perform (either "enroll" or "unenroll")
-
-        Keyword Args:
-            course_id (unicode): If provided, use this course ID.  Otherwise, use the
-                course ID created in the setup for this test.
-            email_opt_in (unicode): If provided, pass this value along as
-                an additional GET parameter.
-
-        Returns:
-            Response
-
-        """
-        if course_id is None:
-            course_id = unicode(self.course.id)
-
-        params = {
-            'enrollment_action': action,
-            'course_id': course_id
-        }
-
-        if email_opt_in:
-            params['email_opt_in'] = email_opt_in
-
-        return self.client.post(reverse('change_enrollment'), params)
+        self.assertTrue('id' in response.data['friends'][2] and response.data['friends'][2]['id'] == self.USERS[3]['FB_ID'])
+        self.assertTrue('name' in response.data['friends'][2] and response.data['friends'][2]['name'] == self.USERS[3]['USERNAME'])

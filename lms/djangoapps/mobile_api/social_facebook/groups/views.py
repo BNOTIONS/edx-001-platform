@@ -20,6 +20,9 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
         An API to Create or Delete course groups.
 
+        Note: that the Delete is not invoked from the current version 
+        of the app and is used only for testing with facebook dependencies. 
+
     **Creation Example request**:
 
         POST /api/mobile/v0.5/social/facebook/groups/
@@ -77,6 +80,9 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
     **Use Case**
 
         An API to Invite and Remove members to a group
+
+        Note: that the Remove is not invoked from the current version 
+        of the app and is used only for testing with facebook dependencies. 
 
     **Invite Example request**:
 
