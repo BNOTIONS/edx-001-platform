@@ -1,3 +1,7 @@
+"""
+    Test utils for Facebook functionality
+"""
+
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from rest_framework.test import APITestCase
 from django.core.urlresolvers import reverse
@@ -14,29 +18,31 @@ _FACEBOOK_API_VERSION = settings.FACEBOOK_API_VERSION
 _FACEBOOK_APP_ID = settings.FACEBOOK_APP_ID
 _FACEBOOK_APP_SECRET = settings.FACEBOOK_APP_SECRET
 
+
 class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
     """
         Base Class for social test cases
     """
 
-    USERS = {1: {'USERNAME': "Daniel Eidan",
-                'EMAIL': "daniel@ebnotions.com",
-                'PASSWORD': "edx",
-                'FB_ID': "10155110991745300"}, 
-            2: {'USERNAME': "Marc Ashman",
-                'EMAIL': "marc@ebnotions.com",
-                'PASSWORD': "edx",
-                'FB_ID': "10154833899435243"},
-            3: {'USERNAME': "Peter Organa",
-                'EMAIL': "peter@ebnotions.com",
-                'PASSWORD': "edx",
-                'FB_ID': "10154805420820176"}
-            }
+    USERS = {
+        1: {'USERNAME': "Daniel Eidan",
+            'EMAIL': "daniel@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10155110991745300"},
+        2: {'USERNAME': "Marc Ashman",
+            'EMAIL': "marc@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10154833899435243"},
+        3: {'USERNAME': "Peter Organa",
+            'EMAIL': "peter@ebnotions.com",
+            'PASSWORD': "edx",
+            'FB_ID': "10154805420820176"}
+    }
 
     BACKEND = "facebook"
     USER_URL = "https://graph.facebook.com/me"
     UID_FIELD = "id"
-    
+
     _FB_USER_ACCESS_TOKEN = 'ThisIsAFakeFacebookToken'
 
     users = {}
@@ -44,46 +50,79 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
     def setUp(self):
         super(SocialFacebookTestCase, self).setUp()
 
-
     def set_facebook_interceptor_for_access_token(self):
-        httpretty.register_uri(httpretty.GET,
-                'https://graph.facebook.com/oauth/access_token?client_secret=' + _FACEBOOK_APP_SECRET + '&grant_type=client_credentials&client_id=' + _FACEBOOK_APP_ID,
-                body='FakeToken=FakeToken',
-                status=200)
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://graph.facebook.com/oauth/access_token?client_secret=' +
+            _FACEBOOK_APP_SECRET + '&grant_type=client_credentials&client_id=' +
+            _FACEBOOK_APP_ID,
+            body='FakeToken=FakeToken',
+            status=200
+        )
 
     def set_facebook_interceptor_for_groups(self, data, status):
-        httpretty.register_uri(httpretty.POST,
-                        'https://graph.facebook.com/' + _FACEBOOK_API_VERSION + '/' + _FACEBOOK_APP_ID + '/groups',
-                        body=json.dumps(data),
-                        status=status)
+        '''
+            Facebook intercptor for groups test
+        '''
+        httpretty.register_uri(
+            httpretty.POST,
+            'https://graph.facebook.com/' + _FACEBOOK_API_VERSION +
+            '/' + _FACEBOOK_APP_ID + '/groups',
+            body=json.dumps(data),
+            status=status
+        )
 
     def set_facebook_interceptor_for_members(self, data, status, group_id, member_id):
-        httpretty.register_uri(httpretty.POST,
-                        'https://graph.facebook.com/' + _FACEBOOK_API_VERSION + '/' + group_id + '/members?member=' + member_id + '&access_token=FakeToken',
-                        body=json.dumps(data),
-                        status=status)
+        '''
+            Facebook interceptor for group members tests
+        '''
+        httpretty.register_uri(
+            httpretty.POST,
+            'https://graph.facebook.com/' + _FACEBOOK_API_VERSION +
+            '/' + group_id + '/members?member=' + member_id +
+            '&access_token=FakeToken',
+            body=json.dumps(data),
+            status=status
+        )
 
-    def set_facebook_interceptor_for_friends(self, data): 
-        httpretty.register_uri(httpretty.GET, 
-                        "https://graph.facebook.com/v2.2/me/friends",
-                        body=json.dumps(data),
-                        status=201)
+    def set_facebook_interceptor_for_friends(self, data):
+        '''
+           Facebook interecptor for friends tests
+        '''
+        httpretty.register_uri(
+            httpretty.GET,
+            "https://graph.facebook.com/v2.2/me/friends",
+            body=json.dumps(data),
+            status=201
+        )
 
     def delete_group(self, group_id):
-        url = reverse('create-delete-group', kwargs={'group_id': group_id}) 
+        '''
+            Invoke the delete groups view
+        '''
+        url = reverse('create-delete-group', kwargs={'group_id': group_id})
         response = self.client.delete(url)
         return response
 
     def invite_to_group(self, group_id, member_ids):
-        url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': ''}) 
-        return self.client.post(url, {'member_ids': member_ids })
+        '''
+            Invoke the ivite to group view
+        '''
+        url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': ''})
+        return self.client.post(url, {'member_ids': member_ids})
 
-    def remove_from_group(self, group_id, member_id): 
-        url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': member_id}) 
+    def remove_from_group(self, group_id, member_id):
+        '''
+            Invoke the remove from group view
+        '''
+        url = reverse('add-remove-member', kwargs={'group_id': group_id, 'member_id': member_id})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 200)
 
-    def link_edX_account_to_social_backend(self, user, backend, social_uid):
+    def link_edx_account_to_social(self, user, backend, social_uid):
+        '''
+            Regester the user to the social auth backend
+        '''
         self.url = reverse(login_oauth_token, kwargs={"backend": backend})
         UserSocialAuth.objects.create(user=user, provider=backend, uid=social_uid)
 
@@ -91,7 +130,7 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
         '''
             Format the course id as SchoolName/CourseName/RunName
         '''
-        return self.course.scope_ids.usage_id.course_key._to_string().replace('+', '/')
+        return unicode(self.course.scope_ids.usage_id.course_key)
 
     def set_sharing_preferences(self, user, boolean_value):
         '''
@@ -131,12 +170,18 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
         return self.client.post(reverse('change_enrollment'), params)
 
     def user_create_and_signin(self, user_number):
+        '''
+            Create a user and sign them in
+        '''
         self.users[user_number] = UserFactory.create(username=self.USERS[user_number]['USERNAME'],
                                         email=self.USERS[user_number]['EMAIL'],
                                         password=self.USERS[user_number]['PASSWORD'])
         self.client.login(username=self.USERS[user_number]['USERNAME'], password=self.USERS[user_number]['PASSWORD'])
 
     def enroll_in_course(self, user, course):
+        '''
+            Enroll a user in the course
+        '''
         resp = self._change_enrollment('enroll', course_id=course.id)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(CourseEnrollment.is_enrolled(user, course.id))

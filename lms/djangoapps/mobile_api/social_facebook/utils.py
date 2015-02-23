@@ -41,6 +41,10 @@ def get_friends_from_facebook(serializer):
 
 
 def get_linked_edx_accounts(data):
+    '''
+        Return a the list of friends from the input that are edx users with the
+        additional attributes of edX_id and edX_username
+    '''
     friends_that_are_edX_users = []
     for friend in data:
         query_set = UserSocialAuth.objects.filter(uid=unicode(friend['id']))
@@ -51,7 +55,10 @@ def get_linked_edx_accounts(data):
     return friends_that_are_edX_users
 
 
-def share_with_facebook_friends_true(friend):
-    share_with_facebook_friends_setting = preference_info(friend['edX_username'])
-    return ('share_with_facebook_friends' in share_with_facebook_friends_setting) \
-        and (share_with_facebook_friends_setting['share_with_facebook_friends'] == 'True')
+def share_with_facebook_friends(friend):
+    '''
+        Return true if the users sharing preferences are set to true
+    '''
+    share_fb_friends_settings = preference_info(friend['edX_username'])
+    return ('share_with_facebook_friends' in share_fb_friends_settings) \
+        and (share_fb_friends_settings['share_with_facebook_friends'] == 'True')

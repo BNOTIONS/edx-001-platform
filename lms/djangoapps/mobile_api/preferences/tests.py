@@ -59,16 +59,16 @@ class StudentProfileViewTest(ModuleStoreTestCase, TestCase):
         # Set the preference
         response = self.client.post(url, {'share_with_facebook_friends': boolean})
         self.assertTrue('share_with_facebook_friends' in response.data)
-        self.assertTrue(boolean in response.data['share_with_facebook_friends'])
+        self.assertTrue(boolean in response.data['share_with_facebook_friends'])  # pylint: disable=E1101
         # Get the preference
         response = self.client.get(url)
-        self.assertTrue('share_with_facebook_friends' in response.data)
-        self.assertTrue(boolean in response.data['share_with_facebook_friends'])
+        self.assertTrue('share_with_facebook_friends' in response.data)  # pylint: disable=E1101
+        self.assertTrue(boolean in response.data['share_with_facebook_friends'])  # pylint: disable=E1101
 
-    def test_get_preferences_with_setting_them(self):
+    def test_get_preferences_without_setting_them(self):
         # If no value is given it will default to True
         url = reverse('preferences')
         # Get the preference
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {})
+        self.assertEqual(response.status_code, 200)  # pylint: disable=E1101
+        self.assertEqual(response.data, {})  # pylint: disable=E1101

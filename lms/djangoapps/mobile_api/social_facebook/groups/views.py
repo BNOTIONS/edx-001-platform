@@ -20,8 +20,8 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
         An API to Create or Delete course groups.
 
-        Note: that the Delete is not invoked from the current version 
-        of the app and is used only for testing with facebook dependencies. 
+        Note: that the Delete is not invoked from the current version
+        of the app and is used only for testing with facebook dependencies.
 
     **Creation Example request**:
 
@@ -52,9 +52,6 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         if serializer.is_valid():
             try:
-                # from nose.tools import set_trace
-                # set_trace()
-           
                 post_args = request.POST.dict()
                 graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
                 app_groups_response = graph.request(_FACEBOOK_API_VERSION + '/' + _FACEBOOK_APP_ID + "/groups", post_args=post_args)
@@ -65,8 +62,6 @@ class Groups(generics.CreateAPIView, mixins.DestroyModelMixin):
 
     def delete(self, request, *args, **kwargs):
         try:
-            # from nose.tools import set_trace
-            # set_trace()
             graph = facebook.GraphAPI(facebook.get_app_access_token(_FACEBOOK_APP_ID, _FACEBOOK_APP_SECRET))
             post_args = {'method': 'delete'}
             return Response(graph.request(_FACEBOOK_API_VERSION + '/' + _FACEBOOK_APP_ID + "/groups/" + kwargs['group_id'], post_args=post_args))
@@ -81,14 +76,14 @@ class GroupsMembers(generics.CreateAPIView, mixins.DestroyModelMixin):
 
         An API to Invite and Remove members to a group
 
-        Note: that the Remove is not invoked from the current version 
-        of the app and is used only for testing with facebook dependencies. 
+        Note: that the Remove is not invoked from the current version
+        of the app and is used only for testing with facebook dependencies.
 
     **Invite Example request**:
 
         POST /api/mobile/v0.5/social/facebook/groups/<group_id>/member/
 
-        Parameters: members : int,int,int... 
+        Parameters: members : int,int,int...
 
 
     **Invite Response Values**
