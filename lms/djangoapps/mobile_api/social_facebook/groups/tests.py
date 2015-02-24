@@ -89,10 +89,10 @@ class TestGroups(SocialFacebookTestCase):
     @httpretty.activate
     def test_delete_group_that_exists(self):
         # Create new group
-        GROUP_ID = '12345678'
+        group_id = '12345678'
         status_code = 200
         self.set_facebook_interceptor_for_access_token()
-        self.set_facebook_interceptor_for_groups({'id': GROUP_ID}, status_code)
+        self.set_facebook_interceptor_for_groups({'id': group_id}, status_code)
         url = reverse('create-delete-group', kwargs={'group_id': ''})
         response = self.client.post(
             url,
@@ -110,13 +110,13 @@ class TestGroups(SocialFacebookTestCase):
             'https://graph.facebook.com/{}/{}/groups/{}?access_token=FakeToken&method=delete'.format(
                 _FACEBOOK_API_VERSION,
                 _FACEBOOK_APP_ID,
-                GROUP_ID
+                group_id
             ),
             body='{"success": "true"}',
             status=status_code
         )
-        response = self.delete_group(response.data['id'])
-        self.assertTrue(response.status_code, status_code)
+        response = self.delete_group(response.data['id'])  # pylint: disable=E1101
+        self.assertTrue(response.status_code, status_code)  # pylint: disable=E1101
 
     @httpretty.activate
     def test_delete(self):
@@ -149,14 +149,14 @@ class TestGroups(SocialFacebookTestCase):
     '''
     @data('1234,,,,5678,,', 'this00is00not00a00valid00id', '1234,abc,5678', '')
     def test_invite_single_member_malformed_member_id(self, member_id):
-        group_id = '756869167741019'
+        group_id = '111111111111111'
         response = self.invite_to_group(group_id, member_id)
         self.assertEqual(response.status_code, 400)
 
     @httpretty.activate
     def test_invite_single_member(self):
-        group_id = '756869167741019'
-        member_id = '10154831816670300'
+        group_id = '111111111111111'
+        member_id = '44444444444444444'
         status_code = 200
         self.set_facebook_interceptor_for_access_token()
         self.set_facebook_interceptor_for_members({'success': 'True'}, status_code, group_id, member_id)
@@ -168,8 +168,8 @@ class TestGroups(SocialFacebookTestCase):
 
     @httpretty.activate
     def test_invite_multiple_members_successfully(self):
-        member_ids = '366785273488903,939400156088941,10154831816670300'
-        group_id = '756869167741019'
+        member_ids = '222222222222222,333333333333333,44444444444444444'
+        group_id = '111111111111111'
         status_code = 200
         self.set_facebook_interceptor_for_access_token()
         for member_id in member_ids.split(','):
@@ -181,23 +181,29 @@ class TestGroups(SocialFacebookTestCase):
 
     @httpretty.activate
     def test_invite_single_member_unsuccessfully(self):
-        group_id = '756869167741019'
-        member_id = '10154831816670300'
+        group_id = '111111111111111'
+        member_id = '44444444444444444'
         status_code = 400
         self.set_facebook_interceptor_for_access_token()
-        self.set_facebook_interceptor_for_members({'error': {'message': 'error message'}}, status_code, group_id, member_id)
+        self.set_facebook_interceptor_for_members(
+            {'error': {'message': 'error message'}},
+            status_code, group_id, member_id
+        )
         response = self.invite_to_group(group_id, member_id)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('error message' in response.data[member_id])  # pylint: disable=E1103
 
     @httpretty.activate
     def test_invite_multiple_members_unsuccessfully(self):
-        member_ids = '366785273488903,939400156088941,10154831816670300'
-        group_id = '756869167741019'
+        member_ids = '222222222222222,333333333333333,44444444444444444'
+        group_id = '111111111111111'
         status_code = 400
         self.set_facebook_interceptor_for_access_token()
         for member_id in member_ids.split(','):
-            self.set_facebook_interceptor_for_members({'error': {'message': 'error message'}}, status_code, group_id, member_id)
+            self.set_facebook_interceptor_for_members(
+                {'error': {'message': 'error message'}},
+                status_code, group_id, member_id
+            )
         response = self.invite_to_group(group_id, member_ids)
         self.assertEqual(response.status_code, 200)
         for member_id in member_ids.split(','):

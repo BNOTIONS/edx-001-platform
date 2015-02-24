@@ -36,7 +36,7 @@ class TestCourses(SocialFacebookTestCase):
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth_token': self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.course.id, CourseKey.from_string(response.data[0]['course']['id']))
+        self.assertEqual(self.course.id, CourseKey.from_string(response.data[0]['course']['id']))   # pylint: disable=E1101
 
     @httpretty.activate
     def test_two_courses_with_friends(self):
@@ -52,8 +52,8 @@ class TestCourses(SocialFacebookTestCase):
         url = reverse('courses-with-friends')
         response = self.client.get(url, {'oauth_token': self._FB_USER_ACCESS_TOKEN})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.course.id, CourseKey.from_string(response.data[0]['course']['id']))
-        self.assertEqual(self.course_2.id, CourseKey.from_string(response.data[1]['course']['id']))
+        self.assertEqual(self.course.id, CourseKey.from_string(response.data[0]['course']['id']))  # pylint: disable=E1101
+        self.assertEqual(self.course_2.id, CourseKey.from_string(response.data[1]['course']['id']))  # pylint: disable=E1101
 
     @httpretty.activate
     def test_three_courses_but_only_two_unique(self):

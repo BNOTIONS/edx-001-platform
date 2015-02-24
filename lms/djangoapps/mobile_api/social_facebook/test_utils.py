@@ -28,15 +28,15 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
         1: {'USERNAME': "Daniel Eidan",
             'EMAIL': "daniel@ebnotions.com",
             'PASSWORD': "edx",
-            'FB_ID': "10155110991745300"},
+            'FB_ID': "11111111111111111"},
         2: {'USERNAME': "Marc Ashman",
             'EMAIL': "marc@ebnotions.com",
             'PASSWORD': "edx",
-            'FB_ID': "10154833899435243"},
+            'FB_ID': "22222222222222222"},
         3: {'USERNAME': "Peter Organa",
             'EMAIL': "peter@ebnotions.com",
             'PASSWORD': "edx",
-            'FB_ID': "10154805420820176"}
+            'FB_ID': "33333333333333333"}
     }
 
     BACKEND = "facebook"
@@ -51,6 +51,9 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
         super(SocialFacebookTestCase, self).setUp()
 
     def set_facebook_interceptor_for_access_token(self):
+        '''
+            Facebook intercptor for groups access_token
+        '''
         httpretty.register_uri(
             httpretty.GET,
             'https://graph.facebook.com/oauth/access_token?client_secret=' +
@@ -173,9 +176,11 @@ class SocialFacebookTestCase(ModuleStoreTestCase, APITestCase):
         '''
             Create a user and sign them in
         '''
-        self.users[user_number] = UserFactory.create(username=self.USERS[user_number]['USERNAME'],
-                                        email=self.USERS[user_number]['EMAIL'],
-                                        password=self.USERS[user_number]['PASSWORD'])
+        self.users[user_number] = UserFactory.create(
+            username=self.USERS[user_number]['USERNAME'],
+            email=self.USERS[user_number]['EMAIL'],
+            password=self.USERS[user_number]['PASSWORD']
+        )
         self.client.login(username=self.USERS[user_number]['USERNAME'], password=self.USERS[user_number]['PASSWORD'])
 
     def enroll_in_course(self, user, course):
